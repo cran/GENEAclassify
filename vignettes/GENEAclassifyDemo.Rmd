@@ -1,0 +1,510 @@
+---
+title: "GENEAclassifyDemo"
+author: "Activinsights Ltd"
+date: "22 August 2017"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GENEAclassifyDemo}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r global_options, warning=FALSE, eval=FALSE, echo=FALSE}
+knitr::opts_chunk$set(root.dir = normalizePath("/Users/owner/Documents/GENEActiv/GENEAclassifyPDF"))
+knitr::opts_chunk$get("root.dir")  # returns 'Users/Me/Docs/Proj'
+```
+
+# GENEAclassify
+## Overview
+GENEActiv is the original wrist-worn, raw data accelerometer for objective behavioural measurement. The accelerometer watches lead the way for the next generation of affordable waveform output accelerometers. The watches are the perfect tool for analysing human behaviour, from studying the impact of physical activity on health and lifestyle to sports science and vehicle safety. The device is an ergonomic body worn instrument:
+
+- waterproof,
+- robust to moderate impacts,
+- contains a precision real-time clock,
+- runs from a long-lasting, rechargeable battery,
+- storage for 500 MB of binary data.
+
+The package GENEAread provides data import functionality, giving researchers access to cutting edge analytical tools from the R environment. Imported data can be summarized by a segmentation process which cuts the dataset into time periods of characteristically similar behaviour. The activities in each segment can be guessed by an rpart GENEA classification tree. A sample rpart GENEA classification tree, trainingFit, is provided with GENEAclassify. This package provides classification tools, allowing researchers to segment training data and create custom classification trees. For best results, you will need to collect some training data for the activities that you expect your users to perform, label the appropriate segments, and create a new classification tree. Training data is data captured by the GENEActiv accelerometer during expected behaviours of your study participants, such as sleeping, sitting or running. To train the classification tree, ask a sample of your participants to wear the accelerometer and perform specific activities. These can be used to classify field data into behaviours of interest, to automatically process raw output into complete diary histories.
+
+## Summary
+There are multiple ways in which GENEAclassify can be used to understand your GENEActiv data. The analysis flow is typically:
+
+- import GENEActiv bin file training data,
+- segment and summarize training data,
+- manually classify training data segments,
+- creating an rpart GENEA fit from training data,
+- import GENEActiv bin file test data,
+- segment and summarize test data,
+- apply rpart GENEA fit to segmented test data.
+
+\newpage{}
+
+# Contents 
+
+1. Introduction and Installation.
+    i.        Preface
+    ii.       Installing R.
+    iii.      Using GENEAclassifiyDemonstration.R 
+    iv.       Installing and loading required libraries
+    v.        Installing GENEAclassify
+
+2.     Segmentation
+    i.        Introduction
+    ii.       Loading Data
+    iii.      Segmenting Data
+    iv.       Varying Step Counting Algorithms
+    v.        Feature Development
+
+3.     Applying a Classification Model
+    i.        Introduction
+    ii.       Creating a classification model form Training Data
+    iii.      Classifying a file
+    iv.       Classifying a directory
+
+4.     Creating a Classification Model
+    i.        Introduction
+    ii.       Manually Classifying files
+    iii.      Creating a Training Data set
+                    
+5.     Development of GENEAclassify (Do we want to add this?)
+    i.        Github Repository 
+    ii.       Making Changes (Forking)
+
+\newpage{}
+
+# 1. Introduction and Installation.
+##i. Preface
+                      
+This pdf file will give an introduction to using the programming language R with the package GENEAclassify which has been provided in a zip folder. The following steps will provide the user with the tools to use the package before running through the script. Please ensure that the folder has been decompressed. The folder found from the Dropbox link should contain the following:
+
+- GENEAclassify_1.4.1.tar.gz 
+- GENEAclassifyDemonstration.R
+- TrainingData (folder containing sample training data)
+- TrainingData.csv (A larger training data set)
+- RunWalk.bin (A sample .bin file)
+
+##ii. Installing R.
+	To begin with install R from <https://www.r-project.org>. 
+There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. I would also recommend downloading the IDE (integrated development environment) RStudio from <https://www.rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://www.rstudio.com/resources/cheatsheets/>. 
+
+Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console
+
+Note: (You will also need to install x11 forward <https://www.xquartz.org/> to run on OS.)
+
+##iii. Using GENEAclassifiyDemonstration.R 
+
+throughout this tutorial commands are shown and briefly explained which are to be entered into the console. If you open the script GENEAclassifyDemostration.R (which is in the zip folder) you will find a detailed and commented script that you can work through, running each line at a time and making appropriate changes to get the results desired. This pdf runs through that script giving further explanation. Please remember that R is a case sensitive language.
+
+##### The script provided will run through these steps:
+
+a. Installing and loading required libraries
+b. Installing GENEAclassify
+c. Loading in a data file/directory to segment
+d. Loading a training data set
+e. Creating the classification model from the Training Data
+f. Classifying a file
+g. Classifying a directory
+h. Setting up the step counting algorithm
+i. Varying Step Counting algorithms
+j. Manually Classifying files
+k. Creating a Training data set
+
+However the code shown in this PDF can be copied and pasted into the console. 
+
+## iv. Installing and loading required libraries
+
+```{r installing the dependencies,eval=FALSE}
+
+install.packages("GENEAread",repos = "http://cran.us.r-project.org") 
+install.packages("changepoint",repos = "http://cran.us.r-project.org")
+install.packages("signal",repos = "http://cran.us.r-project.org")
+install.packages("mmap",repos = "http://cran.us.r-project.org")
+
+# Load in the libraries
+library(GENEAread)
+library(changepoint)
+library(signal)
+library(mmap)
+```
+
+## v. Installing GENEAclassify
+
+Whilst GENEAclassify is still in development the easiest way to install the package is to use the Tar.gz file inside the zip folder. By running the code below GENEAclassify can be installed:
+
+```{r Installing from Source,eval=FALSE}
+# You will need to change the folder location inside setwd("") to the directory where you saved the tar.gz file
+# Note that R only uses / not \ when refering to a file/directory location
+setwd("/Users/owner/Documents/GENEActiv") 
+install.packages("GENEAclassify_1.4.3.tar.gz", repos=NULL, type="source")
+```
+
+Once the package has been installed load in the library
+
+```{r loading in the GENEAclassify library,eval=FALSE}
+library(GENEAclassify)
+```
+## vi. Development of GENEAclassify on GitHub.
+
+If you intend on working with the development of the package then I suggest setting up an account on GitHub here <https://github.com/>. RStudio can directly link to the repository for the development of the package by selecting to set-up a new project from the top right hand corner, selecting version control and cloning the GitHub repository.
+
+This guide on using RStudio with GitHub is particularly helpful <http://www.r-bloggers.com/rstudio-and-github/>.
+
+Once GitHub has been set-up I would recommend creating a personal branch for contributions which can be assessed and discussed by Activinsights before adding any changes to the master repository. 
+
+To use GitHub for development on windows, R tools will have to be downloaded from this link: 
+
+  - https://cran.r-project.org/bin/windows/Rtools/index.html 
+
+and a latex compiler found here: 
+
+  - http://miktex.org/download.
+
+For OS, xcode developer tools will have to be downloaded from this link: 
+
+  - http://itunes.apple.com/us/app/xcode/id497799835?mt=12
+
+and a latex compiler found here: 
+
+  - http://www.tug.org/mactex/downloading.html.
+
+For more information go to  <http://www.activinsights.com/>.
+
+
+The package can also be installed using a GitHub authentication key which will go in the "" of auth_token. The key will be provided on request. The package devtools is also required to install from GitHub.
+
+```{r installing from GitHub,eval=FALSE}
+install.packages("devtools",repos = "http://cran.us.r-project.org") 
+library(devtools) 
+
+install_github("https://github.com/Langford/GENEAclassify_1.41.git",
+               auth_token = "7f0051aaca453eaabf0e60d49bcf752c0fea0668")
+
+```
+
+Again loading in the package to the workspace.
+
+```{r Run library function again GENEAclassify library,eval=FALSE}
+
+library(GENEAclassify)
+
+```
+
+This vignette can be viewed from inside R by running the following code
+
+```{r run the vignette,eval=FALSE}
+
+vignette("GENEAclassifyDemo", package = NULL, lib.loc = NULL, all = TRUE)
+
+```
+The pdf will appear on the right of RStudio or as a pop up if called from R. 
+
+# 2. Segmentation
+## i. Introduction.
+
+The Segmentation process gives the user event based data from a change point analysis. The function determines when the statistical properties of the data have changed and hence the observed behaviour has also changed. This following section gives demonstrations on how this works given the GENEA .bin data.  
+
+## ii. Loading Data
+
+Now that we have the libraries required to segment and classify files/directories the data needs to be imported. Beginning with a file to import run the following lines of code. 
+
+```{r Loading Data then Segmenting, eval=FALSE}
+ # Name of the file to analyse
+DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin" 
+ImportedData = dataImport(DataFile, downsample = 100, start=0, end=0.1)
+head(ImportData)
+```
+The start and end times can be set using values between 0 and 1 or using a 24 hour character string (time inside ""). The former divides the file into sections specified. For example if you have 10 days of data this might be useful. A 24 hour character string e.g start = "1 3:00",end ="2 3:00".The 1 represents the day and the time uses a 24 hour format. Ensure you leave a space between the days and the time.
+
+The output from the command head(ImportData) shows the variables calculated from importing the data.
+
+The variable Downsample gives the user the option to compress the data to make the process less computationally heavy. This has a default value of 100 but can be made smaller to allow a higher resolution, although this will take longer to run. 
+
+## iii. Segmenting Data.
+
+After loading this data, the segmentation can be applied. There are currently two methods of change point analysis within the package. the variable _changepoint_ controls which analysis to perform. "UpDownDegrees" will perform a change point analysis based on the variance of arm elevation and wrist rotation. The analysis uses the function _cpt.var_ from the package _changepoint_ on both datasets before merging the two. This is the default analysis and is best for detecting posture change. The second analysis is performed on the variance of Temperature and Frequency called changepoint = "TempFreq". This analysis is better for determining changes during sleep.  
+
+The output of the function is created by taking raw data and returning calculated variables. These variables can be viewed using the function _head_.
+
+The variable DataCols can be added to find extra variables given the use of functions within R or the ones provided by GENEAclassify. These include GENEAskew, GENEAenergy, GENEAcount, GENEAratio and any suffix found in the code below. To find more information on these functions use the ? before the function in question. For example ?GENEAenergy will provide details on that function in the help window of RStudio or as a pop-up.  
+
+```{r, eval = FALSE}
+# These are the default output variables from segmentation and getGENEAsegments
+ dataCols <- c("UpDown.mean",
+                "UpDown.var",
+                "UpDown.sd",
+                "Degrees.mean",
+                "Degrees.var",
+                "Degrees.sd",
+                "Magnitude.mean",
+                # Frequency Variables
+                "Principal.Frequency.median",
+                "Principal.Frequency.mad",
+                "Principal.Frequency.GENEAratio",
+                "Principal.Frequency.sumdiff",
+                "Principal.Frequency.meandiff",
+                "Principal.Frequency.abssumdiff",
+                "Principal.Frequency.sddiff",
+                # Light Variables
+                "Light.mean", 
+                "Light.max",
+                # Temperature Variables
+                "Temp.mean",
+                "Temp.sumdiff",
+                "Temp.meandiff",
+                "Temp.abssumdiff",
+                "Temp.sddiff",
+                # Step Variables
+                "Step.GENEAcount", 
+                "Step.sd",
+                "Step.mean")
+
+# Performing the segmentation now given the dataCols we want to find.
+
+SegDataFile = segmentation(ImportedData, dataCols)
+# View the data from the segmentation
+head(SegDataFile)
+```
+_getGENEAsegments_ combines the functions _dataImport_ and _segmentation_.
+
+```{r segment a datafile,eval=FALSE}
+ # Name of the file to analyse
+DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin" 
+SegDataFile = getGENEAsegments(DataFile,dataCols, start=0, end=0.1)
+```
+
+##  iv. Varying Step Counting Algorithms.
+
+The segmentation function also applies a default step counting algorithm when no arguments are passed through the function. The step counting algorithm works by combining the x and z series together, filtering this signal and counting the zero crossing over a given window. 
+
+There are then 4 separate methods for calculating the number of steps (Step.GENEAcount),the standard deviation of those steps (Step.sd) and the steps per minute (Step.mean).
+
+By changing the method between "Butterfilter","Chebyfilter","longrun" and "none" the difference in the values can be seen in the following code and by adapting the various parameters that are used in each method varying step counting algorithms can be created. 
+
+ - "Butterfilter" takes the xz series and applies a butterworth filter from the signal R package. To understand all the parameters that can be set when using the butterworth filter please look at signal package for more details.
+ - "Chebyfilter" uses the cheby1 filter from the signal package. Please refer to the signal package to understand the variables that can be passed to this function.
+ - "longrun" takes a running mean over a set window length, smlen, and counts the 0s on this.
+ - "none" does not use any filtering.
+
+The default settings use the method "Chebyfilter" which applies a Chebyshev filter which uses filterorder = 4, boundaries = c(0.15, 1.0), Rp = 0.5. The window used to count the zero crossings is set to smlen = 20. 
+
+However this window can be made variable by setting _STFT = TRUE_ which finds the median principal frequency of the segment and assigns the window based on the frequency of the movements found. 
+
+plot.it = FALSE is the default setting but if set to TRUE the function creates a plot which shows where the step counter has determined steps to have occurred within each segment found. 
+
+Centre = TRUE centres the xz signal given about 0 by subtracting the mean of the signal from itself.  
+
+To view all of the arguments that can be passed to the function _stepCounter_ inside _getGENEAsegments_ run the line ?stepCounter
+
+The following commands give examples from the training data provided 
+
+```{r Displaying varying step counting alogrithms,eval=FALSE}
+
+WalkingData="TrainingData/Walking/walking_jl_right wrist_024603_2015-12-12 15-36-47.bin"
+
+# Starting with no filter
+W1 = getGENEAsegments(WalkingData, method="none", plot.it=TRUE) 
+# plot.it Shows the crossing points. Turn this on for all plots to see how each filter works
+# List the step outputs here. 
+W1$Step.GENEAcount;W1$Step.sd;W1$Step.mean
+
+# Using the default longrun
+W2 = getGENEAsegments(WalkingData, method="longrun")
+W2$Step.GENEAcount;W2$Step.sd;W2$Step.mean
+
+# Using long run again with a different window length. The default smlen=20.
+W2 = getGENEAsegments(WalkingData, method="longrun",smlen=30)
+W2$Step.GENEAcount;W2$Step.sd;W2$Step.mean
+
+# Using the cheby filter options
+W3 = getGENEAsegments(WalkingData, method="Chebyfilter",smlen=50)
+W3$Step.GENEAcount;W3$Step.sd;W3$Step.mean
+
+# Changing the Rp value as seen in the signal package (defualt Rp = 20)
+W3 = getGENEAsegments(WalkingData, method="Chebyfilter", smlen = 50, Rp = 0.01)
+W3$Step.GENEAcount;W3$Step.sd;W3$Step.mean
+
+# Using the Butterworth filter 
+W4 = getGENEAsegments(WalkingData, method="Butterfilter",smlen=50,Rp=0.01)
+W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
+
+# Using the Butterworth filter and changing the boundaries (Default: boundaries = c(0.15, 1.0))
+W4 = getGENEAsegments(WalkingData, method="Butterfilter",boundaries = c(0.15, 0.5),
+                      smlen=50,Rp=0.01)
+W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
+
+```
+
+# 3. Applying a Classification Model
+## i. Introduction
+Once the data has been segmented a classification model can be used to classify each segment as an activity. 
+
+A classification model takes a set of training data that has been classified previously to form a decision tree using the _rpart_ package and function, given the features from the segmentation function. This model can then be applied to the segmented data to classify individual behaviours/activities provided by the training data set.
+
+## ii. Creating a classification model from Training Data
+
+There is a .csv file that contains a training data set located inside the zip folder, called TrainingData.csv. This model contains a comprehensive amount of classified data which can be used to create a classification model. To load the data in please use the following lines: 
+
+```{r loading TrainingData.csv,eval=FALSE}
+# Change the file path to the location of GENEAclassify.
+setwd("/Users/owner/Documents/GENEActiv/GENEAclassify_1.41/Data") 
+TrainingData=read.table("TrainingData.csv",sep=",")
+
+# The data can also be called through from the package. 
+data(TrainingData)
+TrainingData
+```
+
+Now the Training Data can be used to create a classification model. All of the features have been listed here but some can be removed to refine the model.
+
+```{r,eval=FALSE}
+ClassificationModel=createGENEAmodel(TrainingData,
+                   features=c("Segment.Duration","UpDown.mean",
+                              "UpDown.sd","Degrees.mean",
+                              "Degrees.sd","Magnitude.mean","Light.mean",
+                              "Temp.mean","Step.sd",
+                              "Step.count","Step.mean",
+                              "Principal.Frequency.median"
+                             ,"Principal.Frequency.mad"))
+```
+
+By removing the features Segment.Duration, Light.mean, Temp.mean and Step.Count an improved model can be created. These features have been removed because of ambiguity when making decisions on what activity a segment is. 
+
+```{r,eval=FALSE}
+ClassificationModel=createGENEAmodel(TrainingData,
+                   features=c("UpDown.mean",
+                              "UpDown.sd","Degrees.mean",
+                              "Degrees.sd","Magnitude.mean",
+                              "Step.sd","Step.mean",
+                              "Principal.Frequency.median"
+                             ,"Principal.Frequency.mad"))
+```
+
+Once the model has been created files can be classified using the function _classifyGENEA_.
+
+
+## iii. Classifying a file
+The function classifyGENEA segments a file/directory and uses the Classification model provided to classify each segment as an activity. Select a .bin file to classify and run the following lines. The start and end times work the same as the function _getGENEAsegments_. 
+
+```{r classifying a File,eval=FALSE}
+DataFile="jl_left wrist_010094_2012-01-30 20-39-54.bin" # Change to the file to classify
+ClassifiedFile = classifyGENEA(DataFile, 
+                               trainingfit = ClassificationModel, 
+                               start="3:00",end="1 3:00")
+```
+
+
+## iv. Classifying a directory
+To classify a directory the DataDirectory has to be selected one day for every data file in the data Directory.
+
+```{r classifying a Directory, eval=FALSE}
+ClassifiedDirectory = classifyGENEA(DataDirectory, 
+                                    trainingfit = ClassificationModel,
+                                    start="3:00", end="1 3:00")
+```
+
+
+
+# 4. Creating a Classification Model
+## i. Introduction
+There are two ways to classify files; Automatically using a classification model or manually. 
+To manually classify a file in R a list can be created for each segment then added to the data in the environment. Taking the run walk file provided in the zip folder which contains raw data of someone running then walking.
+
+## ii. Manually Classifying files
+Using the default step counting parameters to segment the data and then view the output variables using the function _head_.
+
+```{r Segmentation RunWalk file,echo=FALSE,eval=FALSE}
+SegData=getSegmentedData("RunWalk.bin",end="9:23")
+head(SegData)
+```
+
+Listing the activities chronologically with respect to the segments shown gives 
+
+```{r List creation,eval=FALSE}
+Activity=c("Running",
+           "Running",
+           "Walking")
+```
+
+
+```{r Attaching Activities,eval=FALSE}
+SegData=cbind(SegData,ActivitiesListed)
+```
+
+Or by classifying each row individually. 
+
+```{r,eval = FALSE}
+SegData$Activity[1:2]="Running"
+SegData$Activity[3]="Walking"
+```
+
+## iii. Creating a Training Data set
+A Training Data set that has been manually classified can be used to create a 
+Training model which can automatically classify files.
+
+To do this the activities that are going to be identified must feature in the training model. Below is a demonstration of how to create a classification model by using the sample training data provided in the zip file. 
+
+Running the following lines of code segments each of the .bin files in the sample training data. The second line manually classifies each of the activities which can be used to create the training model. The sample training data has been organised so that the .bin files in each sub folder only contain the activity named.
+
+```{r,eval=FALSE}
+Cycling=getSegmentedData("TrainingData/Cycling")
+Cycling$Activity="Cycling"
+
+NonWear=getSegmentedData("TrainingData/NonWear")
+NonWear$Activity="NonWear"
+
+onthego=getSegmentedData("TrainingData/onthego")
+onthego$Activity="onthego"
+
+Running=getSegmentedData("TrainingData/Running")
+Running$Activity="Running"
+
+Sitting=getSegmentedData("TrainingData/Sitting")
+Sitting$Activity="Sitting"
+
+Sleep=getSegmentedData("TrainingData/Sleep")
+Sleep$Activity="Sleep"
+
+Standing=getSegmentedData("TrainingData/Standing")
+Standing$Activity="Standing"
+
+Swimming=getSegmentedData("TrainingData/Swimming")
+Swimming$Activity="Swimming"
+
+Transport=getSegmentedData("TrainingData/Transport")
+Transport$Activity="Transport"
+
+Walking=getSegmentedData("TrainingData/Walking")
+Walking$Activity="Walking"
+
+Workingout=getSegmentedData("TrainingData/Workingout")
+Workingout$Activity="Workingout"
+```
+ 
+ This provides the data required for the classification model. Combining all of these files together using the function _rbind_ to form the training data. 
+ 
+```{r, Combining Segments,eval=FALSE}
+TrainingData=rbind(Cycling,
+                   NonWear,
+                   onthego,
+                   Running,
+                   Sitting,
+                   Sleep,
+                   Standing,
+                   Swimming,
+                   Transport,
+                   Walking,
+                   Workingout)
+```
+
+Creating the classification model from this data using the commands from 3ii.
+
+```{r,eval=FALSE}
+ClassificationModel=createGENEAFit(TrainingData,
+                   features=c("UpDown.mean",
+                              "UpDown.sd","Degrees.mean",
+                              "Degrees.sd","Magnitude.mean",
+                              "Step.sd","Step.mean",
+                              "Principal.Frequency.median",
+                              "Principal.Frequency.mad"))
+```
+
