@@ -53,6 +53,15 @@
 #' @param mininterval single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen
 #' @param plot.seg single logical, Creates a plot displaying the changepoint locations.
 #' @param plot.seg.outputfile The name of the png file created that shows the change points on a positionals plots.
+#' @param  AxesMethod Select which axes to count the steps. \enumerate{
+#'     \item 'X'
+#'     \item 'Y' (default)
+#'     \item 'Z'
+#'     \item 'XY'
+#'     \item 'XZ'
+#'     \item 'YZ'
+#'     \item 'XYZ'
+#' }
 #' @param Centre single logical, Centres the xz signal about 0 (default TRUE) when counting the zero crossings within the step counting algorithm.
 #' @param STFT If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.
 #' @param win The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}.
@@ -67,6 +76,12 @@
 #' @param Rp the decibel level that the cheby filter takes. See \code{\link[signal]{cheby1}}.
 #' @param filterorder The order of the filter applied with respect to the butter or cheby options. 
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
+#' @param peaks single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
+#' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
+#' @param ma.smooth Should a moving average filter be applied to the data. 
+#' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
+#' @param Central_Threshold After the signal has been centred around 0
+#' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
@@ -85,32 +100,42 @@
 #' ## list.files(file.path(tempdir(), "GENEAclassification"))
 
 getGENEAsegments <- function(testfile, 
-                              outputtoken = "_segmented",
-                              outputdir = "GENEAclassification",
-                              datacols = "default",
-                              decimalplaces = "default",
-                              filterWave = FALSE,
-                              filtername = "haar",
-                              stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-                              changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
-                              boundaries = c(0.15, 1.0),
-                              samplefreq = 100,
-                              smlen = 20L,
-                              filterorder = 4L,  
-                              threshold = 0.001,
-                              Rp = 0.5, 
-                              plot.it = FALSE,
-                              plot.seg = FALSE,
-                              plot.seg.outputfile = "Changepoint",
-                              Centre=TRUE,
-                              STFT=FALSE,
-                              win = 10,
-                              j = 8,
-                              penalty = "Manual",
-                              pen.value = 10,
-                              intervalseconds = 30,
-                              mininterval = 5,
-                              verbose = TRUE,...) {
+                             outputtoken = "_segmented",
+                             outputdir = "GENEAclassification",
+                             datacols = "default",
+                             decimalplaces = "default",
+                             filterWave = FALSE,
+                             filtername = "haar",
+                             j = 8,
+                             # Changepoint variables 
+                             changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
+                             penalty = "Manual",
+                             pen.value = 10,
+                             intervalseconds = 30,
+                             mininterval = 5,
+                             # Step Coutner 2 variables 
+                             peaks = FALSE,
+                             AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
+                             ma.smooth = TRUE,
+                             Peak_Threshold = 5, 
+                             Central_Threshold = 0.2,
+                             Step_Threshold = 0.5,
+                             # Step Counter 1 Variables
+                             stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
+                             boundaries = c(0.15, 1.0), 
+                             samplefreq = 100,
+                             smlen = 20L,
+                             threshold = 0.001,
+                             filterorder = 4L,  
+                             Rp = 0.5, 
+                             plot.it = FALSE,
+                             plot.seg = FALSE,
+                             plot.seg.outputfile = "Changepoint",
+                             Centre = TRUE,
+                             STFT = FALSE,
+                             win = 10,
+                             verbose = FALSE,
+                             ...) {
 
     if (!(length(verbose) == 1 && is.logical(verbose))) { stop("verbose should be a single logical") }
 
@@ -260,26 +285,35 @@ getGENEAsegments <- function(testfile,
                                         outputfile = outName,
                                         outputdir = outputdir,
                                         datacols = dataCols,
+                                        decimalplaces = decimalplaces,
                                         filterWave = filterWave,
                                         filtername = filtername,
-                                        stepmethod = stepmethod,  
+                                        j = j, 
                                         changepoint = changepoint,
+                                        penalty = penalty,
+                                        pen.value = pen.value,
+                                        intervalseconds = intervalseconds,
+                                        mininterval = mininterval,
+                                        peaks = peaks,
+                                        AxesMethod = AxesMethod,
+                                        ma.smooth = ma.smooth,
+                                        Peak_Threshold = Peak_Threshold, 
+                                        Central_Threshold = Central_Threshold,
+                                        Step_Threshold = Step_Threshold,
+                                        stepmethod = stepmethod,  
                                         boundaries= boundaries,
                                         samplefreq = samplefreq,
                                         smlen = smlen,
-                                        filterorder = filterorder,  
                                         threshold = threshold,
+                                        filterorder = filterorder,  
                                         Rp = Rp, 
                                         plot.it = plot.it,
                                         Centre = Centre,
                                         STFT = STFT,
                                         win = win,
-                                        j = j,
-                                        penalty = penalty,
-                                        pen.value = pen.value,
-                                        intervalseconds = intervalseconds,
-                                        mininterval = mininterval,...))
+                                        verbose = verbose,...))
 
+            
             if (is(segData, "try-error")) {
 
                 warning("error during segmentation of ", ff)
@@ -317,7 +351,7 @@ getGENEAsegments <- function(testfile,
                xlab = "Time", ylab="Up/Down", pch=".", cex= 2, yaxt = "n"); abline(h = c(-2:2) * 45, lty= 2); axis(2, at = 45 * -2:2)
           
           for (j in 1:length(segData$Start.Time)){
-            abline(v=convert.time(segData$Start.Time[j]),col="red")}
+            abline(v = convert.time(segData$Start.Time[j]),col="red")}
           
           points(convert.time(seq(tmp2[1,1] , quantile(tmp2[,1], 0.2), len = 361) )-> tmp, rep(95, 361), col =col[ floor( length(col)* seq(0.999, 0 , len = 361)) +1 ] , pch = "|")
           text(tmp[1], 95, "CCW")

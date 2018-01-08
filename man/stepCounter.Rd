@@ -4,10 +4,11 @@
 \alias{stepCounter}
 \title{Step Counter}
 \usage{
-stepCounter(data, samplefreq = 100, smlen = 20L, filterorder = 4L,
-  threshold = 0.01, boundaries = c(0.15, 1), stepmethod = c("Chebyfilter",
-  "Butterfilter", "longrun", "none"), Rp = 0.5, plot.it = FALSE,
-  Centre = TRUE, STFT = FALSE, fun = c("count", "mean", "sd", "mad"))
+stepCounter(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X", "Y",
+  "Z", "XZ", "XY", "YZ", "XYZ"), filterorder = 4L, threshold = 0.01,
+  boundaries = c(0.15, 1), stepmethod = c("Chebyfilter", "Butterfilter",
+  "longrun", "none"), Rp = 0.5, plot.it = FALSE, Centre = TRUE,
+  STFT = FALSE, verbose = FALSE, fun = c("count", "mean", "sd", "mad"))
 }
 \arguments{
 \item{data}{The data to use for calculating the steps. This should be a matrix
@@ -18,6 +19,16 @@ when calculating the step number (default 100).}
 
 \item{smlen}{single integer number of data points used as a window
 when counting zero crossing events}
+
+\item{AxesMethod}{Select which axes to count the steps. \enumerate{
+    \item 'X'
+    \item 'Y' (default)
+    \item 'Z'
+    \item 'XY'
+    \item 'XZ'
+    \item 'YZ'
+    \item 'XYZ'
+}}
 
 \item{filterorder}{single integer, order of the Butterworth bandpass filter,
 passed to argument n of \code{\link[signal]{butter}}.}
@@ -42,6 +53,8 @@ passed to argument W of \code{\link[signal]{butter}} or \code{\link[signal]{cheb
 \item{Centre}{If Centre set to true (default) then the step counter zeros the xz series before filtering.}
 
 \item{STFT}{If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.}
+
+\item{verbose}{single logical should additional progress reporting be printed at the console? (default FALSE).}
 
 \item{fun}{character vector naming functions by which to summarize steps.
 "count" is an internally implemented summarizing function that returns step count.}

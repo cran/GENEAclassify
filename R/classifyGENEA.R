@@ -41,6 +41,15 @@
 #' @param plot.it (logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
 #' @param plot.seg (logical) Creates a plot displaying the changepoint locations
 #' @param plot.seg.outputfile The name of the png file created that shows the change points on a positionals plots.
+#' @param  AxesMethod Select which axes to count the steps. \enumerate{
+#'     \item 'X'
+#'     \item 'Y' (default)
+#'     \item 'Z'
+#'     \item 'XY'
+#'     \item 'XZ'
+#'     \item 'YZ'
+#'     \item 'XYZ'
+#' }
 #' @param Centre Centres the xz signal about 0 when set to True.
 #' @param STFT If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.
 #' @param win The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}
@@ -53,6 +62,13 @@
 #' @param boundaries to passed to the filter in the step counting algorithm.
 #' @param Rp the decibel level that the cheby filter takes. see \code{\link[signal]{cheby1}}
 #' @param filterorder The order of the filter applied with respect to the butter of cheby options. 
+#' @param peaks single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
+#' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
+#' @param ma.smooth Should a moving average filter be applied to the data. 
+#' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
+#' @param Central_Threshold After the signal has been centred around 0
+#' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
+
 #' @details This function will apply the rules determined by the rpart GENEA 
 #' decision tree passed to argument trainingfit to the columns 
 #' of newdata to classify into classes 
@@ -73,11 +89,17 @@ classifyGENEA <- function(testfile,
                           newdata, 
                           outputname = "_classified", 
                           outputdir = "GENEAclassification", 
-                          verbose = TRUE, 
+                          verbose = FALSE, 
                           allprobs = FALSE, 
                           setinf = 100,
                           datacols = "default",
                           # Step Counting Variables
+                          peaks = FALSE,
+                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
+                          ma.smooth = TRUE,
+                          Peak_Threshold = 5, 
+                          Central_Threshold = 0.2,
+                          Step_Threshold = 0.5,
                           samplefreq = 100,
                           stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                           changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
@@ -133,6 +155,12 @@ classifyGENEA <- function(testfile,
                                   verbose = verbose, 
                                   datacols = datacols,
                                   # Step Variables
+                                  peaks = peaks,
+                                  AxesMethod = AxesMethod, 
+                                  ma.smooth = ma.smooth,
+                                  Peak_Threshold = Peak_Threshold, 
+                                  Central_Threshold = Central_Threshold,
+                                  Step_Threshold = Step_Threshold,
                                   Centre = Centre,
                                   plot.it = plot.it,
                                   STFT = STFT,

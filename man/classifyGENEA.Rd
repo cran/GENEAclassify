@@ -6,14 +6,16 @@
 \usage{
 classifyGENEA(testfile, trainingfit = trainingFit, newdata,
   outputname = "_classified", outputdir = "GENEAclassification",
-  verbose = TRUE, allprobs = FALSE, setinf = 100, datacols = "default",
-  samplefreq = 100, stepmethod = c("Chebyfilter", "Butterfilter", "longrun",
-  "none"), changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
-  smlen = 20L, filterorder = 4L, threshold = 0.001, boundaries = c(0.15,
-  1), Rp = 0.5, plot.it = FALSE, plot.seg = FALSE,
-  plot.seg.outputfile = "Changepoint", Centre = TRUE, STFT = FALSE,
-  win = 10, penalty = "Manual", pen.value = 10, intervalseconds = 30,
-  mininterval = 5, ...)
+  verbose = FALSE, allprobs = FALSE, setinf = 100, datacols = "default",
+  peaks = FALSE, AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
+  ma.smooth = TRUE, Peak_Threshold = 5, Central_Threshold = 0.2,
+  Step_Threshold = 0.5, samplefreq = 100, stepmethod = c("Chebyfilter",
+  "Butterfilter", "longrun", "none"), changepoint = c("UpDownDegrees",
+  "TempFreq", "UpDownFreq"), smlen = 20L, filterorder = 4L,
+  threshold = 0.001, boundaries = c(0.15, 1), Rp = 0.5, plot.it = FALSE,
+  plot.seg = FALSE, plot.seg.outputfile = "Changepoint", Centre = TRUE,
+  STFT = FALSE, win = 10, penalty = "Manual", pen.value = 10,
+  intervalseconds = 30, mininterval = 5, ...)
 }
 \arguments{
 \item{testfile}{character string stating path to a GENEActiv bin file, or a folder 
@@ -44,6 +46,27 @@ columns or NA to ignore Inf values. (default 100).
 -setinf is used to replace -Inf. Alternatively, use setinf NULL to leave Inf as is.}
 
 \item{datacols}{a vector constructed 'column.summary' or 'default'. See \code{\link{segmentation}} for details.}
+
+\item{peaks}{single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
+if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
+
+\item{AxesMethod}{Select which axes to count the steps. \enumerate{
+    \item 'X'
+    \item 'Y' (default)
+    \item 'Z'
+    \item 'XY'
+    \item 'XZ'
+    \item 'YZ'
+    \item 'XYZ'
+}}
+
+\item{ma.smooth}{Should a moving average filter be applied to the data.}
+
+\item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
+
+\item{Central_Threshold}{After the signal has been centred around 0}
+
+\item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
 
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number. (default 100)}

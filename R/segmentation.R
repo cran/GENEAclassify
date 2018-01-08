@@ -105,25 +105,43 @@ NULL
 #' @param filtername single character, the name of the wavelet to use for smoothing
 #' when filter is TRUE. (default "haar") Passed to \code{link[waveslim]{wave.filter}}.
 #' @param j single numeric, the level to which to smooth. Passed to \code{link[waveslim]{wave.filter}} (default 8).
+# Changepoint varaibles 
 #' @param penalty single characgter, the penalty to use for changepoint detection. default ("SIC").
 #' @param pen.value Value of the type 1 error required when penalty is "Asymptotic".
 #' @param intervalseconds An integer number of seconds between 5 and 30 during which at most one changepoint may occur.
 #' @param plot.it single logical, Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
 #' @param mininterval single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen
+#' @param changepoint defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. 
+#' TempFreq performs a change point on the variance in the temeprature and frequency (Typically better for sleep behaviours).
+
+# Step Counter variables 
+#' @param  AxesMethod Select which axes to count the steps. \enumerate{
+#'     \item 'X'
+#'     \item 'Y' (default)
+#'     \item 'Z'
+#'     \item 'XY'
+#'     \item 'XZ'
+#'     \item 'YZ'
+#'     \item 'XYZ'
+#' }
 #' @param Centre single logical, Centres the xz signal about 0 (default TRUE) when counting the zero crossings within the step counting algorithm.
 #' @param STFT If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.
 #' @param win The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}.
 #' @param smlen defines the window length used within the step counting alogirthm.
 #' @param threshold Threshold for the step counter to register a step. 
 #' @param stepmethod defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.
-#' @param changepoint defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. 
-#' TempFreq performs a change point on the variance in the temeprature and frequency (Typically better for sleep behaviours).
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number. (default 100).
 #' @param boundaries to pass to the filter in the step counting algorithm.
 #' @param Rp the decibel level that the cheby filter takes. See \code{\link[signal]{cheby1}}.
-#' @param filterorder The order of the filter applied with respect to the butter or cheby options. 
+#' @param filterorder The order of the filter applied with respect to the butter or cheby options if stepCounter is used. The order of the moving average filter if step counter 2 is used.
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
+#' @param peaks single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
+#' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
+#' @param ma.smooth Should a moving average filter be applied to the data. 
+#' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
+#' @param Central_Threshold After the signal has been centred around 0
+#' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
@@ -170,8 +188,21 @@ segmentation <- function(data,
                          filterWave = FALSE,
                          filtername = "haar",
                          j = 8,
-                         stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
+                         # Changepoint variables 
                          changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
+                         penalty = "Manual",
+                         pen.value = 10,
+                         intervalseconds = 30,
+                         mininterval = 5,
+                         # Step Coutner 2 variables 
+                         peaks = FALSE,
+                         AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
+                         ma.smooth = TRUE,
+                         Peak_Threshold = 5, 
+                         Central_Threshold = 0.2,
+                         Step_Threshold = 0.5,
+                         # Step Counter 1 Variables
+                         stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                          boundaries = c(0.15, 1.0), 
                          samplefreq = 100,
                          smlen = 20L,
@@ -182,11 +213,7 @@ segmentation <- function(data,
                          Centre = TRUE,
                          STFT = FALSE,
                          win = 10,
-                         penalty = "Manual",
-                         pen.value = 10,
-                         intervalseconds = 30,
-                         mininterval = 5,
-                         verbose = TRUE,
+                         verbose = FALSE,
                          ...) {
   
     if (missing(data)) { stop("data is missing") }
@@ -608,10 +635,29 @@ segmentation <- function(data,
         # The max smlen can be is 30! Could change in future. 
         if (!"smlen" %in% names(match.call())) { smlen <- 30L }
 
-        stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
+        if(peaks == TRUE){
+          stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
+               stepCounter2(x[, c("timestamp", "x", "y", "z")], 
+                            samplefreq = samplefreq,
+                            smlen = smlen,
+                            AxesMethod = AxesMethod, 
+                            ma.smooth = ma.smooth,
+                            filterorder = filterorder,
+                            Peak_Threshold = Peak_Threshold, 
+                            Central_Threshold = Central_Threshold,
+                            Step_Threshold = Step_Threshold,
+                            plot.it = plot.it,
+                            Centre = Centre,
+                            verbose = verbose,
+                            fun = dataColsMatstep[, "funs", drop = TRUE])},
+                            samplefreq = max(10, Freq), smlen = smlen)
+        }
+        else{
+          stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
                 stepCounter(x[, c("timestamp", "x", "y", "z")],
                             samplefreq = samplefreq,
                             smlen = smlen,
+                            AxesMethod = AxesMethod, 
                             stepmethod = stepmethod,
                             filterorder = filterorder,
                             threshold = threshold,
@@ -622,6 +668,7 @@ segmentation <- function(data,
                             STFT = STFT,
                             fun = dataColsMatstep[, "funs", drop = TRUE])},
                             samplefreq = max(10, Freq), smlen = smlen)
+        }
 
         stepNumber <- as.data.frame(do.call("rbind", stepNumber),
            stringsAsFactors = FALSE)

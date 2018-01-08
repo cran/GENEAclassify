@@ -7,13 +7,15 @@
 segmentation(data, outputfile = "detectedChanges",
   outputdir = "GENEAclassification", datacols = "default",
   decimalplaces = "default", filterWave = FALSE, filtername = "haar",
-  j = 8, stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
+  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
+  penalty = "Manual", pen.value = 10, intervalseconds = 30,
+  mininterval = 5, peaks = FALSE, AxesMethod = c("X", "Y", "Z", "XZ",
+  "XY", "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 5,
+  Central_Threshold = 0.2, Step_Threshold = 0.5,
+  stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   boundaries = c(0.15, 1), samplefreq = 100, smlen = 20L,
   threshold = 0.001, filterorder = 4L, Rp = 0.5, plot.it = FALSE,
-  Centre = TRUE, STFT = FALSE, win = 10, penalty = "Manual",
-  pen.value = 10, intervalseconds = 30, mininterval = 5, verbose = TRUE,
-  ...)
+  Centre = TRUE, STFT = FALSE, win = 10, verbose = FALSE, ...)
 }
 \arguments{
 \item{data}{the GENEActiv bin object to be segmented which should be the output
@@ -105,10 +107,39 @@ when filter is TRUE. (default "haar") Passed to \code{link[waveslim]{wave.filter
 
 \item{j}{single numeric, the level to which to smooth. Passed to \code{link[waveslim]{wave.filter}} (default 8).}
 
-\item{stepmethod}{defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.}
-
 \item{changepoint}{defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. 
 TempFreq performs a change point on the variance in the temeprature and frequency (Typically better for sleep behaviours).}
+
+\item{penalty}{single characgter, the penalty to use for changepoint detection. default ("SIC").}
+
+\item{pen.value}{Value of the type 1 error required when penalty is "Asymptotic".}
+
+\item{intervalseconds}{An integer number of seconds between 5 and 30 during which at most one changepoint may occur.}
+
+\item{mininterval}{single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen}
+
+\item{peaks}{single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
+if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
+
+\item{AxesMethod}{Select which axes to count the steps. \enumerate{
+    \item 'X'
+    \item 'Y' (default)
+    \item 'Z'
+    \item 'XY'
+    \item 'XZ'
+    \item 'YZ'
+    \item 'XYZ'
+}}
+
+\item{ma.smooth}{Should a moving average filter be applied to the data.}
+
+\item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
+
+\item{Central_Threshold}{After the signal has been centred around 0}
+
+\item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
+
+\item{stepmethod}{defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.}
 
 \item{boundaries}{to pass to the filter in the step counting algorithm.}
 
@@ -119,7 +150,7 @@ when calculating the step number. (default 100).}
 
 \item{threshold}{Threshold for the step counter to register a step.}
 
-\item{filterorder}{The order of the filter applied with respect to the butter or cheby options. 
+\item{filterorder}{The order of the filter applied with respect to the butter or cheby options if stepCounter is used. The order of the moving average filter if step counter 2 is used.
 See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
 
 \item{Rp}{the decibel level that the cheby filter takes. See \code{\link[signal]{cheby1}}.}
@@ -131,14 +162,6 @@ See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
 \item{STFT}{If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.}
 
 \item{win}{The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}.}
-
-\item{penalty}{single characgter, the penalty to use for changepoint detection. default ("SIC").}
-
-\item{pen.value}{Value of the type 1 error required when penalty is "Asymptotic".}
-
-\item{intervalseconds}{An integer number of seconds between 5 and 30 during which at most one changepoint may occur.}
-
-\item{mininterval}{single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen}
 
 \item{verbose}{single logical should additional progress reporting be printed at the console? (default TRUE).}
 
