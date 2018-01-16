@@ -58,7 +58,7 @@ stepCounter <- function(data,
                         Centre = TRUE,
                         STFT = FALSE,
                         verbose = FALSE,
-                        fun = c("count","mean", "sd", "mad")) {
+                        fun = c("GENEAcount","mean", "sd", "mad")) {
     
     if (missing(data)) {stop("data is missing") }
     if (missing(stepmethod)){stepmethod = "Chebyfilter"}
@@ -168,9 +168,9 @@ stepCounter <- function(data,
     res <- numeric(length(fun))
     names(res) <- fun
 
-    if ("count" %in% fun) {
-        res["count"] <- sumZeroCrossings
-        fun <- fun[fun != "count"]
+    if ("GENEAcount" %in% fun) {
+        res["GENEAcount"] <- sumZeroCrossings
+        fun <- fun[fun != "GENEAcount"]
     }
     if ("mean" %in% fun){
       res["mean"] <- (sumZeroCrossings)/SegmentDuration
@@ -359,8 +359,6 @@ stepCounter2 = function(data,
   
   if (missing(data)) {stop("data is missing") }
   
-  if (missing(AxesMethod)) {AxesMethod = "Y"}
-  
   # Decide on an axes to use. 
   xzSeries <- switch(AxesMethod,
                      "X" = {data[, 2]},
@@ -498,16 +496,13 @@ stepCounter2 = function(data,
               StepIn[n] = pospeaks[j]
               n = n + 1
               # Needs to be something here to move the valley position along accordingly - So double steps aren't counted
-              
               i = match(posvalleys[k], mavalleys) - 1
-              
               break
             }
           }
           break
         }
       }
-      
     }
     if (verbose == TRUE){
       print(Steps)
@@ -524,9 +519,9 @@ stepCounter2 = function(data,
     res <- numeric(length(fun))
     names(res) <- fun
     
-    if ("count" %in% fun) {
-      res["count"] <- Steps
-      fun <- fun[fun != "count"]
+    if ("GENEAcount" %in% fun) {
+      res["GENEAcount"] <- Steps
+      fun <- fun[fun != "GENEAcount"]
     }
     if ("mean" %in% fun){
       res["mean"] <- (Steps)/SegmentDuration

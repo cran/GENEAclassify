@@ -195,7 +195,7 @@ segmentation <- function(data,
                          intervalseconds = 30,
                          mininterval = 5,
                          # Step Coutner 2 variables 
-                         peaks = FALSE,
+                         peaks = TRUE,
                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                          ma.smooth = TRUE,
                          Peak_Threshold = 5, 
@@ -205,7 +205,7 @@ segmentation <- function(data,
                          stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                          boundaries = c(0.15, 1.0), 
                          samplefreq = 100,
-                         smlen = 20L,
+                         smlen = 30L,
                          threshold = 0.001,
                          filterorder = 4L,  
                          Rp = 0.5, 
@@ -218,8 +218,8 @@ segmentation <- function(data,
   
     if (missing(data)) { stop("data is missing") }
     if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-    
-    if (missing(changepoint)) {changepoint = "UpDownDegrees"}
+    if (missing(changepoint)) {AxesMethod = "Y"} # Set the Y-axis as the default
+    if (missing(changepoint)) {changepoint = "UpDownDegrees"} 
     
     changepoint <- match.arg(arg = changepoint)
     
