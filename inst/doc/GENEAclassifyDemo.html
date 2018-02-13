@@ -327,32 +327,32 @@ SegDataFile =<span class="st"> </span><span class="kw">getGENEAsegments</span>(D
 W1 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;none&quot;</span>, <span class="dt">plot.it=</span><span class="ot">TRUE</span>) 
 <span class="co"># plot.it Shows the crossing points. Turn this on for all plots to see how each filter works</span>
 <span class="co"># List the step outputs here. </span>
-W1<span class="op">$</span>Step.GENEAcount;W1<span class="op">$</span>Step.sd;W1<span class="op">$</span>Step.mean
+W1$Step.GENEAcount;W1$Step.sd;W1$Step.mean
 
 <span class="co"># Using the default longrun</span>
 W2 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;longrun&quot;</span>)
-W2<span class="op">$</span>Step.GENEAcount;W2<span class="op">$</span>Step.sd;W2<span class="op">$</span>Step.mean
+W2$Step.GENEAcount;W2$Step.sd;W2$Step.mean
 
 <span class="co"># Using long run again with a different window length. The default smlen=20.</span>
 W2 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;longrun&quot;</span>,<span class="dt">smlen=</span><span class="dv">30</span>)
-W2<span class="op">$</span>Step.GENEAcount;W2<span class="op">$</span>Step.sd;W2<span class="op">$</span>Step.mean
+W2$Step.GENEAcount;W2$Step.sd;W2$Step.mean
 
 <span class="co"># Using the cheby filter options</span>
 W3 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;Chebyfilter&quot;</span>,<span class="dt">smlen=</span><span class="dv">50</span>)
-W3<span class="op">$</span>Step.GENEAcount;W3<span class="op">$</span>Step.sd;W3<span class="op">$</span>Step.mean
+W3$Step.GENEAcount;W3$Step.sd;W3$Step.mean
 
 <span class="co"># Changing the Rp value as seen in the signal package (defualt Rp = 20)</span>
 W3 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;Chebyfilter&quot;</span>, <span class="dt">smlen =</span> <span class="dv">50</span>, <span class="dt">Rp =</span> <span class="fl">0.01</span>)
-W3<span class="op">$</span>Step.GENEAcount;W3<span class="op">$</span>Step.sd;W3<span class="op">$</span>Step.mean
+W3$Step.GENEAcount;W3$Step.sd;W3$Step.mean
 
 <span class="co"># Using the Butterworth filter </span>
 W4 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;Butterfilter&quot;</span>,<span class="dt">smlen=</span><span class="dv">50</span>,<span class="dt">Rp=</span><span class="fl">0.01</span>)
-W4<span class="op">$</span>Step.GENEAcount;W4<span class="op">$</span>Step.sd;W4<span class="op">$</span>Step.mean
+W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
 
 <span class="co"># Using the Butterworth filter and changing the boundaries (Default: boundaries = c(0.15, 1.0))</span>
 W4 =<span class="st"> </span><span class="kw">getGENEAsegments</span>(WalkingData, <span class="dt">method=</span><span class="st">&quot;Butterfilter&quot;</span>,<span class="dt">boundaries =</span> <span class="kw">c</span>(<span class="fl">0.15</span>, <span class="fl">0.5</span>),
                       <span class="dt">smlen=</span><span class="dv">50</span>,<span class="dt">Rp=</span><span class="fl">0.01</span>)
-W4<span class="op">$</span>Step.GENEAcount;W4<span class="op">$</span>Step.sd;W4<span class="op">$</span>Step.mean</code></pre></div>
+W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean</code></pre></div>
 </div>
 </div>
 <div id="applying-a-classification-model" class="section level1">
@@ -422,8 +422,8 @@ ClassifiedFile =<span class="st"> </span><span class="kw">classifyGENEA</span>(D
            <span class="st">&quot;Walking&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SegData=<span class="kw">cbind</span>(SegData,ActivitiesListed)</code></pre></div>
 <p>Or by classifying each row individually.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SegData<span class="op">$</span>Activity[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]=<span class="st">&quot;Running&quot;</span>
-SegData<span class="op">$</span>Activity[<span class="dv">3</span>]=<span class="st">&quot;Walking&quot;</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">SegData$Activity[<span class="dv">1</span>:<span class="dv">2</span>]=<span class="st">&quot;Running&quot;</span>
+SegData$Activity[<span class="dv">3</span>]=<span class="st">&quot;Walking&quot;</span></code></pre></div>
 </div>
 <div id="iii.-creating-a-training-data-set" class="section level2">
 <h2>iii. Creating a Training Data set</h2>
@@ -431,37 +431,37 @@ SegData<span class="op">$</span>Activity[<span class="dv">3</span>]=<span class=
 <p>To do this the activities that are going to be identified must feature in the training model. Below is a demonstration of how to create a classification model by using the sample training data provided in the zip file.</p>
 <p>Running the following lines of code segments each of the .bin files in the sample training data. The second line manually classifies each of the activities which can be used to create the training model. The sample training data has been organised so that the .bin files in each sub folder only contain the activity named.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Cycling=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Cycling&quot;</span>)
-Cycling<span class="op">$</span>Activity=<span class="st">&quot;Cycling&quot;</span>
+Cycling$Activity=<span class="st">&quot;Cycling&quot;</span>
 
 NonWear=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/NonWear&quot;</span>)
-NonWear<span class="op">$</span>Activity=<span class="st">&quot;NonWear&quot;</span>
+NonWear$Activity=<span class="st">&quot;NonWear&quot;</span>
 
 onthego=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/onthego&quot;</span>)
-onthego<span class="op">$</span>Activity=<span class="st">&quot;onthego&quot;</span>
+onthego$Activity=<span class="st">&quot;onthego&quot;</span>
 
 Running=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Running&quot;</span>)
-Running<span class="op">$</span>Activity=<span class="st">&quot;Running&quot;</span>
+Running$Activity=<span class="st">&quot;Running&quot;</span>
 
 Sitting=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Sitting&quot;</span>)
-Sitting<span class="op">$</span>Activity=<span class="st">&quot;Sitting&quot;</span>
+Sitting$Activity=<span class="st">&quot;Sitting&quot;</span>
 
 Sleep=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Sleep&quot;</span>)
-Sleep<span class="op">$</span>Activity=<span class="st">&quot;Sleep&quot;</span>
+Sleep$Activity=<span class="st">&quot;Sleep&quot;</span>
 
 Standing=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Standing&quot;</span>)
-Standing<span class="op">$</span>Activity=<span class="st">&quot;Standing&quot;</span>
+Standing$Activity=<span class="st">&quot;Standing&quot;</span>
 
 Swimming=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Swimming&quot;</span>)
-Swimming<span class="op">$</span>Activity=<span class="st">&quot;Swimming&quot;</span>
+Swimming$Activity=<span class="st">&quot;Swimming&quot;</span>
 
 Transport=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Transport&quot;</span>)
-Transport<span class="op">$</span>Activity=<span class="st">&quot;Transport&quot;</span>
+Transport$Activity=<span class="st">&quot;Transport&quot;</span>
 
 Walking=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Walking&quot;</span>)
-Walking<span class="op">$</span>Activity=<span class="st">&quot;Walking&quot;</span>
+Walking$Activity=<span class="st">&quot;Walking&quot;</span>
 
 Workingout=<span class="kw">getSegmentedData</span>(<span class="st">&quot;TrainingData/Workingout&quot;</span>)
-Workingout<span class="op">$</span>Activity=<span class="st">&quot;Workingout&quot;</span></code></pre></div>
+Workingout$Activity=<span class="st">&quot;Workingout&quot;</span></code></pre></div>
 <p>This provides the data required for the classification model. Combining all of these files together using the function <em>rbind</em> to form the training data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">TrainingData=<span class="kw">rbind</span>(Cycling,
                    NonWear,

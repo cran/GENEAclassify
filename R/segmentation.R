@@ -198,14 +198,14 @@ segmentation <- function(data,
                          peaks = TRUE,
                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                          ma.smooth = TRUE,
-                         Peak_Threshold = 5, 
+                         Peak_Threshold = 10, 
                          Central_Threshold = 0.2,
                          Step_Threshold = 0.5,
                          # Step Counter 1 Variables
                          stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                          boundaries = c(0.15, 1.0), 
                          samplefreq = 100,
-                         smlen = 30L,
+                         smlen = 100L,
                          threshold = 0.001,
                          filterorder = 4L,  
                          Rp = 0.5, 
@@ -218,7 +218,7 @@ segmentation <- function(data,
   
     if (missing(data)) { stop("data is missing") }
     if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-    if (missing(changepoint)) {AxesMethod = "Y"} # Set the Y-axis as the default
+    if (missing(changepoint)) {AxesMethod = "XZ"} # Set the Y-axis as the default
     if (missing(changepoint)) {changepoint = "UpDownDegrees"} 
     
     changepoint <- match.arg(arg = changepoint)
@@ -635,7 +635,7 @@ segmentation <- function(data,
         # The max smlen can be is 30! Could change in future. 
         if (!"smlen" %in% names(match.call())) { smlen <- 30L }
 
-        if(peaks == TRUE){
+        if (peaks == TRUE){
           stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
                stepCounter2(x[, c("timestamp", "x", "y", "z")], 
                             samplefreq = samplefreq,

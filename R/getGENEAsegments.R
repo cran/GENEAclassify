@@ -117,14 +117,14 @@ getGENEAsegments <- function(testfile,
                              peaks = TRUE,
                              AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                              ma.smooth = TRUE,
-                             Peak_Threshold = 5, 
+                             Peak_Threshold = 10, 
                              Central_Threshold = 0.2,
                              Step_Threshold = 0.5,
                              # Step Counter 1 Variables
                              stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                              boundaries = c(0.15, 1.0), 
                              samplefreq = 100,
-                             smlen = 30L,
+                             smlen = 100L,
                              threshold = 0.001,
                              filterorder = 4L,  
                              Rp = 0.5, 
@@ -277,7 +277,7 @@ getGENEAsegments <- function(testfile,
 
             # Ensure variables are being passed correctly
             if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-            if (missing(AxesMethod)) {AxesMethod = "Y"}
+            if (missing(AxesMethod)) {AxesMethod = "XZ"}
             if (missing(changepoint)) {changepoint = "UpDownDegrees"}
             
             # perform segmentation

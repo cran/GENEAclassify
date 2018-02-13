@@ -62,7 +62,7 @@ stepCounter <- function(data,
     
     if (missing(data)) {stop("data is missing") }
     if (missing(stepmethod)){stepmethod = "Chebyfilter"}
-    if (missing(AxesMethod)){AxesMethod = "Y"}
+    if (missing(AxesMethod)){AxesMethod = "XZ"}
     if (!is.character(fun)) { stop("fun must be character vector of function names") }
     if (length(fun) < 1L) { stop("fun must name at least one function") }
 
@@ -355,9 +355,13 @@ stepCounter2 = function(data,
                         plot.it = FALSE,
                         Centre = TRUE,
                         verbose = FALSE,
-                        fun = c("count","mean", "sd", "mad")){
+                        fun = c("GENEAcount","mean", "sd", "mad")){
   
   if (missing(data)) {stop("data is missing") }
+  if (missing(AxesMethod)){AxesMethod = "Y"}
+  if (!is.character(fun)) { stop("fun must be character vector of function names") }
+  if (length(fun) < 1L) { stop("fun must name at least one function") }
+  
   
   # Decide on an axes to use. 
   xzSeries <- switch(AxesMethod,
