@@ -4,8 +4,7 @@
 \alias{dataImport}
 \title{Data import function}
 \usage{
-dataImport(bindata, downsample = 100, start = NULL, end = NULL,
-  blocksize = 500, ...)
+dataImport(bindata, downsample = 100, start = NULL, end = NULL, ...)
 }
 \arguments{
 \item{bindata}{File path to binary data to be segmented.}
@@ -15,8 +14,6 @@ dataImport(bindata, downsample = 100, start = NULL, end = NULL,
 \item{start}{Where to start reading observations.}
 
 \item{end}{Where to end reading observations.}
-
-\item{blocksize}{data chunk size for \code{read.bin}.}
 
 \item{...}{additional arguments passed through.}
 }

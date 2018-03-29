@@ -6,6 +6,8 @@
 #' 
 #' @param testfile character string stating path to a GENEActiv bin file, or a folder 
 #' containing GENEActiv bin files.
+#' @param start Where to start reading observations.
+#' @param end Where to end reading observations.
 #' @param trainingfit a GENEA rpart object created by \code{\link{createGENEAmodel}} 
 #' that gives the decision tree that was fitted from the training data. 
 #' These are the parameters used to predict the new data.
@@ -85,6 +87,8 @@
 #' ## table(class9$Class)
 
 classifyGENEA <- function(testfile, 
+                          start = NULL,
+                          end = NULL,
                           trainingfit = trainingFit, 
                           newdata, 
                           outputname = "_classified", 
@@ -149,7 +153,14 @@ classifyGENEA <- function(testfile,
       if (!all(is.character(testfile))) { 
         stop("testfile should be class character") }
       
-      newData <- getGENEAsegments(testfile = testfile,  
+      # Ensure variables are being passed correctly
+      if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
+      if (missing(AxesMethod)) {AxesMethod = "XZ"}
+      if (missing(changepoint)) {changepoint = "UpDownDegrees"}
+      
+      newData <- getGENEAsegments(testfile = testfile,
+                                  start = start, 
+                                  end = end, 
                                   outputtoken = "_segmented", 
                                   outputdir = outputdir, 
                                   verbose = verbose, 

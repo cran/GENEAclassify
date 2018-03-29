@@ -7,7 +7,6 @@
 #' @param downsample Rate to downsample the data, defaults to every 100th observation. For no downsampling set NULL.
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
-#' @param blocksize data chunk size for \code{read.bin}.
 #' @param ... additional arguments passed through.
 #' @details Reads in the binary data file and extracts the information required for the segmentation procedure.
 #' @return Returns a list containing a matrix of the data including the x, y and z axis data, vectors of the up down (elevation) 
@@ -19,10 +18,10 @@
 #' ##     names(segData)
 
 
-dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, blocksize = 500, ...) {
+dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL,...) {
 
-    binaryData <- read.bin(binfile = bindata, calibrate = TRUE, downsample = downsample, 
-        start = start, end = end, blocksize = blocksize)
+    binaryData <- read.bin(binfile = bindata, start = start, end = end, 
+                           calibrate = TRUE, downsample = downsample)
 
     if (is.null(downsample)) {
         
@@ -30,8 +29,7 @@ dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, bloc
         
     } else {
         
-        binaryDataFULL <- read.bin(bindata, calibrate = TRUE, start = start, end = end, 
-            blocksize = blocksize)
+        binaryDataFULL <- read.bin(bindata, start = start, end = end, calibrate = TRUE)
         
         binaryDataOut <- binaryDataFULL$data.out
         

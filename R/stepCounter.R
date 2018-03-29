@@ -66,6 +66,7 @@ stepCounter <- function(data,
     if (!is.character(fun)) { stop("fun must be character vector of function names") }
     if (length(fun) < 1L) { stop("fun must name at least one function") }
 
+    AxesMethod <- match.arg(arg = AxesMethod)
     method <- match.arg(arg = stepmethod)
     #Create the data for calculating the steps by adding x and z columns
     xzSeries <- switch(AxesMethod,
@@ -358,11 +359,11 @@ stepCounter2 = function(data,
                         fun = c("GENEAcount","mean", "sd", "mad")){
   
   if (missing(data)) {stop("data is missing") }
-  if (missing(AxesMethod)){AxesMethod = "Y"}
+  if (missing(AxesMethod)){AxesMethod = "XZ"}
   if (!is.character(fun)) { stop("fun must be character vector of function names") }
   if (length(fun) < 1L) { stop("fun must name at least one function") }
   
-  
+  AxesMethod <- match.arg(arg = AxesMethod)
   # Decide on an axes to use. 
   xzSeries <- switch(AxesMethod,
                      "X" = {data[, 2]},

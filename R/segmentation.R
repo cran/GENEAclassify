@@ -218,7 +218,7 @@ segmentation <- function(data,
   
     if (missing(data)) { stop("data is missing") }
     if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-    if (missing(changepoint)) {AxesMethod = "XZ"} # Set the Y-axis as the default
+    if (missing(AxesMethod)) {AxesMethod = "XZ"} # Set the Y-axis as the default
     if (missing(changepoint)) {changepoint = "UpDownDegrees"} 
     
     changepoint <- match.arg(arg = changepoint)

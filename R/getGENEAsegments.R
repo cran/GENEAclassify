@@ -3,6 +3,8 @@
 #'
 #' @title import and segment one or more bin files.
 #' @param testfile character vector stating path to a GENEActiv bin file, or a folder containing GENEActiv bin files.
+#' @param start Where to start reading observations.
+#' @param end Where to end reading observations.
 #' @param outputtoken single character string to be appended to the file name
 #' for saving the segmenation output (default '_segmentated').
 #' @param outputdir The absolute or relative path to directory in which artifacts (plot and changes files) should be created, or NULL
@@ -100,6 +102,8 @@
 #' ## list.files(file.path(tempdir(), "GENEAclassification"))
 
 getGENEAsegments <- function(testfile, 
+                             start = NULL, 
+                             end = NULL, 
                              outputtoken = "_segmented",
                              outputdir = "GENEAclassification",
                              datacols = "default",
@@ -139,6 +143,10 @@ getGENEAsegments <- function(testfile,
 
     if (!(length(verbose) == 1 && is.logical(verbose))) { stop("verbose should be a single logical") }
 
+    # Ensure variables are being passed correctly
+    if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
+    if (missing(AxesMethod)) {AxesMethod = "XZ"}
+    if (missing(changepoint)) {changepoint = "UpDownDegrees"}
     # files should exist
 
     info <- file.info(testfile)
@@ -255,7 +263,7 @@ getGENEAsegments <- function(testfile,
 
     for (ff in testfile) {
 
-        inDat <- try(dataImport(bindata = ff, ...))
+        inDat <- try(dataImport(bindata = ff, start = start, end = end, ...))
 
         if (!is(inDat, "try-error")) {
 
@@ -275,10 +283,6 @@ getGENEAsegments <- function(testfile,
            
             outName <- paste0(shortName, outputtoken)
 
-            # Ensure variables are being passed correctly
-            if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-            if (missing(AxesMethod)) {AxesMethod = "XZ"}
-            if (missing(changepoint)) {changepoint = "UpDownDegrees"}
             
             # perform segmentation
             segData <- try(segmentation(data = inDat,
