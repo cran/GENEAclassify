@@ -4,7 +4,8 @@
 \alias{dataImport}
 \title{Data import function}
 \usage{
-dataImport(bindata, downsample = 100, start = NULL, end = NULL, ...)
+dataImport(bindata, downsample = 100, start = NULL, end = NULL,
+  Use.Timestamps = FALSE, ...)
 }
 \arguments{
 \item{bindata}{File path to binary data to be segmented.}
@@ -14,6 +15,8 @@ dataImport(bindata, downsample = 100, start = NULL, end = NULL, ...)
 \item{start}{Where to start reading observations.}
 
 \item{end}{Where to end reading observations.}
+
+\item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
 
 \item{...}{additional arguments passed through.}
 }

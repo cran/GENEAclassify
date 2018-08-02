@@ -5,10 +5,11 @@
 \title{import and segment one or more bin files.}
 \usage{
 getGENEAsegments(testfile, start = NULL, end = NULL,
-  outputtoken = "_segmented", outputdir = "GENEAclassification",
-  datacols = "default", decimalplaces = "default", filterWave = FALSE,
-  filtername = "haar", j = 8, changepoint = c("UpDownDegrees", "TempFreq",
-  "UpDownFreq"), penalty = "Manual", pen.value = 10, intervalseconds = 30,
+  Use.Timestamps = FALSE, outputtoken = "_segmented",
+  outputdir = "GENEAclassification", datacols = "default",
+  decimalplaces = "default", filterWave = FALSE, filtername = "haar",
+  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
+  penalty = "Manual", pen.value = 10, intervalseconds = 30,
   mininterval = 5, peaks = TRUE, AxesMethod = c("X", "Y", "Z", "XZ", "XY",
   "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
   Central_Threshold = 0.2, Step_Threshold = 0.5,
@@ -24,6 +25,8 @@ getGENEAsegments(testfile, start = NULL, end = NULL,
 \item{start}{Where to start reading observations.}
 
 \item{end}{Where to end reading observations.}
+
+\item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
 
 \item{outputtoken}{single character string to be appended to the file name
 for saving the segmenation output (default '_segmentated').}

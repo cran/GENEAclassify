@@ -8,6 +8,7 @@
 #' containing GENEActiv bin files.
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
+#' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
 #' @param trainingfit a GENEA rpart object created by \code{\link{createGENEAmodel}} 
 #' that gives the decision tree that was fitted from the training data. 
 #' These are the parameters used to predict the new data.
@@ -89,6 +90,7 @@
 classifyGENEA <- function(testfile, 
                           start = NULL,
                           end = NULL,
+                          Use.Timestamps = FALSE,
                           trainingfit = trainingFit, 
                           newdata, 
                           outputname = "_classified", 
@@ -161,6 +163,7 @@ classifyGENEA <- function(testfile,
       newData <- getGENEAsegments(testfile = testfile,
                                   start = start, 
                                   end = end, 
+                                  Use.Timestamps = Use.Timestamps,
                                   outputtoken = "_segmented", 
                                   outputdir = outputdir, 
                                   verbose = verbose, 

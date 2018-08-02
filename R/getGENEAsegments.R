@@ -5,6 +5,7 @@
 #' @param testfile character vector stating path to a GENEActiv bin file, or a folder containing GENEActiv bin files.
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
+#' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
 #' @param outputtoken single character string to be appended to the file name
 #' for saving the segmenation output (default '_segmentated').
 #' @param outputdir The absolute or relative path to directory in which artifacts (plot and changes files) should be created, or NULL
@@ -104,6 +105,7 @@
 getGENEAsegments <- function(testfile, 
                              start = NULL, 
                              end = NULL, 
+                             Use.Timestamps = FALSE,
                              outputtoken = "_segmented",
                              outputdir = "GENEAclassification",
                              datacols = "default",
@@ -263,7 +265,7 @@ getGENEAsegments <- function(testfile,
 
     for (ff in testfile) {
 
-        inDat <- try(dataImport(bindata = ff, start = start, end = end, ...))
+        inDat <- try(dataImport(bindata = ff, start = start, end = end, Use.Timestamps = Use.Timestamps, ...))
 
         if (!is(inDat, "try-error")) {
 

@@ -4,7 +4,7 @@
 \alias{classifyGENEA}
 \title{Classify Data into Categories defined in an rpart GENEA fit}
 \usage{
-classifyGENEA(testfile, start = NULL, end = NULL,
+classifyGENEA(testfile, start = NULL, end = NULL, Use.Timestamps = FALSE,
   trainingfit = trainingFit, newdata, outputname = "_classified",
   outputdir = "GENEAclassification", verbose = FALSE, allprobs = FALSE,
   setinf = 100, datacols = "default", peaks = FALSE, AxesMethod = c("X",
@@ -25,6 +25,8 @@ containing GENEActiv bin files.}
 \item{start}{Where to start reading observations.}
 
 \item{end}{Where to end reading observations.}
+
+\item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
 
 \item{trainingfit}{a GENEA rpart object created by \code{\link{createGENEAmodel}} 
 that gives the decision tree that was fitted from the training data. 

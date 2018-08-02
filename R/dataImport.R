@@ -7,6 +7,7 @@
 #' @param downsample Rate to downsample the data, defaults to every 100th observation. For no downsampling set NULL.
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
+#' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
 #' @param ... additional arguments passed through.
 #' @details Reads in the binary data file and extracts the information required for the segmentation procedure.
 #' @return Returns a list containing a matrix of the data including the x, y and z axis data, vectors of the up down (elevation) 
@@ -18,9 +19,9 @@
 #' ##     names(segData)
 
 
-dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL,...) {
+dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, Use.Timestamps = FALSE,...) {
 
-    binaryData <- read.bin(binfile = bindata, start = start, end = end, 
+    binaryData <- read.bin(binfile = bindata, start = start, end = end, Use.Timestamps = FALSE, 
                            calibrate = TRUE, downsample = downsample)
 
     if (is.null(downsample)) {
@@ -104,7 +105,6 @@ updown <- function(x) {
     
     return(ud)
 }
-
 
 #' Extract data relating to the rotation component.
 #' 
