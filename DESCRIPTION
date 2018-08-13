@@ -1,8 +1,8 @@
 Package: GENEAclassify
 Type: Package
 Title: Segmentation and Classification of Accelerometer Data
-Version: 1.4.13
-Date: 2018-08-02
+Version: 1.4.14
+Date: 2018-08-13
 Authors@R: c(
     person("Chris", "Campbell", role = "aut", email = "ccampbell@mango-solutions.com"),
     person("Aimee", "Gott", role = "aut", email = "agott@mango-solutions.com"),
@@ -22,10 +22,10 @@ LazyData: true
 Depends: R (>= 2.14.0), methods, utils, grDevices,MASS,GENEAread,
         changepoint,signal,rpart
 Suggests: waveslim,knitr,rmarkdown
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2018-08-02 12:51:48 UTC; CharlesSweetland
+Packaged: 2018-08-13 13:22:25 UTC; ActivInsights
 Maintainer: Charles Sweetland <charles@sweetland-solutions.co.uk>
 Repository: CRAN
-Date/Publication: 2018-08-02 13:10:08 UTC
+Date/Publication: 2018-08-13 13:50:08 UTC

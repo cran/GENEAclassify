@@ -4,19 +4,20 @@
 \alias{classifyGENEA}
 \title{Classify Data into Categories defined in an rpart GENEA fit}
 \usage{
-classifyGENEA(testfile, start = NULL, end = NULL, Use.Timestamps = FALSE,
-  trainingfit = trainingFit, newdata, outputname = "_classified",
-  outputdir = "GENEAclassification", verbose = FALSE, allprobs = FALSE,
-  setinf = 100, datacols = "default", peaks = FALSE, AxesMethod = c("X",
-  "Y", "Z", "XZ", "XY", "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
+classifyGENEA(testfile, start = NULL, end = NULL,
+  Use.Timestamps = FALSE, trainingfit = trainingFit, newdata,
+  outputname = "_classified", outputdir = "GENEAclassification",
+  verbose = FALSE, allprobs = FALSE, setinf = 100,
+  datacols = "default", peaks = FALSE, AxesMethod = c("X", "Y", "Z",
+  "XZ", "XY", "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
   Central_Threshold = 0.2, Step_Threshold = 0.5, samplefreq = 100,
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), smlen = 100L,
-  filterorder = 4L, threshold = 0.001, boundaries = c(0.15, 1),
-  Rp = 0.5, plot.it = FALSE, plot.seg = FALSE,
-  plot.seg.outputfile = "Changepoint", Centre = TRUE, STFT = FALSE,
-  win = 10, penalty = "Manual", pen.value = 10, intervalseconds = 30,
-  mininterval = 5, ...)
+  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
+  smlen = 100L, filterorder = 4L, threshold = 0.001,
+  boundaries = c(0.15, 1), Rp = 0.5, plot.it = FALSE,
+  plot.seg = FALSE, plot.seg.outputfile = "Changepoint",
+  Centre = TRUE, STFT = FALSE, win = 10, penalty = "Manual",
+  pen.value = 10, intervalseconds = 30, mininterval = 5, ...)
 }
 \arguments{
 \item{testfile}{character string stating path to a GENEActiv bin file, or a folder 

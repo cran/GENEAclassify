@@ -358,6 +358,7 @@ stepCounter2 = function(data,
                         verbose = FALSE,
                         fun = c("GENEAcount","mean", "sd", "mad")){
   
+  if (verbose){print("Stepcounter2 initiated")}
   if (missing(data)) {stop("data is missing") }
   if (missing(AxesMethod)){AxesMethod = "XZ"}
   if (!is.character(fun)) { stop("fun must be character vector of function names") }
@@ -431,114 +432,176 @@ stepCounter2 = function(data,
   }
   
   # Firstly deciding where to start 
-  Steps = 1
-  n = 1
-  StepIn = c()
+  Steps = lastpeak = 0; n = 1;  StepIn = PeakUsed = ValleysUsed = c()
   
-  # If FALSE Valleys first, TRUE Peaks first. 
-  if (mapeaks[1] < mavalleys[1]){
-    for (i in 1:length(mapeaks)){
-      posvalleys = mavalleys[mavalleys < (mapeaks[i] + smlen) & mavalleys > mapeaks[i]]
-      if (verbose == TRUE){print(posvalleys)}
-      if (length(posvalleys) == 0){
-        if (verbose == TRUE){print("posvalleys has length 0")}
-        break
-      }
-      for (j in 1:length(posvalleys)){
-        # Check to see that the difference between the peak and valley is above the threshold
-        if (abs(mavals[posvalleys[j]] - mavals[mapeaks[i]]) > Step_Threshold){
-          # Now find all the points that are the winodw away from the pospeak
-          pospeaks = mapeaks[mapeaks < (posvalleys[j] + smlen) & mapeaks > (posvalleys[j] + 10)]
-          if (verbose == TRUE){print("pospeaks is ");print(pospeaks)}
-          # Need to identify which valley I had got to here.
-          if (length(pospeaks) == 0){
-            if (verbose == TRUE){print("pospeaks has length 0")}
-            break}
-          # Run through the posvalleys 
-          for (k in 1:length(pospeaks)){
-            # Check to see wether the difference is above the threshold
-            if (abs(mavals[pospeaks[k]] - mavals[posvalleys[j]]) > Step_Threshold){
-              if (verbose == TRUE){print("Step detected!")}
-              Steps  = Steps + 1
-              StepIn[n] = posvalleys[j]
-              n = n + 1
-              # Needs to be something here to move the valley position along accordingly - So double steps aren't counted
-              i = match(pospeaks[k], mapeaks) - 1
-              break
-            }
-          }
-          break
-        }
-      }
-    }
-    if (verbose == TRUE){print(StepIn)}
-    return(Steps)
-  } else{
-    for (i in 1:length(mavalleys)){
-      pospeaks = mapeaks[mapeaks < (mavalleys[i] + smlen) & mapeaks > mavalleys[i]]
-      if (verbose == TRUE){print(pospeaks)}
-      if (length(pospeaks) == 0){
-        if (verbose == TRUE){print("pospeaks has length 0")}
-        break
-      }
-      for (j in 1:length(pospeaks)){
-        # Check to see that the difference between the peak and valley is above the threshold
-        if (abs(mavals[pospeaks[j]] - mavals[mavalleys[i]]) > Step_Threshold){
-          # Now find all the points that are the winodw away from the pospeak
-          posvalleys = mavalleys[mavalleys < (pospeaks[j] + smlen) & mavalleys > (pospeaks[j] + 10)]
-          if (verbose == TRUE){print("posvalleys is ");print(posvalleys)}
-          # Need to identify which valley I had got to here.
-          
-          if (length(posvalleys) == 0){
-            if (verbose == TRUE){print("posValleys has length 0")}
-            break}
-          # Run through the posvalleys 
-          for (k in 1:length(posvalleys)){
-            # Check to see wether the difference is above the threshold
-            if (abs(mavals[posvalleys[k]] - mavals[pospeaks[j]]) > Step_Threshold){
-              if (verbose == TRUE){print("Step detected!")}
-              Steps  = Steps + 1
-              StepIn[n] = pospeaks[j]
-              n = n + 1
-              # Needs to be something here to move the valley position along accordingly - So double steps aren't counted
-              i = match(posvalleys[k], mavalleys) - 1
-              break
-            }
-          }
-          break
-        }
-      }
-    }
-    if (verbose == TRUE){
-      print(Steps)
-      print(StepIn)
-    }
-    if (Steps == 1){Steps = 0}
-    
-    #find duration of steps
-    stepDuration <- diff(data[StepIn, 1, drop = TRUE] * samplefreq)
-    #find Segment duration
-    SegmentDuration <- data[length(data[,1]),1]-data[1,1]
-    # Calculate in minutes
-    SegmentDuration <- SegmentDuration / 60
-    res <- numeric(length(fun))
-    names(res) <- fun
-    
-    if ("GENEAcount" %in% fun) {
-      res["GENEAcount"] <- Steps
-      fun <- fun[fun != "GENEAcount"]
-    }
-    if ("mean" %in% fun){
-      res["mean"] <- (Steps)/SegmentDuration
-      fun <- fun[fun != "mean"]
-    }
-    for (i in fun) {
-      val <- try(get(x = i, mode = "function")(stepDuration))
-      if (is(val, class2 = "try-error")) { val <- NA }
-      res[i] <- val
-    }
-    return(res)
+  # If FALSE Valleys first, TRUE Peaks first. Checking the indices of both te peaks found and valleys. 
+  # If the other way around then swap mapeaks with mavalleys 
+  if (mapeaks[1] > mavalleys[1]){
+    Tmp4 = mapeaks
+    Tmp5 = mavalleys 
+    mapeaks = Tmp5
+    mavalleys = Tmp4
   }
+  
+  for (i in 1:length(mapeaks)){
+    
+    # Routine to skip over mapeaks where a peak has already been found 
+    if (!is.null(PeakUsed) & !is.null(mapeaks)){
+      if (any(PeakUsed == mapeaks[i])){
+        # Need to account for a breakpoint here. 
+        # Once the peak has been used I need to move to the next one. 
+        next
+      }
+    }
+    
+    # Next if the last peak was greater than the current peak
+    if (lastpeak > mapeaks[i]){
+      next
+    }
+    
+    posvalleys = mavalleys[mavalleys < (mapeaks[i] + smlen) & mavalleys > mapeaks[i]]
+    
+    if (verbose == TRUE){print(posvalleys)}
+    
+    if (length(posvalleys) == 0){
+      if (verbose == TRUE){
+        print("posvalleys has length 0")
+      }
+      next
+    }
+    
+    for (j in 1:length(posvalleys)){
+      # Need this to move back down a for loop 
+      if (!is.null(PeakUsed) & !is.null(mapeaks)){
+        if (any(PeakUsed == mapeaks[i])){
+          # Need to account for a breakpoint here. 
+          # Once the peak has been used I need to move to the next one. 
+          next
+        }
+      }
+      
+      # Has this valley been used already
+      if (!is.null(ValleysUsed)){
+        if (any(ValleysUsed == posvalleys[j])){
+          next
+        }
+      }
+      
+      # Check to see that the difference between the peak and valley is above the threshold
+      if (abs(mavals[posvalleys[j]] - mavals[mapeaks[i]]) > Step_Threshold){
+        
+        # Now find all the points that are the window away from the mapeaks to give pospeaks
+        pospeaks = mapeaks[mapeaks < (posvalleys[j] + smlen) & mapeaks > (posvalleys[j] + 10) & mapeaks > lastpeak]
+        
+        # Show the pospeaks found
+        if (verbose == TRUE){
+          print("pospeaks is ")
+          print(pospeaks)
+        }
+        
+        # Need to identify which valley I had got to here.
+        if (length(pospeaks) == 0){
+          if (verbose == TRUE){print("pospeaks has length 0")}
+          next
+        } 
+        
+        # Run through the posvalleys 
+        for (k in 1:length(pospeaks)){
+          
+          if (!is.null(PeakUsed) & !is.null(mapeaks)){
+            if (any(PeakUsed == mapeaks[i])){
+              # Need to account for a breakpoint here. 
+              # Once the peak has been used I need to move to the next one. 
+              next
+            }
+          }
+          
+          # Checking that the next peak has not already been used. 
+          if (!is.null(PeakUsed)){
+            if (any(PeakUsed == pospeaks[k])){
+              # print("Missing these numbers");print(i)
+              next
+            }
+          }
+          
+          # Checking that the next valley has not been used. 
+          if (!is.null(ValleysUsed)){
+            if (any(ValleysUsed == posvalleys[j])){
+              # print("Missing these numbers");print(i)
+              next
+            }
+          }
+          
+          # Check to see wether the difference is above the threshold
+          if (abs(mavals[pospeaks[k]] - mavals[posvalleys[j]]) > Step_Threshold){
+            if (verbose == TRUE){
+              print("Step detected!")
+              print("Current Step indices:")
+              print(StepIn)
+              print("The Peaks and Valleys used before step added:")
+              print(PeakUsed);print(ValleysUsed)
+            }
+            
+            Steps  = Steps + 1
+            StepIn[n] = posvalleys[j]
+            # Needs to be something here to move the valley position along accordingly - So double steps aren't counted
+            
+            PeakUsed[n] = mapeaks[i] # Add the starting peak. 
+            
+            # Now need to set the next peak as the end peak used. In this case pospeak is 41 where k = 1
+            LastPeak = k
+           # PeakUsed[(2*n):(2*n)*(k+1)] = pospeaks[1:k]
+            
+            ValleysUsed[n] = posvalleys[j]
+            
+            if (verbose){
+              print("Steps updated");print(Steps)
+              print("Step indices are now");print(StepIn)
+              print("The Peaks used:")
+              print(PeakUsed)
+              print("The Valleys used");
+              print(ValleysUsed)
+            }
+            
+            n = n + 1
+            next
+          }
+        }
+        next
+      }
+    }
+  }
+    
+  if (verbose == TRUE){
+    print(Steps)
+    print(StepIn)
+  }
+  
+  if (Steps == 1){Steps = 0}
+  
+  # Find duration of steps
+  stepDuration <- diff(data[StepIn, 1, drop = TRUE] * samplefreq)
+  # Find Segment duration
+  SegmentDuration <- data[length(data[,1]),1]-data[1,1]
+  # Calculate in minutes
+  SegmentDuration <- SegmentDuration / 60
+  res <- numeric(length(fun))
+  names(res) <- fun
+  
+  if ("GENEAcount" %in% fun) {
+    res["GENEAcount"] <- Steps
+    fun <- fun[fun != "GENEAcount"]
+  }
+  if ("mean" %in% fun){
+    res["mean"] <- (Steps)/SegmentDuration
+    fun <- fun[fun != "mean"]
+  }
+  for (i in fun) {
+    val <- try(get(x = i, mode = "function")(stepDuration))
+    if (is(val, class2 = "try-error")) { val <- NA }
+    res[i] <- val
+  }
+  return(res)
 }
 
 #' Peak detector function 

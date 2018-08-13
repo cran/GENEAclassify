@@ -4,9 +4,10 @@
 \alias{createGENEAmodel}
 \title{Create training data decision tree model}
 \usage{
-createGENEAmodel(data, outputtree = NULL, features = c("Segment.Duration",
-  "Principal.Frequency.mad", "UpDown.sd", "Degrees.sd"),
-  category = "Activity", plot = TRUE, verbose = TRUE, ...)
+createGENEAmodel(data, outputtree = NULL,
+  features = c("Segment.Duration", "Principal.Frequency.mad",
+  "UpDown.sd", "Degrees.sd"), category = "Activity", plot = TRUE,
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{data}{data frame containing segmented GENEActiv bin data.}

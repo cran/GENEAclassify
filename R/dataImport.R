@@ -21,7 +21,7 @@
 
 dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, Use.Timestamps = FALSE,...) {
 
-    binaryData <- read.bin(binfile = bindata, start = start, end = end, Use.Timestamps = FALSE, 
+    binaryData <- read.bin(binfile = bindata, start = start, end = end, Use.Timestamps = Use.Timestamps, 
                            calibrate = TRUE, downsample = downsample)
 
     if (is.null(downsample)) {
@@ -30,7 +30,8 @@ dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, Use.
         
     } else {
         
-        binaryDataFULL <- read.bin(bindata, start = start, end = end, calibrate = TRUE)
+        binaryDataFULL <- read.bin(bindata, start = start, end = end, Use.Timestamps = Use.Timestamps, 
+                                   calibrate = TRUE)
         
         binaryDataOut <- binaryDataFULL$data.out
         

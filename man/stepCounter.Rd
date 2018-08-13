@@ -4,12 +4,12 @@
 \alias{stepCounter}
 \title{Step Counter}
 \usage{
-stepCounter(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X", "Y",
-  "Z", "XZ", "XY", "YZ", "XYZ"), filterorder = 4L, threshold = 0.01,
-  boundaries = c(0.15, 1), stepmethod = c("Chebyfilter", "Butterfilter",
-  "longrun", "none"), Rp = 0.5, plot.it = FALSE, Centre = TRUE,
-  STFT = FALSE, verbose = FALSE, fun = c("GENEAcount", "mean", "sd",
-  "mad"))
+stepCounter(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X",
+  "Y", "Z", "XZ", "XY", "YZ", "XYZ"), filterorder = 4L,
+  threshold = 0.01, boundaries = c(0.15, 1),
+  stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
+  Rp = 0.5, plot.it = FALSE, Centre = TRUE, STFT = FALSE,
+  verbose = FALSE, fun = c("GENEAcount", "mean", "sd", "mad"))
 }
 \arguments{
 \item{data}{The data to use for calculating the steps. This should be a matrix
