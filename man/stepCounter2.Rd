@@ -6,9 +6,10 @@
 \usage{
 stepCounter2(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X",
   "Y", "Z", "XZ", "XY", "YZ", "XYZ"), ma.smooth = TRUE,
-  filterorder = 4L, Peak_Threshold = 5, Central_Threshold = 0.2,
-  Step_Threshold = 0.5, plot.it = FALSE, Centre = TRUE,
-  verbose = FALSE, fun = c("GENEAcount", "mean", "sd", "mad"))
+  filterorder = 4L, Peak_Threshold = 5, Step_Threshold = 0.5,
+  plot.it = FALSE, Centre = TRUE, verbose = FALSE,
+  fun = c("GENEAcount", "GENEAamplitude", "GENEAwavelength", "mean",
+  "sd", "mad"))
 }
 \arguments{
 \item{data}{The data to use for calculating the steps. This should be a matrix
@@ -35,8 +36,6 @@ when counting zero crossing events}
 \item{filterorder}{Order of the moving average filter to apply to the data. This variable will be passed to \code{\link[forecast]{ma}}}
 
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
-
-\item{Central_Threshold}{After the signal has been centred around 0}
 
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
 

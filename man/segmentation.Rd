@@ -7,11 +7,12 @@
 segmentation(data, outputfile = "detectedChanges",
   outputdir = "GENEAclassification", datacols = "default",
   decimalplaces = "default", filterWave = FALSE, filtername = "haar",
-  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
-  penalty = "Manual", pen.value = 10, intervalseconds = 30,
-  mininterval = 5, peaks = TRUE, AxesMethod = c("X", "Y", "Z", "XZ",
-  "XY", "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
-  Central_Threshold = 0.2, Step_Threshold = 0.5,
+  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
+  "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
+  "DegreesMeanVar"), penalty = "Manual", pen.value = 10,
+  intervalseconds = 30, mininterval = 5, peaks = TRUE,
+  AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
+  ma.smooth = TRUE, Peak_Threshold = 10, Step_Threshold = 0.5,
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   boundaries = c(0.15, 1), samplefreq = 100, smlen = 100L,
   threshold = 0.001, filterorder = 4L, Rp = 0.5, plot.it = FALSE,
@@ -54,9 +55,11 @@ The default matrix, specified using the length 1 character vector
     \item Temp.abssumdiff
     \item Temp.sddiff
     \item Magnitude.mean
-    \item Step.count
+    \item Step.GENEAcount
     \item Step.sd
     \item Step.mean
+    \item Step.GENEAamplitude
+    \item Step.GENEAwavelength
     \item Principal.Frequency.median
     \item Principal.Frequency.mad
     \item Principal.Frequency.ratio
@@ -95,9 +98,12 @@ The length 1 character vector 'default' applies default roundings: \itemize{
     \item Temp.meandiff = 3
     \item Temp.abssumdiff = 3
     \item Temp.sddiff = 3
-    \item Step.count = 0
+    \item Step.GENEAcount = 0
     \item Step.sd = 1
     \item Step.mean = 0
+    \item Step.GENEAamplitude = 3
+    \item Step.GENEAwavelength = 3
+    \item Step.GENEAdistance = 3
 }}
 
 \item{filterWave}{single logical, should a smoothing filter from \code{\link[waveslim]{wave.filter}} be applied? (default FALSE).}
@@ -134,8 +140,6 @@ if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
 \item{ma.smooth}{Should a moving average filter be applied to the data.}
 
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
-
-\item{Central_Threshold}{After the signal has been centred around 0}
 
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
 

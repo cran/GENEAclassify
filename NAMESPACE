@@ -2,9 +2,12 @@
 
 S3method(head,GENEAbin)
 S3method(levels,GENEA)
+export(GENEAamplitude)
 export(GENEAcount)
+export(GENEAdistance)
 export(GENEAratio)
 export(GENEAskew)
+export(GENEAwavelength)
 export(abssumdiff)
 export(changeTimes)
 export(classifyGENEA)

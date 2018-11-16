@@ -57,9 +57,11 @@ NULL
 #'     \item Temp.abssumdiff
 #'     \item Temp.sddiff
 #'     \item Magnitude.mean
-#'     \item Step.count
+#'     \item Step.GENEAcount
 #'     \item Step.sd
 #'     \item Step.mean
+#'     \item Step.GENEAamplitude
+#'     \item Step.GENEAwavelength
 #'     \item Principal.Frequency.median
 #'     \item Principal.Frequency.mad
 #'     \item Principal.Frequency.ratio
@@ -97,9 +99,12 @@ NULL
 #'     \item Temp.meandiff = 3
 #'     \item Temp.abssumdiff = 3
 #'     \item Temp.sddiff = 3
-#'     \item Step.count = 0
+#'     \item Step.GENEAcount = 0
 #'     \item Step.sd = 1
 #'     \item Step.mean = 0
+#'     \item Step.GENEAamplitude = 3
+#'     \item Step.GENEAwavelength = 3
+#'     \item Step.GENEAdistance = 3
 #' }
 #' @param filterWave single logical, should a smoothing filter from \code{\link[waveslim]{wave.filter}} be applied? (default FALSE).
 #' @param filtername single character, the name of the wavelet to use for smoothing
@@ -140,7 +145,6 @@ NULL
 #' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
 #' @param ma.smooth Should a moving average filter be applied to the data. 
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Central_Threshold After the signal has been centred around 0
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
@@ -189,7 +193,9 @@ segmentation <- function(data,
                          filtername = "haar",
                          j = 8,
                          # Changepoint variables 
-                         changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
+                         changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
+                                         "UpDownMean", "UpDownVar", "UpDownMeanVar",
+                                         "DegreesMean", "DegreesVar", "DegreesMeanVar"), 
                          penalty = "Manual",
                          pen.value = 10,
                          intervalseconds = 30,
@@ -199,7 +205,6 @@ segmentation <- function(data,
                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                          ma.smooth = TRUE,
                          Peak_Threshold = 10, 
-                         Central_Threshold = 0.2,
                          Step_Threshold = 0.5,
                          # Step Counter 1 Variables
                          stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
@@ -282,7 +287,10 @@ segmentation <- function(data,
                     # Step Variables
                     "Step.GENEAcount", 
                     "Step.sd",
-                    "Step.mean")
+                    "Step.mean", 
+                    "Step.GENEAamplitude", 
+                    "Step.GENEAwavelength",
+                    "Step.GENEAdistance")
   
     } else {
 
@@ -305,10 +313,8 @@ segmentation <- function(data,
     
     whereFuns <- regexpr("\\.[A-Za-z]+$", dataCols)
 
-    ###########################################################################
+    #### Check Functions #######################################################################
 
-    ## check functions
-    
     funs <- substr(dataCols, start = whereFuns + 1, stop = nchar(dataCols))
     
     uFuns <- unique(funs)
@@ -319,9 +325,7 @@ segmentation <- function(data,
         stop("functions requested by datacols do not exist: ",
             paste(uFuns[missFuns], collapse = ", ")) }
 
-    ###########################################################################
-
-    ## check columns
+    #### Check Columns #######################################################################
 
     cols <- substr(dataCols, start = 1, stop = whereFuns - 1)
 
@@ -335,9 +339,7 @@ segmentation <- function(data,
         warning("columns requested by datacols not present in data: ",
             paste(uCols[missCols], collapse = ", ")) }
 
-    ###########################################################################
-
-    ## create summary matrix
+    #### create Summary matrix #######################################################################
 
     # these matrices control the data objects that are used for analysis
     # and the functions that should be applied to them
@@ -378,7 +380,7 @@ segmentation <- function(data,
 
     rm(data)
 
-    ###########################################################################
+    #### QC time #######################################################################
 
     # QC time
 
@@ -394,7 +396,7 @@ segmentation <- function(data,
         warning("time increments vary by more than 1% (",
             sum(isFarFromTypical, na.rm = TRUE), " records)") }
 
-    ###########################################################################
+    #### Wavelet filtering #######################################################################
 
     ## apply optional wavelet filtering
 
@@ -430,7 +432,7 @@ segmentation <- function(data,
         }
     }
 
-    ###########################################################################
+    #### Change point method #######################################################################
 
     ## find changepoints based on updown data and rotation data
 
@@ -540,6 +542,76 @@ segmentation <- function(data,
                                      changeupdown = changeUpDown,
                                      changedegrees = changeSTFT,
                                      verbose = verbose)
+                       },
+                       
+                       # Changepoint only on the Arm Elevation
+                       
+                       "UpDownMean" = {
+                         UpDownMean = cpt.mean(data = UpDown,
+                                          penalty = penalty,
+                                          pen.value = pen.value,
+                                          minseglen = mininterval,
+                                          method = "PELT")
+                         
+                         Time[cpts(UpDownMean)]
+                         
+                       }, 
+                       "UpDownVar" = {
+                         UpDownVar = cpt.var(data = UpDown,
+                                        penalty = penalty,
+                                        pen.value = pen.value,
+                                        minseglen = mininterval,
+                                        method = "PELT")
+                         
+                         Time[cpts(UpDownVar)]
+                         
+                       },
+                       
+                       "UpDownMeanVar" = {
+                         
+                         UpDownMeanVar = cpt.meanvar(data = UpDown,
+                                                penalty = penalty,
+                                                pen.value = pen.value,
+                                                minseglen = mininterval,
+                                                method = "PELT")
+                         
+                         Time[cpts(UpDownMeanVar)]
+                         
+                       },
+                       
+                       # Changepoint only on the Wrist Rotation
+                       
+                       "DegreesMean" = {
+                         DegreesMean = cpt.mean(data = Degrees,
+                                               penalty = penalty,
+                                               pen.value = pen.value,
+                                               minseglen = mininterval,
+                                               method = "PELT")
+                         
+                         Time[cpts(DegreesMean)]
+                         
+                       }, 
+                       "DegreesVar" = {
+                         DegreesVar = cpt.var(data = Degrees,
+                                             penalty = penalty,
+                                             pen.value = pen.value,
+                                             minseglen = mininterval,
+                                             method = "PELT")
+                         
+                         Time[cpts(DegreesVar)]
+                         
+                       },
+                       
+                       "DegreesMeanVar" = {
+                         
+                         DegreesMeanVar = cpt.meanvar(data = Degrees,
+                                                     penalty = penalty,
+                                                     pen.value = pen.value,
+                                                     minseglen = mininterval,
+                                                     method = "PELT")
+                         
+                         Time[cpts(DegreesMeanVar)]
+                         
                        }
     )
     
@@ -634,6 +706,9 @@ segmentation <- function(data,
         spdata <- split(xyzdata[, c("timestamp", "x", "y", "z")], f = cutPointDe)
         # The max smlen can be is 30! Could change in future. 
         if (!"smlen" %in% names(match.call())) { smlen <- 30L }
+        
+        # Accounting for the smlen change in frequency. Optimised for 100Hz 
+        smlen = (smlen * (100 / Freq))
 
         if (peaks == TRUE){
           stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
@@ -644,7 +719,6 @@ segmentation <- function(data,
                             ma.smooth = ma.smooth,
                             filterorder = filterorder,
                             Peak_Threshold = Peak_Threshold, 
-                            Central_Threshold = Central_Threshold,
                             Step_Threshold = Step_Threshold,
                             plot.it = plot.it,
                             Centre = Centre,
@@ -732,7 +806,10 @@ segmentation <- function(data,
                                Temp.sddiff = 3,
                                Step.count = 0, 
                                Step.sd = 1,
-                               Step.mean = 3)
+                               Step.mean = 3, 
+                               Step.GENEAamplitude = 3, 
+                               Step.GENEAwavelength = 3, 
+                               Step.GENEAdistance = 3)
         }
 
         if (!(is(object = decimalplaces, class2 = "numeric") &&

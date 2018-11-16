@@ -44,6 +44,54 @@ GENEAratio <- function(principals, freq = "Freq", nfr = 3L, ...) {
 
 GENEAcount <- function(x, ...) { return(round(length(x) / 2)) }
 
+#' Step amplitude finds the average size of the step found over the segment
+#' 
+#' @title Find average Amplitude of Steps
+#' @param x vector
+#' @param \dots other arguments to be swallowed
+#' @return single numeric
+#' @export
+#' @keywords internal
+#' @examples
+#'    x1 <- c(20, 15, 10)
+#'    GENEAamplitude(x1)
+#'    x2 <- c(300, 255, 111)
+#'    GENEAamplitude(x2)
+
+GENEAamplitude <- function(x, ...) { return(mean(x,...))}
+
+#' Average Step wavelength over the segment
+#'  
+#' @title Find average Wavelength of Steps
+#' @param x vector
+#' @param \dots other arguments to be swallowed
+#' @return single numeric
+#' @export
+#' @keywords internal
+#' @examples
+#'    x1 <- c(20, 15, 10)
+#'    GENEAwavelength(x1)
+#'    x2 <- c(300, 255, 111)
+#'    GENEAwavelength(x2)
+
+GENEAwavelength <- function(x, ...) { return(mean(x,...))}
+
+#' Average Step wavelength over the segment
+#'  
+#' @title Find the mean distance between two steps detected
+#' @param x vector
+#' @param \dots other arguments to be swallowed
+#' @return single numeric
+#' @export
+#' @keywords internal
+#' @examples
+#'    x1 <- c(20, 15, 10)
+#'    GENEAdistance(x1)
+#'    x2 <- c(300, 255, 111)
+#'    GENEAdistance(x2)
+
+GENEAdistance <- function(x, ...) { return(mean(x,...))}
+
 #' @title Skewness, a measure of centredness
 #' 
 #' @description Many datasets do not have the highest density 

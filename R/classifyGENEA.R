@@ -9,6 +9,7 @@
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
+#' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details
 #' @param trainingfit a GENEA rpart object created by \code{\link{createGENEAmodel}} 
 #' that gives the decision tree that was fitted from the training data. 
 #' These are the parameters used to predict the new data.
@@ -91,6 +92,7 @@ classifyGENEA <- function(testfile,
                           start = NULL,
                           end = NULL,
                           Use.Timestamps = FALSE,
+                          mmap.load = (.Machine$sizeof.pointer >= 8),
                           trainingfit = trainingFit, 
                           newdata, 
                           outputname = "_classified", 
@@ -108,7 +110,9 @@ classifyGENEA <- function(testfile,
                           Step_Threshold = 0.5,
                           samplefreq = 100,
                           stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
-                          changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
+                          changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
+                                          "UpDownMean", "UpDownVar", "UpDownMeanVar",
+                                          "DegreesMean", "DegreesVar", "DegreesMeanVar"), 
                           smlen = 100L,
                           filterorder = 4L,  
                           threshold = 0.001,
@@ -164,6 +168,7 @@ classifyGENEA <- function(testfile,
                                   start = start, 
                                   end = end, 
                                   Use.Timestamps = Use.Timestamps,
+                                  mmap.load = mmap.load,
                                   outputtoken = "_segmented", 
                                   outputdir = outputdir, 
                                   verbose = verbose, 

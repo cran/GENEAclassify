@@ -6,6 +6,7 @@
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
+#' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details
 #' @param outputtoken single character string to be appended to the file name
 #' for saving the segmenation output (default '_segmentated').
 #' @param outputdir The absolute or relative path to directory in which artifacts (plot and changes files) should be created, or NULL
@@ -43,6 +44,9 @@
 #'     \item Step.count = 0
 #'     \item Step.sd = 1
 #'     \item Step.mean = 0
+#'     \item Step.GENEAamplitude = 3
+#'     \item Step.GENEAwavelength = 3
+#'     \item Step.GENEAdistance = 3
 #' }
 #' This can be changed by using a named list. e.g decimalplaces = c(Start.Time = 2, Degrees.mean = 4).
 #' @param filterWave single logical, should a smoothing filter from \code{\link[waveslim]{wave.filter}} be applied? (default FALSE).
@@ -83,7 +87,6 @@
 #' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
 #' @param ma.smooth Should a moving average filter be applied to the data. 
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Central_Threshold After the signal has been centred around 0
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
@@ -106,6 +109,7 @@ getGENEAsegments <- function(testfile,
                              start = NULL, 
                              end = NULL, 
                              Use.Timestamps = FALSE,
+                             mmap.load = (.Machine$sizeof.pointer >= 8),
                              outputtoken = "_segmented",
                              outputdir = "GENEAclassification",
                              datacols = "default",
@@ -114,7 +118,9 @@ getGENEAsegments <- function(testfile,
                              filtername = "haar",
                              j = 8,
                              # Changepoint variables 
-                             changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"), 
+                             changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
+                                             "UpDownMean", "UpDownVar", "UpDownMeanVar",
+                                             "DegreesMean", "DegreesVar", "DegreesMeanVar"), 
                              penalty = "Manual",
                              pen.value = 10,
                              intervalseconds = 30,
@@ -124,7 +130,6 @@ getGENEAsegments <- function(testfile,
                              AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                              ma.smooth = TRUE,
                              Peak_Threshold = 10, 
-                             Central_Threshold = 0.2,
                              Step_Threshold = 0.5,
                              # Step Counter 1 Variables
                              stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
@@ -246,7 +251,10 @@ getGENEAsegments <- function(testfile,
                     # Step Variables
                     "Step.GENEAcount", 
                     "Step.sd",
-                    "Step.mean")
+                    "Step.mean",
+                    "Step.GENEAamplitude", 
+                    "Step.GENEAwavelength",
+                    "Step.GENEAdistance")
 
     } else {
 
@@ -265,7 +273,11 @@ getGENEAsegments <- function(testfile,
 
     for (ff in testfile) {
 
-        inDat <- try(dataImport(bindata = ff, start = start, end = end, Use.Timestamps = Use.Timestamps, ...))
+        inDat <- try(dataImport(bindata = ff, 
+                                start = start, 
+                                end = end, 
+                                Use.Timestamps = Use.Timestamps,
+                                mmap.load = mmap.load, ...))
 
         if (!is(inDat, "try-error")) {
 
@@ -304,7 +316,6 @@ getGENEAsegments <- function(testfile,
                                         AxesMethod = AxesMethod,
                                         ma.smooth = ma.smooth,
                                         Peak_Threshold = Peak_Threshold, 
-                                        Central_Threshold = Central_Threshold,
                                         Step_Threshold = Step_Threshold,
                                         stepmethod = stepmethod,  
                                         boundaries= boundaries,
@@ -337,8 +348,8 @@ getGENEAsegments <- function(testfile,
         output[[ff]] <- segData
         
         if (plot.seg == TRUE){
-          AccData=read.bin(ff,...)
-          tmp2 = get.intervals(AccData, start=0, end=1,incl.date = T)
+          AccData = read.bin(ff, start = start, end = end, ...)
+          tmp2 = get.intervals(AccData, start = 0, end = 1, incl.date = T)
           ind = rep(T, nrow(tmp2))
           col = hcl(0:360)
           max.points = 1e6

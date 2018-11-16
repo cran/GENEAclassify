@@ -8,6 +8,7 @@
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
+#' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see mmap for more details
 #' @param ... additional arguments passed through.
 #' @details Reads in the binary data file and extracts the information required for the segmentation procedure.
 #' @return Returns a list containing a matrix of the data including the x, y and z axis data, vectors of the up down (elevation) 
@@ -19,9 +20,14 @@
 #' ##     names(segData)
 
 
-dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, Use.Timestamps = FALSE,...) {
+dataImport <- function(bindata, downsample = 100, 
+                       start = NULL, end = NULL, 
+                       Use.Timestamps = FALSE, 
+                       mmap.load = (.Machine$sizeof.pointer >= 8), ...) {
 
-    binaryData <- read.bin(binfile = bindata, start = start, end = end, Use.Timestamps = Use.Timestamps, 
+    binaryData <- read.bin(binfile = bindata, start = start, end = end, 
+                           Use.Timestamps = Use.Timestamps, 
+                           mmap.load = mmap.load,
                            calibrate = TRUE, downsample = downsample)
 
     if (is.null(downsample)) {
@@ -30,7 +36,9 @@ dataImport <- function(bindata, downsample = 100, start = NULL, end = NULL, Use.
         
     } else {
         
-        binaryDataFULL <- read.bin(bindata, start = start, end = end, Use.Timestamps = Use.Timestamps, 
+        binaryDataFULL <- read.bin(bindata, start = start, end = end, 
+                                   Use.Timestamps = Use.Timestamps, 
+                                   mmap.load = mmap.load,
                                    calibrate = TRUE)
         
         binaryDataOut <- binaryDataFULL$data.out

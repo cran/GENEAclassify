@@ -9,7 +9,8 @@ stepCounter(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X",
   threshold = 0.01, boundaries = c(0.15, 1),
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   Rp = 0.5, plot.it = FALSE, Centre = TRUE, STFT = FALSE,
-  verbose = FALSE, fun = c("GENEAcount", "mean", "sd", "mad"))
+  verbose = FALSE, fun = c("GENEAcount", "mean", "GENEAamplitude",
+  "sd", "mad", "GENEAwavelength"))
 }
 \arguments{
 \item{data}{The data to use for calculating the steps. This should be a matrix

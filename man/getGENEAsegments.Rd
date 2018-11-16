@@ -5,14 +5,16 @@
 \title{import and segment one or more bin files.}
 \usage{
 getGENEAsegments(testfile, start = NULL, end = NULL,
-  Use.Timestamps = FALSE, outputtoken = "_segmented",
-  outputdir = "GENEAclassification", datacols = "default",
-  decimalplaces = "default", filterWave = FALSE, filtername = "haar",
-  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq"),
-  penalty = "Manual", pen.value = 10, intervalseconds = 30,
-  mininterval = 5, peaks = TRUE, AxesMethod = c("X", "Y", "Z", "XZ",
-  "XY", "YZ", "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
-  Central_Threshold = 0.2, Step_Threshold = 0.5,
+  Use.Timestamps = FALSE, mmap.load = (.Machine$sizeof.pointer >= 8),
+  outputtoken = "_segmented", outputdir = "GENEAclassification",
+  datacols = "default", decimalplaces = "default",
+  filterWave = FALSE, filtername = "haar", j = 8,
+  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
+  "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
+  "DegreesMeanVar"), penalty = "Manual", pen.value = 10,
+  intervalseconds = 30, mininterval = 5, peaks = TRUE,
+  AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
+  ma.smooth = TRUE, Peak_Threshold = 10, Step_Threshold = 0.5,
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   boundaries = c(0.15, 1), samplefreq = 100, smlen = 100L,
   threshold = 0.001, filterorder = 4L, Rp = 0.5, plot.it = FALSE,
@@ -27,6 +29,8 @@ getGENEAsegments(testfile, start = NULL, end = NULL,
 \item{end}{Where to end reading observations.}
 
 \item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
+
+\item{mmap.load}{Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details}
 
 \item{outputtoken}{single character string to be appended to the file name
 for saving the segmenation output (default '_segmentated').}
@@ -68,6 +72,9 @@ The length 1 character vector 'default' applies default roundings: \itemize{
     \item Step.count = 0
     \item Step.sd = 1
     \item Step.mean = 0
+    \item Step.GENEAamplitude = 3
+    \item Step.GENEAwavelength = 3
+    \item Step.GENEAdistance = 3
 }
 This can be changed by using a named list. e.g decimalplaces = c(Start.Time = 2, Degrees.mean = 4).}
 
@@ -105,8 +112,6 @@ if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
 \item{ma.smooth}{Should a moving average filter be applied to the data.}
 
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
-
-\item{Central_Threshold}{After the signal has been centred around 0}
 
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
 

@@ -58,7 +58,7 @@ stepCounter <- function(data,
                         Centre = TRUE,
                         STFT = FALSE,
                         verbose = FALSE,
-                        fun = c("GENEAcount","mean", "sd", "mad")) {
+                        fun = c("GENEAcount","mean", "GENEAamplitude", "sd", "mad", "GENEAwavelength")) {
     
     if (missing(data)) {stop("data is missing") }
     if (missing(stepmethod)){stepmethod = "Chebyfilter"}
@@ -66,6 +66,25 @@ stepCounter <- function(data,
     if (!is.character(fun)) { stop("fun must be character vector of function names") }
     if (length(fun) < 1L) { stop("fun must name at least one function") }
 
+    # Going to remove the amplitude variable from this step counter. Can come back to this later. 
+    res <- numeric(length(fun))
+    names(res) <- fun
+  
+    if ("GENEAamplitude" %in% fun){
+      res["GENEAamplitude"] <- 0
+      fun <- fun[fun != "GENEAamplitude"]
+    }
+  
+    if ("GENEAwavelength" %in% fun){
+      res["GENEAwavelength"] <- 0
+      fun <- fun[fun != "GENEAwavelength"]
+    }
+  
+    if ("GENEAdistance" %in% fun){
+      res["GENEAdistance"] <- 0
+      fun <- fun[fun != "GENEAdistance"]
+    }
+  
     AxesMethod <- match.arg(arg = AxesMethod)
     method <- match.arg(arg = stepmethod)
     #Create the data for calculating the steps by adding x and z columns
@@ -153,11 +172,12 @@ stepCounter <- function(data,
     }
 
     if (plot.it) {
-        plot(x = data[, 1], y = centreData,
+        p <- plot(x = data[, 1], y = centreData,
             type = "l",
             main = paste("Counted Crossings:", sumZeroCrossings),
             xlab = "", ylab = "Centered X-Z Signal")
-        abline(v = data[zeroCrossing, 1], col = 2)
+        p <- p + abline(v = data[zeroCrossing, 1], col = 2)
+        print(p)
     }
 
     #find duration of steps
@@ -166,9 +186,7 @@ stepCounter <- function(data,
     SegmentDuration <- data[length(data[,1]),1]-data[1,1]
     # Calculate in minutes
     SegmentDuration <- SegmentDuration/60
-    res <- numeric(length(fun))
-    names(res) <- fun
-
+    
     if ("GENEAcount" %in% fun) {
         res["GENEAcount"] <- sumZeroCrossings
         fun <- fun[fun != "GENEAcount"]
@@ -327,7 +345,6 @@ getZeros <- function(x, len = 3) {
 #' @param ma.smooth Should a moving average filter be applied to the data. 
 #' @param filterorder Order of the moving average filter to apply to the data. This variable will be passed to \code{\link[forecast]{ma}}
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Central_Threshold After the signal has been centred around 0
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
 #' @param plot.it single logical create plot of data and peak/valley detection points (default \code{FALSE}).
 #' @param Centre If Centre set to true (default) then the step counter zeros the xz series before filtering.
@@ -351,12 +368,12 @@ stepCounter2 = function(data,
                         ma.smooth = TRUE,
                         filterorder = 4L,
                         Peak_Threshold = 5, 
-                        Central_Threshold = 0.2,
                         Step_Threshold = 0.5,
                         plot.it = FALSE,
                         Centre = TRUE,
                         verbose = FALSE,
-                        fun = c("GENEAcount","mean", "sd", "mad")){
+                        fun = c("GENEAcount", "GENEAamplitude", "GENEAwavelength",
+                                "mean", "sd", "mad")){
   
   if (verbose){print("Stepcounter2 initiated")}
   if (missing(data)) {stop("data is missing") }
@@ -393,30 +410,33 @@ stepCounter2 = function(data,
     }
   
   # Now I need to find the peaks and valleys. Plotting these as well
-  
-  mavals    = na.omit(xzSeries) # Will this cause issues? 
+  mavals    = na.omit(xzSeries) # Will this cause issues? - Need to replace with a 0 ideally
   mapeaks   = find_peaks( mavals, m = Peak_Threshold)
   mavalleys = find_peaks(-mavals, m = Peak_Threshold)
-  
-  # Now need to remove all values that are around the centre. 
-  
-  mapeaks   = mapeaks[mavals[mapeaks] > Central_Threshold]
-  mavalleys = mavalleys[mavals[mavalleys] < -Central_Threshold]
-  
+ 
   # This is to prevent the step counting attempting to count steps when none exsist. 
   if (length(mapeaks) == 0 | length(mavalleys) == 0 ){
     if (verbose == TRUE){print("No peaks or valleys")}
     res <- numeric(length(fun))
     names(res) <- fun
     
-    if ("count" %in% fun) {
-      res["count"] <- 0
-      fun <- fun[fun != "count"]
+    if ("GENEAcount" %in% fun) {
+      res["GENEAcount"] <- 0
+      fun <- fun[fun != "GENEAcount"]
     }
     if ("mean" %in% fun){
       res["mean"] <- 0
       fun <- fun[fun != "mean"]
     }
+    if ("GENEAamplitude" %in% fun){
+      res["GENEAamplitude"] <- 0
+      fun <- fun[fun != "GENEAamplitude"]
+    }
+    if ("GENEAwavelength" %in% fun){
+      res["GENEAwavelength"] <- 0
+      fun <- fun[fun != "GENEAwavelength"]
+    }
+    
     for (i in fun) {
       val <- try(get(x = i, mode = "function")(0))
       if (is(val, class2 = "try-error")) { val <- NA }
@@ -426,15 +446,16 @@ stepCounter2 = function(data,
   }
   
   if (plot.it == TRUE){
-    plot(mavals, type = "l")
-    points(mapeaks   + Peak_Threshold , mavals[mapeaks], col = "blue", pch = 1, lwd = 5)
-    points(mavalleys + Peak_Threshold , mavals[mavalleys], col = "red" , pch = 1, lwd = 5)
+    p <- plot(mavals, type = "l")
+    p <- p + points(mapeaks   + Peak_Threshold , mavals[(mapeaks)], col = "blue", pch = 1, lwd = 5)
+    p <- p + points(mavalleys + Peak_Threshold , mavals[(mavalleys)], col = "red" , pch = 1, lwd = 5)
+    cat(p)
   }
   
   # Firstly deciding where to start 
-  Steps = lastpeak = 0; n = 1;  StepIn = PeakUsed = ValleysUsed = c()
+  Steps = lastpeak = 0; n = 1;  StepIn = StepAmp = StepInDiff = PeakUsed = ValleysUsed = c()
   
-  # If FALSE Valleys first, TRUE Peaks first. Checking the indices of both te peaks found and valleys. 
+  # If FALSE Valleys first, TRUE Peaks first. Checking the indices of both the peaks found and valleys. 
   # If the other way around then swap mapeaks with mavalleys 
   if (mapeaks[1] > mavalleys[1]){
     Tmp4 = mapeaks
@@ -443,6 +464,7 @@ stepCounter2 = function(data,
     mavalleys = Tmp4
   }
   
+  # Running through the peaks that have now been found as potential markers for step detection.
   for (i in 1:length(mapeaks)){
     
     # Routine to skip over mapeaks where a peak has already been found 
@@ -470,6 +492,7 @@ stepCounter2 = function(data,
       next
     }
     
+    # Checking the corresponding valley/peak to check whether the step has a large enough amplitude. 
     for (j in 1:length(posvalleys)){
       # Need this to move back down a for loop 
       if (!is.null(PeakUsed) & !is.null(mapeaks)){
@@ -493,15 +516,8 @@ stepCounter2 = function(data,
         # Now find all the points that are the window away from the mapeaks to give pospeaks
         pospeaks = mapeaks[mapeaks < (posvalleys[j] + smlen) & mapeaks > (posvalleys[j] + 10) & mapeaks > lastpeak]
         
-        # Show the pospeaks found
-        if (verbose == TRUE){
-          print("pospeaks is ")
-          print(pospeaks)
-        }
-        
         # Need to identify which valley I had got to here.
         if (length(pospeaks) == 0){
-          if (verbose == TRUE){print("pospeaks has length 0")}
           next
         } 
         
@@ -534,14 +550,6 @@ stepCounter2 = function(data,
           
           # Check to see wether the difference is above the threshold
           if (abs(mavals[pospeaks[k]] - mavals[posvalleys[j]]) > Step_Threshold){
-            if (verbose == TRUE){
-              print("Step detected!")
-              print("Current Step indices:")
-              print(StepIn)
-              print("The Peaks and Valleys used before step added:")
-              print(PeakUsed);print(ValleysUsed)
-            }
-            
             Steps  = Steps + 1
             StepIn[n] = posvalleys[j]
             # Needs to be something here to move the valley position along accordingly - So double steps aren't counted
@@ -549,19 +557,15 @@ stepCounter2 = function(data,
             PeakUsed[n] = mapeaks[i] # Add the starting peak. 
             
             # Now need to set the next peak as the end peak used. In this case pospeak is 41 where k = 1
-            LastPeak = k
-           # PeakUsed[(2*n):(2*n)*(k+1)] = pospeaks[1:k]
+            LastPeak = pospeaks[k]
             
             ValleysUsed[n] = posvalleys[j]
             
-            if (verbose){
-              print("Steps updated");print(Steps)
-              print("Step indices are now");print(StepIn)
-              print("The Peaks used:")
-              print(PeakUsed)
-              print("The Valleys used");
-              print(ValleysUsed)
-            }
+            # This gives the difference between recordings in terms of number of recordings. 
+            StepInDiff[n] = LastPeak - PeakUsed[n] # Finds the length of the step recorded.
+            
+            # Now calculating the amplitude of this step between these points. 
+            StepAmp[n] = (abs(mavals[(PeakUsed[n])] - mavals[(ValleysUsed[n])]) + abs(mavals[LastPeak] - mavals[(ValleysUsed[n])]))/4
             
             n = n + 1
             next
@@ -571,36 +575,47 @@ stepCounter2 = function(data,
       }
     }
   }
-    
-  if (verbose == TRUE){
-    print(Steps)
-    print(StepIn)
-  }
-  
-  if (Steps == 1){Steps = 0}
   
   # Find duration of steps
-  stepDuration <- diff(data[StepIn, 1, drop = TRUE] * samplefreq)
+  stepDuration <- diff(data[StepIn, 1, drop = TRUE] * samplefreq, na.rm = T)
   # Find Segment duration
   SegmentDuration <- data[length(data[,1]),1]-data[1,1]
   # Calculate in minutes
-  SegmentDuration <- SegmentDuration / 60
+  SegmentDurationMin <- SegmentDuration / 60
   res <- numeric(length(fun))
   names(res) <- fun
   
+  # Run over the steps here. 
   if ("GENEAcount" %in% fun) {
     res["GENEAcount"] <- Steps
     fun <- fun[fun != "GENEAcount"]
   }
   if ("mean" %in% fun){
-    res["mean"] <- (Steps)/SegmentDuration
+    res["mean"] <- (Steps)/SegmentDurationMin
     fun <- fun[fun != "mean"]
   }
+  
+  if ("GENEAamplitude" %in% fun){
+    res["GENEAamplitude"] <- mean(StepAmp, na.rm = T)
+    fun <- fun[fun != "GENEAamplitude"]
+  }
+  
+  if ("GENEAwavelength" %in% fun){
+    res["GENEAwavelength"] <- mean(StepInDiff, na.rm = T)
+    fun <- fun[fun != "GENEAwavelength"]
+  }
+  
+  if ("GENEAdistance" %in% fun){
+    res["GENEAdistance"] <- mean(diff(StepIn, na.rm = T), na.rm =T)
+    fun <- fun[fun != "GENEAdistance"]
+  }
+  
   for (i in fun) {
     val <- try(get(x = i, mode = "function")(stepDuration))
     if (is(val, class2 = "try-error")) { val <- NA }
     res[i] <- val
   }
+  
   return(res)
 }
 
