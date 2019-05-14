@@ -75,7 +75,6 @@ dataImport <- function(bindata, downsample = 100,
         dataUpDown <- -1 * dataUpDown
     }
 
-    
     vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
     
     geneaBin <- list(Data = Intervals, Freq = downsample, UpDown = dataUpDown, Degrees = dataDegrees, 

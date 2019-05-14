@@ -10,16 +10,17 @@ classifyGENEA(testfile, start = NULL, end = NULL,
   outputdir = "GENEAclassification", verbose = FALSE,
   allprobs = FALSE, setinf = 100, datacols = "default",
   peaks = FALSE, AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ",
-  "XYZ"), ma.smooth = TRUE, Peak_Threshold = 10,
-  Central_Threshold = 0.2, Step_Threshold = 0.5, samplefreq = 100,
+  "XYZ"), ma.smooth = TRUE, Peak_Threshold = 3, Step_Threshold = 0.5,
+  sd_Threshold = 150, magsa_Threshold = 0.15, samplefreq = 100,
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
   "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
-  "DegreesMeanVar"), smlen = 100L, filterorder = 4L,
+  "DegreesMeanVar", "UpDownMeanVarDegreesMeanVar",
+  "UpDownMeanVarMagMeanVar"), smlen = 100L, filterorder = 4L,
   threshold = 0.001, boundaries = c(0.15, 1), Rp = 0.5,
   plot.it = FALSE, plot.seg = FALSE,
   plot.seg.outputfile = "Changepoint", Centre = TRUE, STFT = FALSE,
-  win = 10, penalty = "Manual", pen.value = 10,
+  win = 10, penalty = "Manual", pen.value1 = 40, pen.value2 = 400,
   intervalseconds = 30, mininterval = 5, ...)
 }
 \arguments{
@@ -77,9 +78,11 @@ if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
 
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
 
-\item{Central_Threshold}{After the signal has been centred around 0}
-
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
+
+\item{sd_Threshold}{A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.}
+
+\item{magsa_Threshold}{A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.}
 
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number. (default 100)}
@@ -112,7 +115,9 @@ when calculating the step number. (default 100)}
 
 \item{penalty}{single characgter, the penalty to use for changepoint detection. default ("SIC")}
 
-\item{pen.value}{Value of the type 1 error required when penalty is "Asymptotic"}
+\item{pen.value1}{Value of the type 1 error required when penalty is "Asymptotic".}
+
+\item{pen.value2}{Default set as NULL and so equals pen.value1 if no input.}
 
 \item{intervalseconds}{An integer number of seconds between 5 and 30 during which at most one changepoint may occur.}
 

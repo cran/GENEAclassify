@@ -7,9 +7,9 @@
 stepCounter2(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X",
   "Y", "Z", "XZ", "XY", "YZ", "XYZ"), ma.smooth = TRUE,
   filterorder = 4L, Peak_Threshold = 5, Step_Threshold = 0.5,
-  plot.it = FALSE, Centre = TRUE, verbose = FALSE,
-  fun = c("GENEAcount", "GENEAamplitude", "GENEAwavelength", "mean",
-  "sd", "mad"))
+  sd_Threshold = 150, magsa_Threshold = 0.15, plot.it = FALSE,
+  Centre = TRUE, verbose = FALSE, fun = c("GENEAcount",
+  "GENEAamplitude", "GENEAwavelength", "mean", "sd", "mad"))
 }
 \arguments{
 \item{data}{The data to use for calculating the steps. This should be a matrix
@@ -38,6 +38,10 @@ when counting zero crossing events}
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
 
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
+
+\item{sd_Threshold}{A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.}
+
+\item{magsa_Threshold}{A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.}
 
 \item{plot.it}{single logical create plot of data and peak/valley detection points (default \code{FALSE}).}
 

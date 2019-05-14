@@ -1,5 +1,4 @@
 ## ----global_options, warning=FALSE, eval=FALSE, echo=FALSE---------------
-#  knitr::opts_chunk$set(root.dir = normalizePath("/Users/owner/Documents/GENEActiv/GENEAclassifyPDF"))
 #  knitr::opts_chunk$get("root.dir")  # returns 'Users/Me/Docs/Proj'
 
 ## ----installing the dependencies,eval=FALSE------------------------------

@@ -35,115 +35,120 @@
 #' changeTimes(time = 0:6, intervalseconds = 30, 
 #'     changeupdown = c1, changedegrees = c2)
 
-changeTimes <- function(time, intervalseconds = 30, 
-    changeupdown, changedegrees, mininterval = 5, verbose = TRUE) {
-    
-    if (missing(time)) { stop("time is missing") }
-    if (!is.numeric(time)) { 
-        stop("time must be numeric, but was ", class(time)) }
-    if (!is(object = changeupdown, class2 = "cpt")) {
-        stop("changeupdown must be a cpt object, but was ", 
-            class(changeupdown))
-    }
-    if (!is(object = changedegrees, class2 = "cpt")) {
-        stop("changedegrees must be a cpt object, but was ", 
-            class(changedegrees))
-    }
-    ## extract change points for both updown and rotation
-    cptUpDown <- cpts(changeupdown)
-    cptDegrees <- cpts(changedegrees)
-    
-    allChanges <- unique(sort(c(cptUpDown, cptDegrees)))
-    
-    ## get time of changes
-    timeUpDown <- c(time[1], time[sort(cptUpDown)], time[length(time)])
-    
-    timeDegrees <- c(time[1], time[sort(cptDegrees)], time[length(time)])
-
-    allTimes <- c(time[1], time[allChanges], time[length(time)])
-
-    durationUpDown <- diff(timeUpDown)
-    durationDegrees <- diff(timeDegrees)
-    
-    if (is.null(intervalseconds)) { intervalseconds <- NA }
-    
-    if (length(intervalseconds) != 1L) {
-        warning("intervalseconds must be length 1, but was length ", 
+changeTimes <- function(time, 
+                        intervalseconds = 30, 
+                        changeupdown, 
+                        changedegrees, 
+                        mininterval = 5, 
+                        verbose = TRUE) {
+  
+  if (missing(time)) { stop("time is missing") }
+  if (!is.numeric(time)) { 
+    stop("time must be numeric, but was ", class(time)) }
+  if (!is(object = changeupdown, class2 = "cpt")) {
+    stop("changeupdown must be a cpt object, but was ", 
+         class(changeupdown))
+  }
+  if (!is(object = changedegrees, class2 = "cpt")) {
+    stop("changedegrees must be a cpt object, but was ", 
+         class(changedegrees))
+  }
+  ## extract change points for both updown and rotation
+  cptUpDown <- cpts(changeupdown)
+  cptDegrees <- cpts(changedegrees)
+  
+  allChanges <- unique(sort(c(cptUpDown, cptDegrees)))
+  
+  ## get time of changes
+  timeUpDown <- c(time[1], time[sort(cptUpDown)], time[length(time)])
+  
+  timeDegrees <- c(time[1], time[sort(cptDegrees)], time[length(time)])
+  
+  allTimes <- c(time[1], time[allChanges], time[length(time)])
+  
+  durationUpDown <- diff(timeUpDown)
+  durationDegrees <- diff(timeDegrees)
+  
+  if (is.null(intervalseconds)) { intervalseconds <- NA }
+  
+  if (length(intervalseconds) != 1L) {
+    warning("intervalseconds must be length 1, but was length ", 
             length(intervalseconds))
-        intervalseconds <- intervalseconds[1]
-    }
-    if (!is.na(intervalseconds)) {
-        
-        if (intervalseconds > mininterval) {
-            
-            shortdurationUpDown <- which(as.numeric(durationUpDown) < intervalseconds)
-            
-            shortdurationDegrees <- which(as.numeric(durationDegrees) < intervalseconds)
-            
-            upDownSegments <- removeShortSegments(
-                shortduration = shortdurationUpDown, 
-                changes = cptUpDown, 
-                variance = param.est(changeupdown)$variance, 
-                time = time)
-                
-            degreesSegments <- removeShortSegments(
-                shortduration = shortdurationDegrees, 
-                changes = cptDegrees, 
-                variance = param.est(changedegrees)$variance, 
-                time = time)
-            
-            allChanges <- sort(c(
-                    setNames(upDownSegments$cpts, rep("U", length = length(upDownSegments$cpts))), 
-                    setNames(degreesSegments$cpts, rep("D", length = length(degreesSegments$cpts)))))
-            
-            allChanges <- setNames(unique(allChanges), names(allChanges)[!duplicated(allChanges)])
-            allTimes <-  c(time[1], time[allChanges], time[length(time)])
-            allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)] )
-            
-            shortduration <- which(as.numeric(allDurations) < intervalseconds)
-            shortduration <- unique(ifelse(test = names(allChanges)[shortduration] == "D", 
-                yes = shortduration, 
-                no = shortduration + 1))
-            shortduration <- na.omit(shortduration)
-            
-            if (length(shortduration) > 0) { 
-                allChanges <- allChanges[-shortduration] }
-            
-            allTimes <-  c(time[1], time[allChanges], time[length(time)])
-            
-            # If allChanges is not null
-            
-            if (length(allChanges) > 0 ){
-            
-                allTimeDiff <- diff(allTimes)
-                
-                shortalltimes <- which(as.numeric(allTimeDiff) < intervalseconds)
-                
-                FinalVariance = length(allChanges) - 1
-                
-                for (i in 1:length(allChanges)){
-                  if (names(allChanges[i]) == "D"){
-                    FinalVariance[i] <- param.est(changedegrees)$variance[i]
-                  }
-                  if (names(allChanges[i]) == "U"){
-                    FinalVariance[i] <- param.est(changeupdown)$variance[i]
-                  }
-                }
-                
-                allSegments <- removeShortSegments(
-                    shortduration = shortalltimes,
-                    changes = unname(allChanges), 
-                    variance = param.est(changeupdown)$variance, 
-                    time = time)
-                
-                allTimes = allSegments$times
-            }
-        } else {
-            if (verbose) { 
-                warning("ignoring intervalseconds <= ", mininterval, " and returning all segments") }
-        }
-    }
+    intervalseconds <- intervalseconds[1]
+  }
+  if (!is.na(intervalseconds)) {
     
-    return(allTimes)
+    if (intervalseconds > mininterval) {
+      
+      shortdurationUpDown <- which(as.numeric(durationUpDown) < intervalseconds)
+      
+      shortdurationDegrees <- which(as.numeric(durationDegrees) < intervalseconds)
+      
+      upDownSegments <- removeShortSegments(
+        shortduration = shortdurationUpDown, 
+        changes = cptUpDown, 
+        variance = param.est(changeupdown)$variance, 
+        time = time)
+      
+      degreesSegments <- removeShortSegments(
+        shortduration = shortdurationDegrees, 
+        changes = cptDegrees, 
+        variance = param.est(changedegrees)$variance, 
+        time = time)
+      
+      allChanges <- sort(c(
+        setNames(upDownSegments$cpts, rep("U", length = length(upDownSegments$cpts))), 
+        setNames(degreesSegments$cpts, rep("D", length = length(degreesSegments$cpts)))))
+      
+      allChanges <- setNames(unique(allChanges), names(allChanges)[!duplicated(allChanges)])
+      allTimes <-  c(time[1], time[allChanges], time[length(time)])
+      allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)] )
+      
+      shortduration <- which(as.numeric(allDurations) < intervalseconds)
+      shortduration <- unique(ifelse(test = names(allChanges)[shortduration] == "D", 
+                                     yes = shortduration, 
+                                     no = shortduration + 1))
+      shortduration <- na.omit(shortduration)
+      
+      if (length(shortduration) > 0) { 
+        allChanges <- allChanges[-shortduration] }
+      
+      allTimes <-  c(time[1], time[allChanges], time[length(time)])
+      
+      # If allChanges is not null
+      
+      if (length(allChanges) > 0 ){
+        
+        allTimeDiff <- diff(allTimes)
+        
+        shortalltimes <- which(as.numeric(allTimeDiff) < intervalseconds)
+        
+        FinalVariance = length(allChanges) - 1
+        
+        for (i in 1:length(allChanges)){
+          if (names(allChanges[i]) == "D"){
+            FinalVariance[i] <- param.est(changedegrees)$variance[i]
+          }
+          if (names(allChanges[i]) == "U"){
+            FinalVariance[i] <- param.est(changeupdown)$variance[i]
+          }
+        }
+        
+        allSegments <- removeShortSegments(
+          shortduration = shortalltimes,
+          changes = unname(allChanges), 
+          variance = param.est(changeupdown)$variance, 
+          time = time)
+        
+        allTimes = allSegments$times
+      }
+    } else {
+      if (verbose) { 
+        warning("ignoring intervalseconds <= ", mininterval, " and returning all segments") }
+    }
+  }
+  
+  return(allTimes)
 }
+
 

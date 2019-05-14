@@ -11,10 +11,12 @@ getGENEAsegments(testfile, start = NULL, end = NULL,
   filterWave = FALSE, filtername = "haar", j = 8,
   changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
   "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
-  "DegreesMeanVar"), penalty = "Manual", pen.value = 10,
-  intervalseconds = 30, mininterval = 5, peaks = TRUE,
-  AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
-  ma.smooth = TRUE, Peak_Threshold = 10, Step_Threshold = 0.5,
+  "DegreesMeanVar", "UpDownMeanVarDegreesMeanVar",
+  "UpDownMeanVarMagMeanVar"), penalty = "Manual", pen.value1 = 40,
+  pen.value2 = 400, intervalseconds = 30, mininterval = 5,
+  peaks = TRUE, AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
+  ma.smooth = TRUE, Peak_Threshold = 3, Step_Threshold = 0.5,
+  sd_Threshold = 150, magsa_Threshold = 0.15,
   stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
   boundaries = c(0.15, 1), samplefreq = 100, smlen = 100L,
   threshold = 0.001, filterorder = 4L, Rp = 0.5, plot.it = FALSE,
@@ -90,7 +92,9 @@ TempFreq performs a change point on the variance in the temeprature and frequenc
 
 \item{penalty}{single characgter, the penalty to use for changepoint detection. default ("SIC").}
 
-\item{pen.value}{Value of the type 1 error required when penalty is "Asymptotic".}
+\item{pen.value1}{Value of the type 1 error required when penalty is "Asymptotic".}
+
+\item{pen.value2}{Default set as NULL and so equals pen.value1 if no input.}
 
 \item{intervalseconds}{An integer number of seconds between 5 and 30 during which at most one changepoint may occur.}
 
@@ -114,6 +118,10 @@ if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
 \item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
 
 \item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
+
+\item{sd_Threshold}{A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.}
+
+\item{magsa_Threshold}{A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.}
 
 \item{stepmethod}{defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.}
 

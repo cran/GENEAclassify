@@ -346,6 +346,8 @@ getZeros <- function(x, len = 3) {
 #' @param filterorder Order of the moving average filter to apply to the data. This variable will be passed to \code{\link[forecast]{ma}}
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
+#' @param sd_Threshold A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.
+#' @param magsa_Threshold A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.
 #' @param plot.it single logical create plot of data and peak/valley detection points (default \code{FALSE}).
 #' @param Centre If Centre set to true (default) then the step counter zeros the xz series before filtering.
 #' @param fun character vector naming functions by which to summarize steps.
@@ -369,6 +371,8 @@ stepCounter2 = function(data,
                         filterorder = 4L,
                         Peak_Threshold = 5, 
                         Step_Threshold = 0.5,
+                        sd_Threshold = 150,
+                        magsa_Threshold = 0.15,
                         plot.it = FALSE,
                         Centre = TRUE,
                         verbose = FALSE,
@@ -576,44 +580,97 @@ stepCounter2 = function(data,
     }
   }
   
-  # Find duration of steps
+  # Dividing the steps be two
+  if (Steps > 1){
+    Steps <- floor(Steps/2)
+    len = length(StepIn)
+    seq_rm = seq(1, len, by = 2)
+    # Only remove if there is a vector longer than 1.
+    if (length(seq_rm) > 0){
+      StepIn = StepIn[-seq_rm]
+      StepInDiff = StepInDiff[-seq_rm]
+    }
+  }
+  
   stepDuration <- diff(data[StepIn, 1, drop = TRUE] * samplefreq, na.rm = T)
   # Find Segment duration
-  SegmentDuration <- data[length(data[,1]),1]-data[1,1]
+  SegmentDuration <- data[length(data[,1]),1] - data[1,1]
   # Calculate in minutes
   SegmentDurationMin <- SegmentDuration / 60
   res <- numeric(length(fun))
   names(res) <- fun
   
-  # Run over the steps here. 
-  if ("GENEAcount" %in% fun) {
-    res["GENEAcount"] <- Steps
-    fun <- fun[fun != "GENEAcount"]
-  }
-  if ("mean" %in% fun){
-    res["mean"] <- (Steps)/SegmentDurationMin
-    fun <- fun[fun != "mean"]
-  }
-  
-  if ("GENEAamplitude" %in% fun){
-    res["GENEAamplitude"] <- mean(StepAmp, na.rm = T)
-    fun <- fun[fun != "GENEAamplitude"]
-  }
-  
-  if ("GENEAwavelength" %in% fun){
-    res["GENEAwavelength"] <- mean(StepInDiff, na.rm = T)
-    fun <- fun[fun != "GENEAwavelength"]
-  }
-  
-  if ("GENEAdistance" %in% fun){
-    res["GENEAdistance"] <- mean(diff(StepIn, na.rm = T), na.rm =T)
-    fun <- fun[fun != "GENEAdistance"]
-  }
-  
-  for (i in fun) {
-    val <- try(get(x = i, mode = "function")(stepDuration))
-    if (is(val, class2 = "try-error")) { val <- NA }
-    res[i] <- val
+  # Finding step.sd and magsa from data.
+  if (length(stepDuration) > 0){
+    # Looking at step.sd to check whether over 75. 
+    
+    sd_lim   <- try(sd(stepDuration, na.rm = T))
+    magsa_lim <- try(mean((data[,2]^2 + data[,3]^2 + data[,4]^2)^0.5, na.rm = T))
+    
+    # Invidiaully pull these errors out. 
+    if (is(sd_lim, class2 = "try-error") | is.na(sd_lim)){
+      sd_lim <- 0
+    }
+    
+    if (is(magsa_lim, class2 ="try-error") | is.na(magsa_lim)){
+      magsa_lim <- 0
+    }
+    
+    if (sd_lim > sd_Threshold | magsa_lim < magsa_Threshold){
+      if ("GENEAcount" %in% fun) {
+        res["GENEAcount"] <- 0
+        fun <- fun[fun != "GENEAcount"]
+      }
+      if ("mean" %in% fun){
+        res["mean"] <- 0
+        fun <- fun[fun != "mean"]
+      }
+      if ("GENEAamplitude" %in% fun){
+        res["GENEAamplitude"] <- 0
+        fun <- fun[fun != "GENEAamplitude"]
+      }
+      if ("GENEAwavelength" %in% fun){
+        res["GENEAwavelength"] <- 0
+        fun <- fun[fun != "GENEAwavelength"]
+      }
+      
+      for (i in fun) {
+        val <- try(get(x = i, mode = "function")(0))
+        if (is(val, class2 = "try-error")) { val <- NA }
+        res[i] <- val
+      }
+    } else{
+      # Run over the steps here. 
+      if ("GENEAcount" %in% fun) {
+        res["GENEAcount"] <- Steps
+        fun <- fun[fun != "GENEAcount"]
+      }
+      if ("mean" %in% fun){
+        res["mean"] <- (Steps)/SegmentDurationMin
+        fun <- fun[fun != "mean"]
+      }
+      
+      if ("GENEAamplitude" %in% fun){
+        res["GENEAamplitude"] <- mean(StepAmp, na.rm = T)
+        fun <- fun[fun != "GENEAamplitude"]
+      }
+      
+      if ("GENEAwavelength" %in% fun){
+        res["GENEAwavelength"] <- mean(StepInDiff, na.rm = T)
+        fun <- fun[fun != "GENEAwavelength"]
+      }
+      
+      if ("GENEAdistance" %in% fun){
+        res["GENEAdistance"] <- mean(diff(StepIn, na.rm = T), na.rm =T)
+        fun <- fun[fun != "GENEAdistance"]
+      }
+      
+      for (i in fun) {
+        val <- try(get(x = i, mode = "function")(stepDuration))
+        if (is(val, class2 = "try-error")) { val <- NA }
+        res[i] <- val
+      }
+    } 
   }
   
   return(res)

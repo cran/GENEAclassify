@@ -39,7 +39,8 @@
 #' will be returned instead.
 #' @param datacols a vector constructed 'column.summary' or 'default'. See \code{\link{segmentation}} for details.
 #' @param penalty single characgter, the penalty to use for changepoint detection. default ("SIC")
-#' @param pen.value Value of the type 1 error required when penalty is "Asymptotic"
+#' @param pen.value1 Value of the type 1 error required when penalty is "Asymptotic".
+#' @param pen.value2 Default set as NULL and so equals pen.value1 if no input. 
 #' @param mininterval single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen
 #' @param intervalseconds An integer number of seconds between 5 and 30 during which at most one changepoint may occur.
 #' @param plot.it (logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
@@ -70,8 +71,9 @@
 #' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
 #' @param ma.smooth Should a moving average filter be applied to the data. 
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Central_Threshold After the signal has been centred around 0
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
+#' @param sd_Threshold A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.
+#' @param magsa_Threshold A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.
 
 #' @details This function will apply the rules determined by the rpart GENEA 
 #' decision tree passed to argument trainingfit to the columns 
@@ -105,14 +107,17 @@ classifyGENEA <- function(testfile,
                           peaks = FALSE,
                           AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                           ma.smooth = TRUE,
-                          Peak_Threshold = 10, 
-                          Central_Threshold = 0.2,
+                          Peak_Threshold = 3, 
                           Step_Threshold = 0.5,
+                          sd_Threshold = 150,
+                          magsa_Threshold = 0.15,
                           samplefreq = 100,
                           stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                           changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
                                           "UpDownMean", "UpDownVar", "UpDownMeanVar",
-                                          "DegreesMean", "DegreesVar", "DegreesMeanVar"), 
+                                          "DegreesMean", "DegreesVar", "DegreesMeanVar", 
+                                          "UpDownMeanVarDegreesMeanVar", 
+                                          "UpDownMeanVarMagMeanVar"),
                           smlen = 100L,
                           filterorder = 4L,  
                           threshold = 0.001,
@@ -125,7 +130,8 @@ classifyGENEA <- function(testfile,
                           STFT = FALSE,
                           win = 10,
                           penalty = "Manual",
-                          pen.value = 10,
+                          pen.value1 = 40,
+                          pen.value2 = 400,
                           intervalseconds = 30,
                           mininterval = 5,...) {
   
@@ -150,8 +156,11 @@ classifyGENEA <- function(testfile,
       stop("setinf should be single numeric") }
   }
   
+  if (is.null(pen.value2)) {pen.value2 = pen.value1}
+  
   fnames <- features(trainingfit)
   
+  #### getGENEAsegments #### 
   if (missing(newdata)) {
     
     if (!missing(testfile)) {
@@ -162,7 +171,7 @@ classifyGENEA <- function(testfile,
       # Ensure variables are being passed correctly
       if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
       if (missing(AxesMethod)) {AxesMethod = "XZ"}
-      if (missing(changepoint)) {changepoint = "UpDownDegrees"}
+      if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"}
       
       newData <- getGENEAsegments(testfile = testfile,
                                   start = start, 
@@ -178,8 +187,9 @@ classifyGENEA <- function(testfile,
                                   AxesMethod = AxesMethod, 
                                   ma.smooth = ma.smooth,
                                   Peak_Threshold = Peak_Threshold, 
-                                  Central_Threshold = Central_Threshold,
                                   Step_Threshold = Step_Threshold,
+                                  sd_Threshold = sd_Threshold,
+                                  magsa_Threshold = magsa_Threshold,
                                   Centre = Centre,
                                   plot.it = plot.it,
                                   STFT = STFT,
@@ -193,7 +203,8 @@ classifyGENEA <- function(testfile,
                                   # Changepoint variables
                                   changepoint = changepoint,
                                   penalty = penalty,
-                                  pen.value = pen.value,
+                                  pen.value1 = pen.value1,
+                                  pen.value2 = pen.value2,
                                   intervalseconds = intervalseconds,
                                   mininterval = mininterval,
                                   plot.seg = plot.seg, ...)
@@ -284,7 +295,7 @@ classifyGENEA <- function(testfile,
     newData[newData == -99999999] <- NA
   }
   
-  ## predict new data from training data tree fit
+  #### predict new data from training data tree fit ####
   pred <- predict(object = trainingfit, newdata = newData, type = "class")
   
   ## find probabilities for prediction based on tree fit

@@ -112,7 +112,8 @@ NULL
 #' @param j single numeric, the level to which to smooth. Passed to \code{link[waveslim]{wave.filter}} (default 8).
 # Changepoint varaibles 
 #' @param penalty single characgter, the penalty to use for changepoint detection. default ("SIC").
-#' @param pen.value Value of the type 1 error required when penalty is "Asymptotic".
+#' @param pen.value1 Value of the type 1 error required when penalty is "Asymptotic".
+#' @param pen.value2 Default set as NULL and so equals pen.value1 if no input. 
 #' @param intervalseconds An integer number of seconds between 5 and 30 during which at most one changepoint may occur.
 #' @param plot.it single logical, Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
 #' @param mininterval single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen
@@ -146,6 +147,8 @@ NULL
 #' @param ma.smooth Should a moving average filter be applied to the data. 
 #' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
 #' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
+#' @param sd_Threshold A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.
+#' @param magsa_Threshold A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
@@ -195,17 +198,22 @@ segmentation <- function(data,
                          # Changepoint variables 
                          changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
                                          "UpDownMean", "UpDownVar", "UpDownMeanVar",
-                                         "DegreesMean", "DegreesVar", "DegreesMeanVar"), 
+                                         "DegreesMean", "DegreesVar", "DegreesMeanVar", 
+                                         "UpDownMeanVarDegreesMeanVar", 
+                                         "UpDownMeanVarMagMeanVar"), 
                          penalty = "Manual",
-                         pen.value = 10,
+                         pen.value1 = 40,
+                         pen.value2 = 400,
                          intervalseconds = 30,
                          mininterval = 5,
                          # Step Coutner 2 variables 
                          peaks = TRUE,
                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
                          ma.smooth = TRUE,
-                         Peak_Threshold = 10, 
+                         Peak_Threshold = 3, 
                          Step_Threshold = 0.5,
+                         sd_Threshold = 150,
+                         magsa_Threshold = 0.15,
                          # Step Counter 1 Variables
                          stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                          boundaries = c(0.15, 1.0), 
@@ -224,8 +232,9 @@ segmentation <- function(data,
     if (missing(data)) { stop("data is missing") }
     if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
     if (missing(AxesMethod)) {AxesMethod = "XZ"} # Set the Y-axis as the default
-    if (missing(changepoint)) {changepoint = "UpDownDegrees"} 
-    
+    if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"} 
+    if (is.null(pen.value2)) {pen.value2 = pen.value1}
+  
     changepoint <- match.arg(arg = changepoint)
     
   
@@ -339,7 +348,7 @@ segmentation <- function(data,
         warning("columns requested by datacols not present in data: ",
             paste(uCols[missCols], collapse = ", ")) }
 
-    #### create Summary matrix #######################################################################
+    #### Create Summary matrix #######################################################################
 
     # these matrices control the data objects that are used for analysis
     # and the functions that should be applied to them
@@ -442,13 +451,13 @@ segmentation <- function(data,
                          
                          changeUpDown <- cpt.var(data = UpDown,
                                                  penalty = penalty,
-                                                 pen.value = pen.value,
+                                                 pen.value = pen.value1,
                                                  minseglen = mininterval,
                                                  method = "PELT")
                          
                          changeDegrees <- cpt.var(data = Degrees,
                                                   penalty = penalty,
-                                                  pen.value = pen.value,
+                                                  pen.value = pen.value2,
                                                   minseglen = mininterval,
                                                   method = "PELT")
                          
@@ -486,13 +495,13 @@ segmentation <- function(data,
                          
                          changeTemp <- cpt.var(data = Temp,
                                                penalty = penalty,
-                                               pen.value = pen.value,
+                                               pen.value = pen.value1,
                                                minseglen = mininterval,
                                                method = "PELT")
                          
                          changeSTFT <- cpt.var(data =  FreqData,
                                                penalty = penalty,
-                                               pen.value = pen.value,
+                                               pen.value = pen.value2,
                                                minseglen = mininterval,
                                                method = "PELT")
                          
@@ -527,13 +536,13 @@ segmentation <- function(data,
                          
                          changeUpDown <- cpt.var(data = UpDown,
                                                  penalty = penalty,
-                                                 pen.value = pen.value,
+                                                 pen.value = pen.value1,
                                                  minseglen = mininterval,
                                                  method = "PELT")
                          
                          changeSTFT <- cpt.var(data =  FreqData,
                                                penalty = penalty,
-                                               pen.value = pen.value,
+                                               pen.value = pen.value2,
                                                minseglen = mininterval,
                                                method = "PELT")
                          
@@ -549,7 +558,7 @@ segmentation <- function(data,
                        "UpDownMean" = {
                          UpDownMean = cpt.mean(data = UpDown,
                                           penalty = penalty,
-                                          pen.value = pen.value,
+                                          pen.value = pen.value1,
                                           minseglen = mininterval,
                                           method = "PELT")
                          
@@ -559,7 +568,7 @@ segmentation <- function(data,
                        "UpDownVar" = {
                          UpDownVar = cpt.var(data = UpDown,
                                         penalty = penalty,
-                                        pen.value = pen.value,
+                                        pen.value = pen.value1,
                                         minseglen = mininterval,
                                         method = "PELT")
                          
@@ -571,7 +580,7 @@ segmentation <- function(data,
                          
                          UpDownMeanVar = cpt.meanvar(data = UpDown,
                                                 penalty = penalty,
-                                                pen.value = pen.value,
+                                                pen.value = pen.value1,
                                                 minseglen = mininterval,
                                                 method = "PELT")
                          
@@ -584,7 +593,7 @@ segmentation <- function(data,
                        "DegreesMean" = {
                          DegreesMean = cpt.mean(data = Degrees,
                                                penalty = penalty,
-                                               pen.value = pen.value,
+                                               pen.value = pen.value1,
                                                minseglen = mininterval,
                                                method = "PELT")
                          
@@ -594,7 +603,7 @@ segmentation <- function(data,
                        "DegreesVar" = {
                          DegreesVar = cpt.var(data = Degrees,
                                              penalty = penalty,
-                                             pen.value = pen.value,
+                                             pen.value = pen.value1,
                                              minseglen = mininterval,
                                              method = "PELT")
                          
@@ -606,25 +615,76 @@ segmentation <- function(data,
                          
                          DegreesMeanVar = cpt.meanvar(data = Degrees,
                                                      penalty = penalty,
-                                                     pen.value = pen.value,
+                                                     pen.value = pen.value1,
                                                      minseglen = mininterval,
                                                      method = "PELT")
                          
                          Time[cpts(DegreesMeanVar)]
                          
+                       },
+                       
+                       # Changepoint I reqiure - Might need modification later on. Seems okay right now. 
+                       
+                       "UpDownMeanVarDegreesMeanVar" = {
+                         
+                         UpDownMeanVar = cpt.meanvar(data = UpDown,
+                                                     penalty = penalty,
+                                                     pen.value = pen.value1,
+                                                     minseglen = mininterval,
+                                                     method = "PELT")
+                         
+                         DegreesMeanVar = cpt.meanvar(data = Degrees,
+                                                      penalty = penalty,
+                                                      pen.value = pen.value2,
+                                                      minseglen = mininterval,
+                                                      method = "PELT")
+                         
+                         changeTimes(time = Time,
+                                     intervalseconds = intervalseconds,
+                                     changeupdown = UpDownMeanVar,
+                                     changedegrees = DegreesMeanVar,
+                                     verbose = verbose)
+                         
+                       }, 
+                       
+                       "UpDownMeanVarMagMeanVar" = {
+                         
+                         UpDownMeanVar = cpt.meanvar(data = UpDown,
+                                                     penalty = penalty,
+                                                     pen.value = pen.value1,
+                                                     minseglen = mininterval,
+                                                     method = "PELT")
+                         
+                         MagMeanVar = cpt.meanvar(data = Degrees,
+                                                      penalty = penalty,
+                                                      pen.value = pen.value2,
+                                                      minseglen = mininterval,
+                                                      method = "PELT")
+                         
+                         changeTimes(time = Time,
+                                     intervalseconds = intervalseconds,
+                                     changeupdown = UpDownMeanVar,
+                                     changedegrees = MagMeanVar,
+                                     verbose = verbose)
                        }
     )
     
-    ## segment durations
-
-    allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])
-
+    
+    #### If AllTimes has length 0 then ####
+    if (length(allTimes) == 0){
+      allTimes = c(Time[1], Time[length(Time)])
+      allDurations <- Time[length(Time)] - Time[1]
+    } else{
+      allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])
+    }
+    
+    #### segment durations ####
     output <- data.frame(Serial.Number = Serial,
-        Start.Time = as.integer(allTimes[-length(allTimes)]),
-        Segment.Start.Time = format(x = convert.time(allTimes[-length(allTimes)]),
-            format = "%H:%M:%S"),
-        Segment.Duration = allDurations,
-        stringsAsFactors = FALSE)
+                         Start.Time = as.integer(allTimes[-length(allTimes)]),
+                         Segment.Start.Time = format(x = convert.time(allTimes[-length(allTimes)]),
+                                                                      format = "%H:%M:%S"),
+                         Segment.Duration = allDurations,
+                         stringsAsFactors = FALSE)
 
     # update allTimes to catch all Time if few allTimes are returned
     if (length(allTimes) < 3) { allTimes <- range(Time) }
@@ -661,11 +721,7 @@ segmentation <- function(data,
         if (!is.null(outputfile)) { dev.off() }
     }
 
-    ###########################################################################
-
-    # summarize existing cols
-
-    ###########################################################################
+    #### summarize existing cols ##############################################
 
     cutPointEx <- cut(Time, allTimes)
 
@@ -689,17 +745,13 @@ segmentation <- function(data,
 
     output$Cuts <- as.numeric(rownames(output))
 
-    ###########################################################################
-
-    # summarize derived cols
-
-    ###########################################################################
+    #### summarize derived cols ###############################################
 
     ## redefine cutpoint here
 
     cutPointDe <- cut(xyzdata$timestamp, allTimes)
 
-    ## step stepCounter
+    #### StepCounter ####
 
     if (nrow(dataColsMatstep) > 0) {
 
@@ -720,6 +772,8 @@ segmentation <- function(data,
                             filterorder = filterorder,
                             Peak_Threshold = Peak_Threshold, 
                             Step_Threshold = Step_Threshold,
+                            sd_Threshold = sd_Threshold,
+                            magsa_Threshold = magsa_Threshold,
                             plot.it = plot.it,
                             Centre = Centre,
                             verbose = verbose,
@@ -755,7 +809,7 @@ segmentation <- function(data,
         output <- merge(x = output, y = stepNumber)
     }
 
-    ## Principal.Frequency
+    #### Principal.Frequency ####
 
     if (nrow(dataColsMatFreq) > 0) {
 

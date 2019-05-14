@@ -39,7 +39,9 @@
 #'     time = tm0)
 
 removeShortSegments <- function(shortduration, 
-    changes, variance, time) {
+                                changes,
+                                variance,
+                                time) {
     
     if (any(shortduration == 1L)) {
         shortduration <- shortduration[-which(shortduration == 1L)]
