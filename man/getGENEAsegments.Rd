@@ -163,10 +163,15 @@ segmented data are returned
 Import and summarize GENEActiv bin data for manual classification.
 }
 \examples{
-## segData <- getGENEAsegments(
-##     testfile = "subj02_left_wrist_2013-01-03_17-21-06_Being_Driven3.bin",
-##     outputdir = file.path(tempdir(), "GENEAclassification"),
-##    filter = TRUE, j = 5)
+## testfile = file.path(system.file(package = "GENEAread"),
+##                                  "binfile",
+##                                  "TESTfile.bin")
+## 
+## segData <- getGENEAsegments(testfile = testfile,
+##                             outputdir = file.path(tempdir(), "GENEAclassification"),    
+##                             changepoint = "UpDownDegrees",
+##                             pen.value1 = 1,
+##                             pen.value2 = 1)
 ## head(segData)
 ## list.files(file.path(tempdir(), "GENEAclassification"))
 }

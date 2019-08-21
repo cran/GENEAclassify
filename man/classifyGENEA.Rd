@@ -148,11 +148,13 @@ of newdata to classify into classes
 }
 \examples{
 ## segData <- read.csv(system.file(package = "GENEAclassify", 
-##       "data", "trainingData9.csv"))
+##       "testdata", "trainingData9.csv"))
 ## The training fit can be created by provided the file path to the training data
 ## in the function getTrainingData - see the help file for more details
 ## Uses the fitted decision tree to predict the segmented data
-## class9 <- classifyGENEA(newdata = segData, outputname = NULL)
+## class9 <- classifyGENEA(testfile = "trainingData9.csv",
+##                         newdata = segData, 
+##                         trainingfit = trainingFit)
 ## head(class9)
 ## table(class9$Class)
 }

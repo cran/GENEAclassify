@@ -215,7 +215,10 @@ A series of features for each of the segments will then be calculated and return
 \examples{
 ### Load the data to segment keeping only the first quarter of the data
 ## library(GENEAread)
-## segData <- dataImport(bindata = "001_w_19_12_12.bin",
+## testfile = file.path(system.file(package = "GENEAread"),
+##                                  "binfile",
+##                                  "TESTfile.bin")
+## segData <- dataImport(binfile = testfile,
 ##     downsample = 100, start = 0, end = 0.25)
 ## head(segData)
 ### Run loaded data through segmentation function

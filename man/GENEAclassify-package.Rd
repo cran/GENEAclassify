@@ -3,7 +3,6 @@
 \docType{package}
 \name{GENEAclassify-package}
 \alias{GENEAclassify-package}
-\alias{GENEAclassify}
 \title{Classification of accelorometer data}
 \description{
 This package provides tools to perform the segmentation

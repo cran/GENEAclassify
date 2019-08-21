@@ -63,20 +63,34 @@ globalVariables("TrainingData")
 #' @import rpart
 #' @importFrom graphics abline par text
 #' @examples 
-#' ## dataPath <- file.path(system.file(package = "GENEAclassify"), 
-#' ##    "testdata", "trainingData2.csv")
+#' ## dataPath <- file.path(system.file(package = "GENEAclassify"),
+#' ##                                   "testdata",
+#' ##                                   "trainingData9.csv")
+#' ##
 #' ## t1 <- read.csv(file = dataPath)
-#' ## f1 <- createGENEAmodel (data = t1, 
-#' ##     features = c("Magnitude.mean", "Degrees.var", "UpDown.mad"))
+#' ## 
+#' ## f1 <- createGENEAmodel(data = t1,
+#' ##                        features = c("Degrees.var",
+#' ##                                     "UpDown.mad",
+#' ##                                     "Magnitude.mean"),
+#' ##                        category = "Activity")
+#' ## 
 #' ## class(f1)
 #' ## levels(f1)
 #' ## features(f1)
 #' ## plot(f1)
 #' ## text(f1)
 
-createGENEAmodel  <- function(data, outputtree = NULL,
-    features = c("Segment.Duration", "Principal.Frequency.mad", "UpDown.sd", "Degrees.sd"), 
-    category = "Activity", plot = TRUE, verbose = TRUE, ...) {
+createGENEAmodel  <- function(data, 
+                              outputtree = NULL,
+                              features = c("Segment.Duration", 
+                                           "Principal.Frequency.mad", 
+                                           "UpDown.sd", 
+                                           "Degrees.sd"),
+                              category = "Activity", 
+                              plot = TRUE, 
+                              verbose = TRUE, 
+                              ...) {
     
     xVars <- colnames(data)
     

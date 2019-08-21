@@ -3,7 +3,7 @@
 #' Loads the data into R and creates format required for segmentation.
 #' 
 #' @title Data import function
-#' @param bindata File path to binary data to be segmented.
+#' @param binfile File path to binary data to be segmented.
 #' @param downsample Rate to downsample the data, defaults to every 100th observation. For no downsampling set NULL.
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
@@ -16,19 +16,30 @@
 #' @export
 #' @import GENEAread
 #' @examples
-#' ##    segData <- dataImport(bindata = list.files("RunWalk.bin", full = TRUE)[1])
-#' ##     names(segData)
+#' ##   segData <- dataImport(bindata = file.path(system.file(package = "GENEAread"),
+#' ##                                                         "binfile",
+#' ##                                                         "TESTfile.bin"))
+#' ## 
+#' ## segData1 = dataImport(AccData)
+#' ## names(segData)
 
-
-dataImport <- function(bindata, downsample = 100, 
-                       start = NULL, end = NULL, 
+dataImport <- function(binfile, 
+                       downsample = 100, 
+                       start = NULL, 
+                       end = NULL, 
                        Use.Timestamps = FALSE, 
                        mmap.load = (.Machine$sizeof.pointer >= 8), ...) {
 
-    binaryData <- read.bin(binfile = bindata, start = start, end = end, 
+  # Note to bring everything to binfile name change. - To be removed
+  if (missing(binfile)){stop("bindata has been renamed as binfile. Please rename variable")}
+  
+    binaryData <- read.bin(binfile = binfile,
+                           start = start,
+                           end = end, 
                            Use.Timestamps = Use.Timestamps, 
                            mmap.load = mmap.load,
-                           calibrate = TRUE, downsample = downsample)
+                           calibrate = TRUE, 
+                           downsample = downsample)
 
     if (is.null(downsample)) {
         
@@ -36,7 +47,9 @@ dataImport <- function(bindata, downsample = 100,
         
     } else {
         
-        binaryDataFULL <- read.bin(bindata, start = start, end = end, 
+        binaryDataFULL <- read.bin(binfile, 
+                                   start = start, 
+                                   end = end, 
                                    Use.Timestamps = Use.Timestamps, 
                                    mmap.load = mmap.load,
                                    calibrate = TRUE)
@@ -77,9 +90,16 @@ dataImport <- function(bindata, downsample = 100,
 
     vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
     
-    geneaBin <- list(Data = Intervals, Freq = downsample, UpDown = dataUpDown, Degrees = dataDegrees, 
-        Time = Time, Light = Light, Temp = Temp, Magnitude = vecMagnitude, 
-        RawData = binaryDataOut, Serial = serial)
+    geneaBin <- list(Data = Intervals, 
+                     Freq = downsample, 
+                     UpDown = dataUpDown, 
+                     Degrees = dataDegrees, 
+                     Time = Time, 
+                     Light = Light, 
+                     Temp = Temp, 
+                     Magnitude = vecMagnitude, 
+                     RawData = binaryDataOut, 
+                     Serial = serial)
     
     class(geneaBin) <- c(class(geneaBin), "GENEAbin")
     

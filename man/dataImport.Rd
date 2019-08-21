@@ -4,12 +4,12 @@
 \alias{dataImport}
 \title{Data import function}
 \usage{
-dataImport(bindata, downsample = 100, start = NULL, end = NULL,
+dataImport(binfile, downsample = 100, start = NULL, end = NULL,
   Use.Timestamps = FALSE, mmap.load = (.Machine$sizeof.pointer >= 8),
   ...)
 }
 \arguments{
-\item{bindata}{File path to binary data to be segmented.}
+\item{binfile}{File path to binary data to be segmented.}
 
 \item{downsample}{Rate to downsample the data, defaults to every 100th observation. For no downsampling set NULL.}
 
@@ -34,6 +34,10 @@ Loads the data into R and creates format required for segmentation.
 Reads in the binary data file and extracts the information required for the segmentation procedure.
 }
 \examples{
-##    segData <- dataImport(bindata = list.files("RunWalk.bin", full = TRUE)[1])
-##     names(segData)
+##   segData <- dataImport(bindata = file.path(system.file(package = "GENEAread"),
+##                                                         "binfile",
+##                                                         "TESTfile.bin"))
+## 
+## segData1 = dataImport(AccData)
+## names(segData)
 }

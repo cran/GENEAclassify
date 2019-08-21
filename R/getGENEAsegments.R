@@ -101,10 +101,15 @@
 #' @importFrom stats quantile
 #' @seealso The returned object can be interrogated with \code{\link[=head.GENEAbin]{head}}.
 #' @examples
-#' ## segData <- getGENEAsegments(
-#' ##     testfile = "subj02_left_wrist_2013-01-03_17-21-06_Being_Driven3.bin",
-#' ##     outputdir = file.path(tempdir(), "GENEAclassification"),
-#' ##    filter = TRUE, j = 5)
+#' ## testfile = file.path(system.file(package = "GENEAread"),
+#' ##                                  "binfile",
+#' ##                                  "TESTfile.bin")
+#' ## 
+#' ## segData <- getGENEAsegments(testfile = testfile,
+#' ##                             outputdir = file.path(tempdir(), "GENEAclassification"),    
+#' ##                             changepoint = "UpDownDegrees",
+#' ##                             pen.value1 = 1,
+#' ##                             pen.value2 = 1)
 #' ## head(segData)
 #' ## list.files(file.path(tempdir(), "GENEAclassification"))
 
@@ -156,14 +161,14 @@ getGENEAsegments <- function(testfile,
                              verbose = FALSE,
                              ...) {
 
-  #### Error Catching ####
+  #### 1.0 Error Catching ####
     if (!(length(verbose) == 1 && is.logical(verbose))) { stop("verbose should be a single logical") }
 
     # Ensure variables are being passed correctly
-    if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-    if (missing(AxesMethod)) {AxesMethod = "XZ"}
+    if (missing(stepmethod))  {stepmethod  = "Chebyfilter"} # Set Chebyfilter as the default.
+    if (missing(AxesMethod))  {AxesMethod  = "XZ"}
     if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"}
-    if (is.null(pen.value2)) {pen.value2 = pen.value1}
+    if (is.null(pen.value2))  {pen.value2  = pen.value1}
   
     # files should exist
 
@@ -231,7 +236,7 @@ getGENEAsegments <- function(testfile,
         stop("outputdir should be a single character") }
 
 
-    #### check datacols ####
+    #### 2.0 Check datacols ####
 
     if (identical(datacols, "default")) {
       
@@ -276,7 +281,7 @@ getGENEAsegments <- function(testfile,
         dataCols <- datacols
     }
 
-    # collect data and perform segmentation
+    #### 3.0 collect data and perform segmentation ####
 
     output <- vector(mode = "list", length = length(testfile))
 
@@ -284,7 +289,7 @@ getGENEAsegments <- function(testfile,
 
     for (ff in testfile) {
 
-        inDat <- try(dataImport(bindata = ff, 
+        inDat <- try(dataImport(binfile = ff, 
                                 start = start, 
                                 end = end, 
                                 Use.Timestamps = Use.Timestamps,
@@ -309,7 +314,7 @@ getGENEAsegments <- function(testfile,
             outName <- paste0(shortName, outputtoken)
 
             
-            #### perform segmentation ####
+            #### 4.0 perform segmentation ####
             segData <- try(segmentation(data = inDat,
                                         outputfile = outName,
                                         outputdir = outputdir,
@@ -361,7 +366,7 @@ getGENEAsegments <- function(testfile,
 
         output[[ff]] <- segData
         
-        #### Plot Changepoints ####
+        #### 5.0 Plot Changepoints ####
         if (plot.seg == TRUE){
           AccData = read.bin(ff, start = start, end = end, ...)
           tmp2 = get.intervals(AccData, start = 0, end = 1, incl.date = T)

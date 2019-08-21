@@ -82,11 +82,13 @@
 #' @export
 #' @examples 
 #' ## segData <- read.csv(system.file(package = "GENEAclassify", 
-#' ##       "data", "trainingData9.csv"))
+#' ##       "testdata", "trainingData9.csv"))
 #' ## The training fit can be created by provided the file path to the training data
 #' ## in the function getTrainingData - see the help file for more details
 #' ## Uses the fitted decision tree to predict the segmented data
-#' ## class9 <- classifyGENEA(newdata = segData, outputname = NULL)
+#' ## class9 <- classifyGENEA(testfile = "trainingData9.csv",
+#' ##                         newdata = segData, 
+#' ##                         trainingfit = trainingFit)
 #' ## head(class9)
 #' ## table(class9$Class)
 
@@ -135,6 +137,8 @@ classifyGENEA <- function(testfile,
                           intervalseconds = 30,
                           mininterval = 5,...) {
   
+  #### 1. Exceptions ####
+
   if (!is(trainingfit, "rpart")) { stop("trainingfit should be class rpart") } 
   
   if (!is.null(outputname)) {
@@ -160,7 +164,8 @@ classifyGENEA <- function(testfile,
   
   fnames <- features(trainingfit)
   
-  #### getGENEAsegments #### 
+  #### 2. getGENEAsegments ####
+  
   if (missing(newdata)) {
     
     if (!missing(testfile)) {
@@ -295,7 +300,7 @@ classifyGENEA <- function(testfile,
     newData[newData == -99999999] <- NA
   }
   
-  #### predict new data from training data tree fit ####
+  #### 3. predict new data from training data tree fit ####
   pred <- predict(object = trainingfit, newdata = newData, type = "class")
   
   ## find probabilities for prediction based on tree fit

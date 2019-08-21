@@ -7,7 +7,6 @@
 #' This fit can then then be used to guess behaviours from test data when
 #' activity at each time point has not been reported. This allows detailed
 #' behaviour profiles to be created for the wearer.
-#' @aliases GENEAclassify
 #' @docType package
 #' @title Classification of accelorometer data
 #' @keywords package
@@ -177,7 +176,10 @@ NULL
 #' @examples
 #' ### Load the data to segment keeping only the first quarter of the data
 #' ## library(GENEAread)
-#' ## segData <- dataImport(bindata = "001_w_19_12_12.bin",
+#' ## testfile = file.path(system.file(package = "GENEAread"),
+#' ##                                  "binfile",
+#' ##                                  "TESTfile.bin")
+#' ## segData <- dataImport(binfile = testfile,
 #' ##     downsample = 100, start = 0, end = 0.25)
 #' ## head(segData)
 #' ### Run loaded data through segmentation function
