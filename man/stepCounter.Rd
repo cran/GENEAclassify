@@ -4,57 +4,36 @@
 \alias{stepCounter}
 \title{Step Counter}
 \usage{
-stepCounter(data, samplefreq = 100, smlen = 20L, AxesMethod = c("X",
-  "Y", "Z", "XZ", "XY", "YZ", "XYZ"), filterorder = 4L,
-  threshold = 0.01, boundaries = c(0.15, 1),
-  stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-  Rp = 0.5, plot.it = FALSE, Centre = TRUE, STFT = FALSE,
-  verbose = FALSE, fun = c("GENEAcount", "mean", "GENEAamplitude",
-  "sd", "mad", "GENEAwavelength"))
+stepCounter(
+  AccData,
+  samplefreq = 100,
+  filterorder = 2,
+  boundaries = c(0.5, 5),
+  Rp = 3,
+  plot.it = FALSE,
+  hysteresis = 0.1,
+  verbose = verbose,
+  fun = c("GENEAcount", "mean", "sd", "mad")
+)
 }
 \arguments{
-\item{data}{The data to use for calculating the steps. This should be a matrix
-with columns time, x, y, z.}
+\item{AccData}{The data to use for calculating the steps. This should either an AccData object or a vector.}
 
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number (default 100).}
 
-\item{smlen}{single integer number of data points used as a window
-when counting zero crossing events}
-
-\item{AxesMethod}{Select which axes to count the steps. \enumerate{
-    \item 'X'
-    \item 'Y' (default)
-    \item 'Z'
-    \item 'XY'
-    \item 'XZ'
-    \item 'YZ'
-    \item 'XYZ'
-}}
-
-\item{filterorder}{single integer, order of the Butterworth bandpass filter,
-passed to argument n of \code{\link[signal]{butter}}.}
-
-\item{threshold}{A threshold that acts as a proxy for magnitude on the filtered xz signal for calculating steps.}
+\item{filterorder}{single integer, order of the Chebyshev bandpass filter,
+passed to argument n of \code{\link[signal]{cheby1}}.}
 
 \item{boundaries}{length 2 numeric vector specifying lower and upper bounds
-of Butterworth or Chebychev filter (default \code{c(0.04, 1)}),
+of Chebychev filter (default \code{c(0.5, 5)} Hz),
 passed to argument W of \code{\link[signal]{butter}} or \code{\link[signal]{cheby1}}.}
-
-\item{stepmethod}{select method to use: \enumerate{
-    \item 'Chebyfilter' (default)
-    \item 'Butterfilter'
-    \item 'longrun'
-    \item 'none'
-}}
 
 \item{Rp}{the decibel level that the cheby filter takes, see \code{\link[signal]{cheby1}}.}
 
 \item{plot.it}{single logical create plot of data and zero crossing points (default \code{FALSE}).}
 
-\item{Centre}{If Centre set to true (default) then the step counter zeros the xz series before filtering.}
-
-\item{STFT}{If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.}
+\item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
 
 \item{verbose}{single logical should additional progress reporting be printed at the console? (default FALSE).}
 
@@ -68,8 +47,10 @@ Returns a vector with length fun.
 Function to calculate the number and variance of the steps in the data.
 }
 \examples{
-d1 <- matrix(c(100, 101, -0.79, -0.86,
-        -0.17, -0.14, 0.53, 0.46),
-    nrow = 2, ncol = 4)
-stepCounter(data = d1, stepmethod = "longrun")
+d1 <- sin(seq(0.1, 100, 0.1))/2 + rnorm(1000)/10 + 1
+Steps4 = stepCounter(d1)
+length(Steps4)
+mean(Steps4)
+sd(Steps4)
+plot(Steps4)
 }

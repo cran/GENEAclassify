@@ -4,9 +4,16 @@
 \alias{dataImport}
 \title{Data import function}
 \usage{
-dataImport(binfile, downsample = 100, start = NULL, end = NULL,
-  Use.Timestamps = FALSE, mmap.load = (.Machine$sizeof.pointer >= 8),
-  ...)
+dataImport(
+  binfile,
+  downsample = 100,
+  start = NULL,
+  end = NULL,
+  Use.Timestamps = FALSE,
+  radians = FALSE,
+  mmap.load = (.Machine$sizeof.pointer >= 8),
+  ...
+)
 }
 \arguments{
 \item{binfile}{File path to binary data to be segmented.}
@@ -18,6 +25,8 @@ dataImport(binfile, downsample = 100, start = NULL, end = NULL,
 \item{end}{Where to end reading observations.}
 
 \item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
+
+\item{radians}{calculate degrees rotation in radians.}
 
 \item{mmap.load}{Default is (.Machine$sizeof.pointer >= 8). see mmap for more details}
 

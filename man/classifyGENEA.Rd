@@ -4,24 +4,39 @@
 \alias{classifyGENEA}
 \title{Classify Data into Categories defined in an rpart GENEA fit}
 \usage{
-classifyGENEA(testfile, start = NULL, end = NULL,
-  Use.Timestamps = FALSE, mmap.load = (.Machine$sizeof.pointer >= 8),
-  trainingfit = trainingFit, newdata, outputname = "_classified",
-  outputdir = "GENEAclassification", verbose = FALSE,
-  allprobs = FALSE, setinf = 100, datacols = "default",
-  peaks = FALSE, AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ",
-  "XYZ"), ma.smooth = TRUE, Peak_Threshold = 3, Step_Threshold = 0.5,
-  sd_Threshold = 150, magsa_Threshold = 0.15, samplefreq = 100,
-  stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
-  "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
-  "DegreesMeanVar", "UpDownMeanVarDegreesMeanVar",
-  "UpDownMeanVarMagMeanVar"), smlen = 100L, filterorder = 4L,
-  threshold = 0.001, boundaries = c(0.15, 1), Rp = 0.5,
-  plot.it = FALSE, plot.seg = FALSE,
-  plot.seg.outputfile = "Changepoint", Centre = TRUE, STFT = FALSE,
-  win = 10, penalty = "Manual", pen.value1 = 40, pen.value2 = 400,
-  intervalseconds = 30, mininterval = 5, ...)
+classifyGENEA(
+  testfile,
+  start = NULL,
+  end = NULL,
+  Use.Timestamps = FALSE,
+  radians = FALSE,
+  mmap.load = (.Machine$sizeof.pointer >= 8),
+  trainingfit = trainingFit,
+  newdata,
+  allprobs = FALSE,
+  setinf = 100,
+  outputname = "_classified",
+  outputdir = "GENEAclassification",
+  datacols = "default",
+  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", "UpDownMean", "UpDownVar",
+    "UpDownMeanVar", "DegreesMean", "DegreesVar", "DegreesMeanVar",
+    "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar"),
+  penalty = "Manual",
+  pen.value1 = 40,
+  pen.value2 = 400,
+  intervalseconds = 30,
+  mininterval = 5,
+  samplefreq = 100,
+  filterorder = 2,
+  boundaries = c(0.5, 5),
+  Rp = 3,
+  plot.it = FALSE,
+  hysteresis = 0.1,
+  plot.seg = FALSE,
+  plot.seg.outputfile = "Changepoint",
+  verbose = TRUE,
+  ...
+)
 }
 \arguments{
 \item{testfile}{character string stating path to a GENEActiv bin file, or a folder 
@@ -33,6 +48,8 @@ containing GENEActiv bin files.}
 
 \item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
 
+\item{radians}{calculate degrees rotation in radians.}
+
 \item{mmap.load}{Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details}
 
 \item{trainingfit}{a GENEA rpart object created by \code{\link{createGENEAmodel}} 
@@ -42,16 +59,6 @@ These are the parameters used to predict the new data.}
 \item{newdata}{a new data frame that is to be classified (provide instead of testfile). 
 The data must contain the \code{\link{features}} named in the trainingfit.}
 
-\item{outputname}{file name root (excluding extension) for saving the 
-classification output (default "classified").}
-
-\item{outputdir}{absolute or relative path to directory in which artifacts 
-(plot and changes files) should be created or \code{NULL} 
-(default "GENEAclassification").}
-
-\item{verbose}{single logical should additional progress reporting be 
-printed at the console (default \code{TRUE}).}
-
 \item{allprobs}{single logical should all estimated probabilities be 
 reported rather than probability of selected class (default \code{FALSE}).}
 
@@ -59,59 +66,16 @@ reported rather than probability of selected class (default \code{FALSE}).}
 columns or NA to ignore Inf values. (default 100).
 -setinf is used to replace -Inf. Alternatively, use setinf NULL to leave Inf as is.}
 
+\item{outputname}{file name root (excluding extension) for saving the 
+classification output (default "classified").}
+
+\item{outputdir}{absolute or relative path to directory in which artifacts 
+(plot and changes files) should be created or \code{NULL} 
+(default "GENEAclassification").}
+
 \item{datacols}{a vector constructed 'column.summary' or 'default'. See \code{\link{segmentation}} for details.}
 
-\item{peaks}{single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
-if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
-
-\item{AxesMethod}{Select which axes to count the steps. \enumerate{
-    \item 'X'
-    \item 'Y' (default)
-    \item 'Z'
-    \item 'XY'
-    \item 'XZ'
-    \item 'YZ'
-    \item 'XYZ'
-}}
-
-\item{ma.smooth}{Should a moving average filter be applied to the data.}
-
-\item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
-
-\item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
-
-\item{sd_Threshold}{A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.}
-
-\item{magsa_Threshold}{A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.}
-
-\item{samplefreq}{The sampling frequency of the data, in hertz,
-when calculating the step number. (default 100)}
-
-\item{stepmethod}{defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.}
-
 \item{changepoint}{defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. TempFreq performs a change point on the variance in the temeprature and Frequency (Typically better for sleep behaviours)}
-
-\item{smlen}{defines the window length used within the step counting alogirthm.}
-
-\item{filterorder}{The order of the filter applied with respect to the butter of cheby options.}
-
-\item{threshold}{Threshold for the step counter to register a step.}
-
-\item{boundaries}{to passed to the filter in the step counting algorithm.}
-
-\item{Rp}{the decibel level that the cheby filter takes. see \code{\link[signal]{cheby1}}}
-
-\item{plot.it}{(logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.}
-
-\item{plot.seg}{(logical) Creates a plot displaying the changepoint locations}
-
-\item{plot.seg.outputfile}{The name of the png file created that shows the change points on a positionals plots.}
-
-\item{Centre}{Centres the xz signal about 0 when set to True.}
-
-\item{STFT}{If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.}
-
-\item{win}{The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}}
 
 \item{penalty}{single characgter, the penalty to use for changepoint detection. default ("SIC")}
 
@@ -122,6 +86,26 @@ when calculating the step number. (default 100)}
 \item{intervalseconds}{An integer number of seconds between 5 and 30 during which at most one changepoint may occur.}
 
 \item{mininterval}{single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen}
+
+\item{samplefreq}{The sampling frequency of the data, in hertz,
+when calculating the step number. (default 100)}
+
+\item{filterorder}{The order of the filter applied with respect to the cheby options.}
+
+\item{boundaries}{to passed to the filter in the step counting algorithm.}
+
+\item{Rp}{the decibel level that the cheby filter takes. see \code{\link[signal]{cheby1}}}
+
+\item{plot.it}{(logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.}
+
+\item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
+
+\item{plot.seg}{(logical) Creates a plot displaying the changepoint locations}
+
+\item{plot.seg.outputfile}{The name of the png file created that shows the change points on a positionals plots.}
+
+\item{verbose}{single logical should additional progress reporting be 
+printed at the console (default \code{TRUE}).}
 
 \item{...}{other arguments to be passed to \code{\link{dataImport}}, 
 \code{\link{segmentation}} and other functions}

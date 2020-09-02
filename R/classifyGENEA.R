@@ -9,6 +9,7 @@
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
+#' @param radians calculate degrees rotation in radians.
 #' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details
 #' @param trainingfit a GENEA rpart object created by \code{\link{createGENEAmodel}} 
 #' that gives the decision tree that was fitted from the training data. 
@@ -46,35 +47,13 @@
 #' @param plot.it (logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
 #' @param plot.seg (logical) Creates a plot displaying the changepoint locations
 #' @param plot.seg.outputfile The name of the png file created that shows the change points on a positionals plots.
-#' @param  AxesMethod Select which axes to count the steps. \enumerate{
-#'     \item 'X'
-#'     \item 'Y' (default)
-#'     \item 'Z'
-#'     \item 'XY'
-#'     \item 'XZ'
-#'     \item 'YZ'
-#'     \item 'XYZ'
-#' }
-#' @param Centre Centres the xz signal about 0 when set to True.
-#' @param STFT If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.
-#' @param win The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}
-#' @param smlen defines the window length used within the step counting alogirthm.
-#' @param threshold Threshold for the step counter to register a step. 
-#' @param stepmethod defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.
 #' @param changepoint defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. TempFreq performs a change point on the variance in the temeprature and Frequency (Typically better for sleep behaviours) 
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number. (default 100)
 #' @param boundaries to passed to the filter in the step counting algorithm.
 #' @param Rp the decibel level that the cheby filter takes. see \code{\link[signal]{cheby1}}
-#' @param filterorder The order of the filter applied with respect to the butter of cheby options. 
-#' @param peaks single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
-#' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
-#' @param ma.smooth Should a moving average filter be applied to the data. 
-#' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
-#' @param sd_Threshold A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.
-#' @param magsa_Threshold A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.
-
+#' @param filterorder The order of the filter applied with respect to the cheby options. 
+#' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
 #' @details This function will apply the rules determined by the rpart GENEA 
 #' decision tree passed to argument trainingfit to the columns 
 #' of newdata to classify into classes 
@@ -96,49 +75,40 @@ classifyGENEA <- function(testfile,
                           start = NULL,
                           end = NULL,
                           Use.Timestamps = FALSE,
+                          radians = FALSE,
                           mmap.load = (.Machine$sizeof.pointer >= 8),
                           trainingfit = trainingFit, 
                           newdata, 
-                          outputname = "_classified", 
-                          outputdir = "GENEAclassification", 
-                          verbose = FALSE, 
                           allprobs = FALSE, 
                           setinf = 100,
+                          outputname = "_classified", 
+                          outputdir = "GENEAclassification", 
                           datacols = "default",
-                          # Step Counting Variables
-                          peaks = FALSE,
-                          AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
-                          ma.smooth = TRUE,
-                          Peak_Threshold = 3, 
-                          Step_Threshold = 0.5,
-                          sd_Threshold = 150,
-                          magsa_Threshold = 0.15,
-                          samplefreq = 100,
-                          stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
                           changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
                                           "UpDownMean", "UpDownVar", "UpDownMeanVar",
                                           "DegreesMean", "DegreesVar", "DegreesMeanVar", 
                                           "UpDownMeanVarDegreesMeanVar", 
                                           "UpDownMeanVarMagMeanVar"),
-                          smlen = 100L,
-                          filterorder = 4L,  
-                          threshold = 0.001,
-                          boundaries = c(0.15, 1.0),
-                          Rp = 0.5, 
-                          plot.it = FALSE, 
-                          plot.seg = FALSE, 
-                          plot.seg.outputfile = "Changepoint",
-                          Centre = TRUE,
-                          STFT = FALSE,
-                          win = 10,
                           penalty = "Manual",
                           pen.value1 = 40,
                           pen.value2 = 400,
                           intervalseconds = 30,
-                          mininterval = 5,...) {
+                          mininterval = 5,
+                          # Step Counter Variables 
+                          samplefreq = 100,
+                          filterorder = 2,
+                          boundaries = c(0.5, 5), 
+                          Rp = 3,
+                          plot.it = FALSE,
+                          hysteresis = 0.1, 
+                          # Plots
+                          plot.seg = FALSE, 
+                          plot.seg.outputfile = "Changepoint",
+                          verbose = TRUE,
+                          ...) {
   
   #### 1. Exceptions ####
-
+  
   if (!is(trainingfit, "rpart")) { stop("trainingfit should be class rpart") } 
   
   if (!is.null(outputname)) {
@@ -174,45 +144,35 @@ classifyGENEA <- function(testfile,
         stop("testfile should be class character") }
       
       # Ensure variables are being passed correctly
-      if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-      if (missing(AxesMethod)) {AxesMethod = "XZ"}
       if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"}
       
       newData <- getGENEAsegments(testfile = testfile,
                                   start = start, 
                                   end = end, 
                                   Use.Timestamps = Use.Timestamps,
+                                  radians = radians, 
                                   mmap.load = mmap.load,
                                   outputtoken = "_segmented", 
                                   outputdir = outputdir, 
-                                  verbose = verbose, 
                                   datacols = datacols,
-                                  # Step Variables
-                                  peaks = peaks,
-                                  AxesMethod = AxesMethod, 
-                                  ma.smooth = ma.smooth,
-                                  Peak_Threshold = Peak_Threshold, 
-                                  Step_Threshold = Step_Threshold,
-                                  sd_Threshold = sd_Threshold,
-                                  magsa_Threshold = magsa_Threshold,
-                                  Centre = Centre,
-                                  plot.it = plot.it,
-                                  STFT = STFT,
-                                  win = win,
-                                  smlen = smlen,
-                                  stepmethod = stepmethod,
-                                  Rp = Rp,
-                                  boundaries = boundaries,
-                                  filterorder = filterorder,
-                                  threshold = threshold,
-                                  # Changepoint variables
+                                  # Changepoint variables 
                                   changepoint = changepoint,
                                   penalty = penalty,
                                   pen.value1 = pen.value1,
                                   pen.value2 = pen.value2,
                                   intervalseconds = intervalseconds,
                                   mininterval = mininterval,
-                                  plot.seg = plot.seg, ...)
+                                  # StepCounter Variables
+                                  samplefreq = samplefreq,
+                                  filterorder = filterorder,
+                                  boundaries = boundaries, 
+                                  Rp = Rp,
+                                  plot.it = plot.it,
+                                  hysteresis = hysteresis, 
+                                  # Plots 
+                                  plot.seg = plot.seg,
+                                  plot.seg.outputfile = "Changepoint",
+                                  verbose = verbose)
       
     } else { 
       stop("testfile and newdata are missing but one should be provided") }

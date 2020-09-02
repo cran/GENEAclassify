@@ -19,6 +19,7 @@
 #' @param changedegrees cpt object
 #' @param mininterval single numeric
 #' @param verbose single logical should all warnings be reported? (default TRUE)
+#' @param verbose_timer single logical giving a time analysis of code.
 #' @return numeric vector of times
 #' @export
 #' @keywords internal
@@ -39,8 +40,9 @@ changeTimes <- function(time,
                         intervalseconds = 30, 
                         changeupdown, 
                         changedegrees, 
-                        mininterval = 5, 
-                        verbose = TRUE) {
+                        mininterval = 5,
+                        verbose = TRUE,
+                        verbose_timer = TRUE) {
   
   if (missing(time)) { stop("time is missing") }
   if (!is.numeric(time)) { 
@@ -54,13 +56,13 @@ changeTimes <- function(time,
          class(changedegrees))
   }
   ## extract change points for both updown and rotation
-  cptUpDown <- cpts(changeupdown)
+  cptUpDown  <- cpts(changeupdown)
   cptDegrees <- cpts(changedegrees)
   
   allChanges <- unique(sort(c(cptUpDown, cptDegrees)))
   
   ## get time of changes
-  timeUpDown <- c(time[1], time[sort(cptUpDown)], time[length(time)])
+  timeUpDown  <- c(time[1], time[sort(cptUpDown)],  time[length(time)])
   
   timeDegrees <- c(time[1], time[sort(cptDegrees)], time[length(time)])
   
@@ -76,6 +78,8 @@ changeTimes <- function(time,
             length(intervalseconds))
     intervalseconds <- intervalseconds[1]
   }
+  
+  #### 7.2 This is where the error appears ####
   if (!is.na(intervalseconds)) {
     
     if (intervalseconds > mininterval) {
@@ -84,17 +88,34 @@ changeTimes <- function(time,
       
       shortdurationDegrees <- which(as.numeric(durationDegrees) < intervalseconds)
       
-      upDownSegments <- removeShortSegments(
-        shortduration = shortdurationUpDown, 
-        changes = cptUpDown, 
-        variance = param.est(changeupdown)$variance, 
-        time = time)
+      #### Add routine here to find whether working with a mean or variance. ####
+      if ("variance" %in% names(param.est(changeupdown))){
+        upDownSegments <- removeShortSegments(
+          shortduration = shortdurationUpDown, 
+          changes = cptUpDown, 
+          variance = param.est(changeupdown)$variance, 
+          time = time)
+      } else {
+        upDownSegments <- removeShortSegments(
+          shortduration = shortdurationUpDown, 
+          changes = cptUpDown, 
+          variance = param.est(changeupdown)$mean, 
+          time = time)
+      }
       
-      degreesSegments <- removeShortSegments(
-        shortduration = shortdurationDegrees, 
-        changes = cptDegrees, 
-        variance = param.est(changedegrees)$variance, 
-        time = time)
+      if ("variance" %in% names(param.est(changedegrees))){
+        degreesSegments <- removeShortSegments(
+          shortduration = shortdurationDegrees, 
+          changes = cptDegrees, 
+          variance = param.est(changedegrees)$variance, 
+          time = time)
+      } else {
+        degreesSegments <- removeShortSegments(
+          shortduration = shortdurationDegrees, 
+          changes = cptDegrees, 
+          variance = param.est(changedegrees)$mean, 
+          time = time)
+      }
       
       allChanges <- sort(c(
         setNames(upDownSegments$cpts, rep("U", length = length(upDownSegments$cpts))), 
@@ -125,20 +146,44 @@ changeTimes <- function(time,
         
         FinalVariance = length(allChanges) - 1
         
+        if (verbose){print(Sys.time())}
+        
         for (i in 1:length(allChanges)){
           if (names(allChanges[i]) == "D"){
-            FinalVariance[i] <- param.est(changedegrees)$variance[i]
+            if ("variance" %in% names(param.est(changedegrees))){
+              FinalVariance[i] <- param.est(changedegrees)$variance[i]
+            } else {
+              FinalVariance[i] <- param.est(changedegrees)$mean[i]
+            }
+            
           }
           if (names(allChanges[i]) == "U"){
-            FinalVariance[i] <- param.est(changeupdown)$variance[i]
+            if ("variance" %in% names(param.est(changeupdown))){
+              FinalVariance[i] <- param.est(changeupdown)$variance[i]
+            } else {
+              FinalVariance[i] <- param.est(changeupdown)$mean[i]
+            }
           }
         }
         
-        allSegments <- removeShortSegments(
-          shortduration = shortalltimes,
-          changes = unname(allChanges), 
-          variance = param.est(changeupdown)$variance, 
-          time = time)
+        if (verbose_timer){print(Sys.time())}
+        
+        
+        if ("variance" %in% names(param.est(changeupdown))){
+          allSegments <- removeShortSegments(
+            shortduration = shortalltimes,
+            changes = unname(allChanges), 
+            variance = param.est(changeupdown)$variance, 
+            time = time)
+        } else {
+          allSegments <- removeShortSegments(
+            shortduration = shortalltimes,
+            changes = unname(allChanges), 
+            variance = param.est(changeupdown)$mean, 
+            time = time)
+        }
+        
+        if (verbose_timer){print(Sys.time())}
         
         allTimes = allSegments$times
       }

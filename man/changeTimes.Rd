@@ -4,8 +4,15 @@
 \alias{changeTimes}
 \title{Select Times as Segment Changepoints}
 \usage{
-changeTimes(time, intervalseconds = 30, changeupdown, changedegrees,
-  mininterval = 5, verbose = TRUE)
+changeTimes(
+  time,
+  intervalseconds = 30,
+  changeupdown,
+  changedegrees,
+  mininterval = 5,
+  verbose = TRUE,
+  verbose_timer = TRUE
+)
 }
 \arguments{
 \item{time}{numeric vector}
@@ -23,6 +30,8 @@ If intervalseconds <= mininterval it will be ignored
 \item{mininterval}{single numeric}
 
 \item{verbose}{single logical should all warnings be reported? (default TRUE)}
+
+\item{verbose_timer}{single logical giving a time analysis of code.}
 }
 \value{
 numeric vector of times

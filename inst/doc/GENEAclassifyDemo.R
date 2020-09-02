@@ -1,7 +1,7 @@
-## ----global_options, warning=FALSE, eval=FALSE, echo=FALSE---------------
+## ----global_options, warning=FALSE, eval=FALSE, echo=FALSE--------------------
 #  knitr::opts_chunk$get("root.dir")  # returns 'Users/Me/Docs/Proj'
 
-## ----installing the dependencies,eval=FALSE------------------------------
+## ----installing the dependencies,eval=FALSE-----------------------------------
 #  
 #  install.packages("GENEAread",repos = "http://cran.us.r-project.org")
 #  install.packages("changepoint",repos = "http://cran.us.r-project.org")
@@ -14,16 +14,16 @@
 #  library(signal)
 #  library(mmap)
 
-## ----Installing from Source,eval=FALSE-----------------------------------
+## ----Installing from Source,eval=FALSE----------------------------------------
 #  # You will need to change the folder location inside setwd("") to the directory where you saved the tar.gz file
 #  # Note that R only uses / not \ when refering to a file/directory location
 #  setwd("/Users/owner/Documents/GENEActiv")
 #  install.packages("GENEAclassify_1.4.3.tar.gz", repos=NULL, type="source")
 
-## ----loading in the GENEAclassify library,eval=FALSE---------------------
+## ----loading in the GENEAclassify library,eval=FALSE--------------------------
 #  library(GENEAclassify)
 
-## ----installing from GitHub,eval=FALSE-----------------------------------
+## ----installing from GitHub,eval=FALSE----------------------------------------
 #  install.packages("devtools",repos = "http://cran.us.r-project.org")
 #  library(devtools)
 #  
@@ -31,23 +31,23 @@
 #                 auth_token = "7f0051aaca453eaabf0e60d49bcf752c0fea0668")
 #  
 
-## ----Run library function again GENEAclassify library,eval=FALSE---------
+## ----Run library function again GENEAclassify library,eval=FALSE--------------
 #  
 #  library(GENEAclassify)
 #  
 
-## ----run the vignette,eval=FALSE-----------------------------------------
+## ----run the vignette,eval=FALSE----------------------------------------------
 #  
 #  vignette("GENEAclassifyDemo", package = NULL, lib.loc = NULL, all = TRUE)
 #  
 
-## ----Loading Data then Segmenting, eval=FALSE----------------------------
+## ----Loading Data then Segmenting, eval=FALSE---------------------------------
 #   # Name of the file to analyse
 #  DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin"
 #  ImportedData = dataImport(DataFile, downsample = 100, start=0, end=0.1)
 #  head(ImportData)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # These are the default output variables from segmentation and getGENEAsegments
 #   dataCols <- c("UpDown.mean",
 #                  "UpDown.var",
@@ -84,12 +84,12 @@
 #  # View the data from the segmentation
 #  head(SegDataFile)
 
-## ----segment a datafile,eval=FALSE---------------------------------------
+## ----segment a datafile,eval=FALSE--------------------------------------------
 #   # Name of the file to analyse
 #  DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin"
 #  SegDataFile = getGENEAsegments(DataFile,dataCols, start=0, end=0.1)
 
-## ----Displaying varying step counting alogrithms,eval=FALSE--------------
+## ----Displaying varying step counting alogrithms,eval=FALSE-------------------
 #  
 #  WalkingData="TrainingData/Walking/walking_jl_right wrist_024603_2015-12-12 15-36-47.bin"
 #  
@@ -125,7 +125,7 @@
 #  W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
 #  
 
-## ----loading TrainingData.csv,eval=FALSE---------------------------------
+## ----loading TrainingData.csv,eval=FALSE--------------------------------------
 #  # Change the file path to the location of GENEAclassify.
 #  setwd("/Users/owner/Documents/GENEActiv/GENEAclassify_1.41/Data")
 #  TrainingData=read.table("TrainingData.csv",sep=",")
@@ -134,7 +134,7 @@
 #  data(TrainingData)
 #  TrainingData
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  ClassificationModel=createGENEAmodel(TrainingData,
 #                     features=c("Segment.Duration","UpDown.mean",
 #                                "UpDown.sd","Degrees.mean",
@@ -144,7 +144,7 @@
 #                                "Principal.Frequency.median"
 #                               ,"Principal.Frequency.mad"))
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  ClassificationModel=createGENEAmodel(TrainingData,
 #                     features=c("UpDown.mean",
 #                                "UpDown.sd","Degrees.mean",
@@ -153,34 +153,34 @@
 #                                "Principal.Frequency.median"
 #                               ,"Principal.Frequency.mad"))
 
-## ----classifying a File,eval=FALSE---------------------------------------
+## ----classifying a File,eval=FALSE--------------------------------------------
 #  DataFile="jl_left wrist_010094_2012-01-30 20-39-54.bin" # Change to the file to classify
 #  ClassifiedFile = classifyGENEA(DataFile,
 #                                 trainingfit = ClassificationModel,
 #                                 start="3:00",end="1 3:00")
 
-## ----classifying a Directory, eval=FALSE---------------------------------
+## ----classifying a Directory, eval=FALSE--------------------------------------
 #  ClassifiedDirectory = classifyGENEA(DataDirectory,
 #                                      trainingfit = ClassificationModel,
 #                                      start="3:00", end="1 3:00")
 
-## ----Segmentation RunWalk file,echo=FALSE,eval=FALSE---------------------
+## ----Segmentation RunWalk file,echo=FALSE,eval=FALSE--------------------------
 #  SegData=getSegmentedData("RunWalk.bin",end="9:23")
 #  head(SegData)
 
-## ----List creation,eval=FALSE--------------------------------------------
+## ----List creation,eval=FALSE-------------------------------------------------
 #  Activity=c("Running",
 #             "Running",
 #             "Walking")
 
-## ----Attaching Activities,eval=FALSE-------------------------------------
+## ----Attaching Activities,eval=FALSE------------------------------------------
 #  SegData=cbind(SegData,ActivitiesListed)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  SegData$Activity[1:2]="Running"
 #  SegData$Activity[3]="Walking"
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  Cycling=getSegmentedData("TrainingData/Cycling")
 #  Cycling$Activity="Cycling"
 #  
@@ -214,7 +214,7 @@
 #  Workingout=getSegmentedData("TrainingData/Workingout")
 #  Workingout$Activity="Workingout"
 
-## ---- Combining Segments,eval=FALSE--------------------------------------
+## ---- Combining Segments,eval=FALSE-------------------------------------------
 #  TrainingData=rbind(Cycling,
 #                     NonWear,
 #                     onthego,
@@ -227,7 +227,7 @@
 #                     Walking,
 #                     Workingout)
 
-## ----eval=FALSE----------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  ClassificationModel=createGENEAFit(TrainingData,
 #                     features=c("UpDown.mean",
 #                                "UpDown.sd","Degrees.mean",

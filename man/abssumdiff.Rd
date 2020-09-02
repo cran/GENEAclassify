@@ -2,7 +2,7 @@
 % Please edit documentation in R/statistics.R
 \name{abssumdiff}
 \alias{abssumdiff}
-\title{Finding the sum of the differences}
+\title{Finding the absolute sum of the differences}
 \usage{
 abssumdiff(x, na.rm = TRUE)
 }

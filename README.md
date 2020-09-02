@@ -1,2 +1,2 @@
 # GENEAclassify
-Latest development version of GENEAclassify
+Latest version of GENEAclassify

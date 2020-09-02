@@ -4,21 +4,34 @@
 \alias{segmentation}
 \title{Perform Segmentation on GENEActiv Accelerometer Data}
 \usage{
-segmentation(data, outputfile = "detectedChanges",
-  outputdir = "GENEAclassification", datacols = "default",
-  decimalplaces = "default", filterWave = FALSE, filtername = "haar",
-  j = 8, changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq",
-  "UpDownMean", "UpDownVar", "UpDownMeanVar", "DegreesMean", "DegreesVar",
-  "DegreesMeanVar", "UpDownMeanVarDegreesMeanVar",
-  "UpDownMeanVarMagMeanVar"), penalty = "Manual", pen.value1 = 40,
-  pen.value2 = 400, intervalseconds = 30, mininterval = 5,
-  peaks = TRUE, AxesMethod = c("X", "Y", "Z", "XZ", "XY", "YZ", "XYZ"),
-  ma.smooth = TRUE, Peak_Threshold = 3, Step_Threshold = 0.5,
-  sd_Threshold = 150, magsa_Threshold = 0.15,
-  stepmethod = c("Chebyfilter", "Butterfilter", "longrun", "none"),
-  boundaries = c(0.15, 1), samplefreq = 100, smlen = 100L,
-  threshold = 0.001, filterorder = 4L, Rp = 0.5, plot.it = FALSE,
-  Centre = TRUE, STFT = FALSE, win = 10, verbose = FALSE, ...)
+segmentation(
+  data,
+  outputfile = "detectedChanges",
+  outputdir = "GENEAclassification",
+  datacols = "default",
+  decimalplaces = "default",
+  filterWave = FALSE,
+  filtername = "haar",
+  j = 8,
+  changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", "UpDownMean", "UpDownVar",
+    "UpDownMeanVar", "DegreesMean", "DegreesVar", "DegreesMeanVar",
+    "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar", "RadiansMean",
+    "RadiansVar", "RadiansMeanVar", "UpDownMeanDegreesVar"),
+  penalty = "Manual",
+  pen.value1 = 40,
+  pen.value2 = 400,
+  intervalseconds = 30,
+  mininterval = 5,
+  samplefreq = 100,
+  filterorder = 2,
+  boundaries = c(0.5, 5),
+  Rp = 3,
+  plot.it = FALSE,
+  hysteresis = 0.1,
+  verbose = FALSE,
+  verbose_timer = FALSE,
+  ...
+)
 }
 \arguments{
 \item{data}{the GENEActiv bin object to be segmented which should be the output
@@ -103,9 +116,6 @@ The length 1 character vector 'default' applies default roundings: \itemize{
     \item Step.GENEAcount = 0
     \item Step.sd = 1
     \item Step.mean = 0
-    \item Step.GENEAamplitude = 3
-    \item Step.GENEAwavelength = 3
-    \item Step.GENEAdistance = 3
 }}
 
 \item{filterWave}{single logical, should a smoothing filter from \code{\link[waveslim]{wave.filter}} be applied? (default FALSE).}
@@ -128,54 +138,23 @@ TempFreq performs a change point on the variance in the temeprature and frequenc
 
 \item{mininterval}{single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen}
 
-\item{peaks}{single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
-if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).}
-
-\item{AxesMethod}{Select which axes to count the steps. \enumerate{
-    \item 'X'
-    \item 'Y' (default)
-    \item 'Z'
-    \item 'XY'
-    \item 'XZ'
-    \item 'YZ'
-    \item 'XYZ'
-}}
-
-\item{ma.smooth}{Should a moving average filter be applied to the data.}
-
-\item{Peak_Threshold}{Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley}
-
-\item{Step_Threshold}{The difference between a peak, valley then peak or valley, peak then valley to constitute a step.}
-
-\item{sd_Threshold}{A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.}
-
-\item{magsa_Threshold}{A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.}
-
-\item{stepmethod}{defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.}
-
-\item{boundaries}{to pass to the filter in the step counting algorithm.}
-
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number. (default 100).}
 
-\item{smlen}{defines the window length used within the step counting alogirthm.}
-
-\item{threshold}{Threshold for the step counter to register a step.}
-
 \item{filterorder}{The order of the filter applied with respect to the butter or cheby options if stepCounter is used. The order of the moving average filter if step counter 2 is used.
 See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
+
+\item{boundaries}{to pass to the filter in the step counting algorithm.}
 
 \item{Rp}{the decibel level that the cheby filter takes. See \code{\link[signal]{cheby1}}.}
 
 \item{plot.it}{single logical, Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.}
 
-\item{Centre}{single logical, Centres the xz signal about 0 (default TRUE) when counting the zero crossings within the step counting algorithm.}
+\item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
 
-\item{STFT}{If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.}
+\item{verbose}{single logical to print additional progress reporting (default FALSE).}
 
-\item{win}{The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}.}
-
-\item{verbose}{single logical should additional progress reporting be printed at the console? (default TRUE).}
+\item{verbose_timer}{single logical tp print additional progress reporting on time for each section of the function (default FALSE).}
 
 \item{...}{other arguments to be passed to \code{\link{dataImport}},
 \code{\link{segmentation}} and other functions with these functions.}

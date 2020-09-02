@@ -9,9 +9,7 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-```{r global_options, warning=FALSE, eval=FALSE, echo=FALSE}
-knitr::opts_chunk$get("root.dir")  # returns 'Users/Me/Docs/Proj'
-```
+
 
 # GENEAclassify
 ## Overview
@@ -84,7 +82,7 @@ This pdf file will give an introduction to using the programming language R with
 
 ##ii. Installing R.
 	To begin with install R from <https://www.r-project.org>. 
-There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. I would also recommend downloading the IDE (integrated development environment) RStudio from <https://rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://rstudio.com/resources/cheatsheets/>. 
+There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. I would also recommend downloading the IDE (integrated development environment) RStudio from <https://www.rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://www.rstudio.com/resources/cheatsheets/>. 
 
 Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console
 
@@ -112,8 +110,8 @@ However the code shown in this PDF can be copied and pasted into the console.
 
 ## iv. Installing and loading required libraries
 
-```{r installing the dependencies,eval=FALSE}
 
+```r
 install.packages("GENEAread",repos = "http://cran.us.r-project.org") 
 install.packages("changepoint",repos = "http://cran.us.r-project.org")
 install.packages("signal",repos = "http://cran.us.r-project.org")
@@ -130,7 +128,8 @@ library(mmap)
 
 Whilst GENEAclassify is still in development the easiest way to install the package is to use the Tar.gz file inside the zip folder. By running the code below GENEAclassify can be installed:
 
-```{r Installing from Source,eval=FALSE}
+
+```r
 # You will need to change the folder location inside setwd("") to the directory where you saved the tar.gz file
 # Note that R only uses / not \ when refering to a file/directory location
 setwd("/Users/owner/Documents/GENEActiv") 
@@ -139,14 +138,15 @@ install.packages("GENEAclassify_1.4.3.tar.gz", repos=NULL, type="source")
 
 Once the package has been installed load in the library
 
-```{r loading in the GENEAclassify library,eval=FALSE}
+
+```r
 library(GENEAclassify)
 ```
 ## vi. Development of GENEAclassify on GitHub.
 
 If you intend on working with the development of the package then I suggest setting up an account on GitHub here <https://github.com/>. RStudio can directly link to the repository for the development of the package by selecting to set-up a new project from the top right hand corner, selecting version control and cloning the GitHub repository.
 
-This guide on using RStudio with GitHub is particularly helpful <https://www.r-bloggers.com/rstudio-and-github/>.
+This guide on using RStudio with GitHub is particularly helpful <http://www.r-bloggers.com/rstudio-and-github/>.
 
 Once GitHub has been set-up I would recommend creating a personal branch for contributions which can be assessed and discussed by Activinsights before adding any changes to the master repository. 
 
@@ -160,40 +160,38 @@ and a latex compiler found here:
 
 For OS, xcode developer tools will have to be downloaded from this link: 
 
-  - https://apps.apple.com/us/app/xcode/id497799835?mt=12
+  - http://itunes.apple.com/us/app/xcode/id497799835?mt=12
 
 and a latex compiler found here: 
 
   - http://www.tug.org/mactex/downloading.html.
 
-For more information go to  <https://www.activinsights.com/>.
+For more information go to  <http://www.activinsights.com/>.
 
 
 The package can also be installed using a GitHub authentication key which will go in the "" of auth_token. The key will be provided on request. The package devtools is also required to install from GitHub.
 
-```{r installing from GitHub,eval=FALSE}
+
+```r
 install.packages("devtools",repos = "http://cran.us.r-project.org") 
 library(devtools) 
 
 install_github("https://github.com/Langford/GENEAclassify_1.41.git",
                auth_token = "7f0051aaca453eaabf0e60d49bcf752c0fea0668")
-
 ```
 
 Again loading in the package to the workspace.
 
-```{r Run library function again GENEAclassify library,eval=FALSE}
 
+```r
 library(GENEAclassify)
-
 ```
 
 This vignette can be viewed from inside R by running the following code
 
-```{r run the vignette,eval=FALSE}
 
+```r
 vignette("GENEAclassifyDemo", package = NULL, lib.loc = NULL, all = TRUE)
-
 ```
 The pdf will appear on the right of RStudio or as a pop up if called from R. 
 
@@ -206,7 +204,8 @@ The Segmentation process gives the user event based data from a change point ana
 
 Now that we have the libraries required to segment and classify files/directories the data needs to be imported. Beginning with a file to import run the following lines of code. 
 
-```{r Loading Data then Segmenting, eval=FALSE}
+
+```r
  # Name of the file to analyse
 DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin" 
 ImportedData = dataImport(DataFile, downsample = 100, start=0, end=0.1)
@@ -226,7 +225,8 @@ The output of the function is created by taking raw data and returning calculate
 
 The variable DataCols can be added to find extra variables given the use of functions within R or the ones provided by GENEAclassify. These include GENEAskew, GENEAenergy, GENEAcount, GENEAratio and any suffix found in the code below. To find more information on these functions use the ? before the function in question. For example ?GENEAenergy will provide details on that function in the help window of RStudio or as a pop-up.  
 
-```{r, eval = FALSE}
+
+```r
 # These are the default output variables from segmentation and getGENEAsegments
  dataCols <- c("UpDown.mean",
                 "UpDown.var",
@@ -265,7 +265,8 @@ head(SegDataFile)
 ```
 _getGENEAsegments_ combines the functions _dataImport_ and _segmentation_.
 
-```{r segment a datafile,eval=FALSE}
+
+```r
  # Name of the file to analyse
 DataFile = "DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin" 
 SegDataFile = getGENEAsegments(DataFile,dataCols, start=0, end=0.1)
@@ -296,8 +297,8 @@ To view all of the arguments that can be passed to the function _stepCounter_ in
 
 The following commands give examples from the training data provided 
 
-```{r Displaying varying step counting alogrithms,eval=FALSE}
 
+```r
 WalkingData="TrainingData/Walking/walking_jl_right wrist_024603_2015-12-12 15-36-47.bin"
 
 # Starting with no filter
@@ -330,7 +331,6 @@ W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
 W4 = getGENEAsegments(WalkingData, method="Butterfilter",boundaries = c(0.15, 0.5),
                       smlen=50,Rp=0.01)
 W4$Step.GENEAcount;W4$Step.sd;W4$Step.mean
-
 ```
 
 # 3. Applying a Classification Model
@@ -343,7 +343,8 @@ A classification model takes a set of training data that has been classified pre
 
 There is a .csv file that contains a training data set located inside the zip folder, called TrainingData.csv. This model contains a comprehensive amount of classified data which can be used to create a classification model. To load the data in please use the following lines: 
 
-```{r loading TrainingData.csv,eval=FALSE}
+
+```r
 # Change the file path to the location of GENEAclassify.
 setwd("/Users/owner/Documents/GENEActiv/GENEAclassify_1.41/Data") 
 TrainingData=read.table("TrainingData.csv",sep=",")
@@ -355,7 +356,8 @@ TrainingData
 
 Now the Training Data can be used to create a classification model. All of the features have been listed here but some can be removed to refine the model.
 
-```{r,eval=FALSE}
+
+```r
 ClassificationModel=createGENEAmodel(TrainingData,
                    features=c("Segment.Duration","UpDown.mean",
                               "UpDown.sd","Degrees.mean",
@@ -368,7 +370,8 @@ ClassificationModel=createGENEAmodel(TrainingData,
 
 By removing the features Segment.Duration, Light.mean, Temp.mean and Step.Count an improved model can be created. These features have been removed because of ambiguity when making decisions on what activity a segment is. 
 
-```{r,eval=FALSE}
+
+```r
 ClassificationModel=createGENEAmodel(TrainingData,
                    features=c("UpDown.mean",
                               "UpDown.sd","Degrees.mean",
@@ -384,7 +387,8 @@ Once the model has been created files can be classified using the function _clas
 ## iii. Classifying a file
 The function classifyGENEA segments a file/directory and uses the Classification model provided to classify each segment as an activity. Select a .bin file to classify and run the following lines. The start and end times work the same as the function _getGENEAsegments_. 
 
-```{r classifying a File,eval=FALSE}
+
+```r
 DataFile="jl_left wrist_010094_2012-01-30 20-39-54.bin" # Change to the file to classify
 ClassifiedFile = classifyGENEA(DataFile, 
                                trainingfit = ClassificationModel, 
@@ -395,7 +399,8 @@ ClassifiedFile = classifyGENEA(DataFile,
 ## iv. Classifying a directory
 To classify a directory the DataDirectory has to be selected one day for every data file in the data Directory.
 
-```{r classifying a Directory, eval=FALSE}
+
+```r
 ClassifiedDirectory = classifyGENEA(DataDirectory, 
                                     trainingfit = ClassificationModel,
                                     start="3:00", end="1 3:00")
@@ -411,27 +416,27 @@ To manually classify a file in R a list can be created for each segment then add
 ## ii. Manually Classifying files
 Using the default step counting parameters to segment the data and then view the output variables using the function _head_.
 
-```{r Segmentation RunWalk file,echo=FALSE,eval=FALSE}
-SegData=getSegmentedData("RunWalk.bin",end="9:23")
-head(SegData)
-```
+
 
 Listing the activities chronologically with respect to the segments shown gives 
 
-```{r List creation,eval=FALSE}
+
+```r
 Activity=c("Running",
            "Running",
            "Walking")
 ```
 
 
-```{r Attaching Activities,eval=FALSE}
+
+```r
 SegData=cbind(SegData,ActivitiesListed)
 ```
 
 Or by classifying each row individually. 
 
-```{r,eval = FALSE}
+
+```r
 SegData$Activity[1:2]="Running"
 SegData$Activity[3]="Walking"
 ```
@@ -444,7 +449,8 @@ To do this the activities that are going to be identified must feature in the tr
 
 Running the following lines of code segments each of the .bin files in the sample training data. The second line manually classifies each of the activities which can be used to create the training model. The sample training data has been organised so that the .bin files in each sub folder only contain the activity named.
 
-```{r,eval=FALSE}
+
+```r
 Cycling=getSegmentedData("TrainingData/Cycling")
 Cycling$Activity="Cycling"
 
@@ -481,7 +487,8 @@ Workingout$Activity="Workingout"
  
  This provides the data required for the classification model. Combining all of these files together using the function _rbind_ to form the training data. 
  
-```{r, Combining Segments,eval=FALSE}
+
+```r
 TrainingData=rbind(Cycling,
                    NonWear,
                    onthego,
@@ -497,7 +504,8 @@ TrainingData=rbind(Cycling,
 
 Creating the classification model from this data using the commands from 3ii.
 
-```{r,eval=FALSE}
+
+```r
 ClassificationModel=createGENEAFit(TrainingData,
                    features=c("UpDown.mean",
                               "UpDown.sd","Degrees.mean",

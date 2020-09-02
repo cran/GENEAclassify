@@ -12,7 +12,7 @@ find_peaks(x, m = 3)
 \item{m}{The number of points either side of the peak to required to be a peak.}
 }
 \description{
-Peak detector function
+Peak detect function
 }
 \details{
 Finds the peaks and valleys within the signal passed to the function.

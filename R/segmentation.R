@@ -101,9 +101,6 @@ NULL
 #'     \item Step.GENEAcount = 0
 #'     \item Step.sd = 1
 #'     \item Step.mean = 0
-#'     \item Step.GENEAamplitude = 3
-#'     \item Step.GENEAwavelength = 3
-#'     \item Step.GENEAdistance = 3
 #' }
 #' @param filterWave single logical, should a smoothing filter from \code{\link[waveslim]{wave.filter}} be applied? (default FALSE).
 #' @param filtername single character, the name of the wavelet to use for smoothing
@@ -120,35 +117,16 @@ NULL
 #' TempFreq performs a change point on the variance in the temeprature and frequency (Typically better for sleep behaviours).
 
 # Step Counter variables 
-#' @param  AxesMethod Select which axes to count the steps. \enumerate{
-#'     \item 'X'
-#'     \item 'Y' (default)
-#'     \item 'Z'
-#'     \item 'XY'
-#'     \item 'XZ'
-#'     \item 'YZ'
-#'     \item 'XYZ'
-#' }
-#' @param Centre single logical, Centres the xz signal about 0 (default TRUE) when counting the zero crossings within the step counting algorithm.
-#' @param STFT If STFT is TRUE then the Step Counter uses the STFT function to find the length of the window for each segment.
-#' @param win The window length at which to compute the STFT for the changepoint analysis. See \code{\link[GENEAread]{stft}}.
-#' @param smlen defines the window length used within the step counting alogirthm.
-#' @param threshold Threshold for the step counter to register a step. 
-#' @param stepmethod defines the method used by the step counting algoirthm, see \code{\link[GENEAclassify]{stepCounter}} for details.
+
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number. (default 100).
 #' @param boundaries to pass to the filter in the step counting algorithm.
 #' @param Rp the decibel level that the cheby filter takes. See \code{\link[signal]{cheby1}}.
 #' @param filterorder The order of the filter applied with respect to the butter or cheby options if stepCounter is used. The order of the moving average filter if step counter 2 is used.
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
-#' @param peaks single logical to indicate which step counter to use. If TRUE \code{\link[GENEAclassify]{stepCounter2}} will be used,
-#' if FALSE \code{\link[GENEAclassify]{stepCounter}} will be used. (default TRUE).
-#' @param ma.smooth Should a moving average filter be applied to the data. 
-#' @param Peak_Threshold Number of values either side of the peak/valley that are higher/lower for the value to qualify as a peak/valley 
-#' @param Step_Threshold The difference between a peak, valley then peak or valley, peak then valley to constitute a step.
-#' @param sd_Threshold A Threshold used to determine when to calculate steps based on the standard deviation between potential steps. If the standard deviation is above this threshold then the algorithm does not calculate steps.
-#' @param magsa_Threshold A Threshold used to determine when to calculate steps based on the mean magnitude of acceleration of a segmentd. If the mean magnitude of the segment is below this threshold then the algorithm does not calculate steps.
-#' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
+#' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
+#' @param verbose single logical to print additional progress reporting (default FALSE).
+#' @param verbose_timer single logical tp print additional progress reporting on time for each section of the function (default FALSE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
 #' @details Performs the segmentation procedure on the provided elevation data.
@@ -202,49 +180,126 @@ segmentation <- function(data,
                                          "UpDownMean", "UpDownVar", "UpDownMeanVar",
                                          "DegreesMean", "DegreesVar", "DegreesMeanVar", 
                                          "UpDownMeanVarDegreesMeanVar", 
-                                         "UpDownMeanVarMagMeanVar"), 
+                                         "UpDownMeanVarMagMeanVar",
+                                         "RadiansMean" , "RadiansVar", "RadiansMeanVar",
+                                         "UpDownMeanDegreesVar"), 
                          penalty = "Manual",
                          pen.value1 = 40,
                          pen.value2 = 400,
                          intervalseconds = 30,
                          mininterval = 5,
-                         # Step Coutner 2 variables 
-                         peaks = TRUE,
-                         AxesMethod = c("X","Y","Z","XZ","XY","YZ","XYZ"), 
-                         ma.smooth = TRUE,
-                         Peak_Threshold = 3, 
-                         Step_Threshold = 0.5,
-                         sd_Threshold = 150,
-                         magsa_Threshold = 0.15,
-                         # Step Counter 1 Variables
-                         stepmethod = c("Chebyfilter","Butterfilter","longrun","none"),
-                         boundaries = c(0.15, 1.0), 
+                         # StepCounter Variables
                          samplefreq = 100,
-                         smlen = 100L,
-                         threshold = 0.001,
-                         filterorder = 4L,  
-                         Rp = 0.5, 
+                         filterorder = 2,
+                         boundaries = c(0.5, 5), 
+                         Rp = 3,
                          plot.it = FALSE,
-                         Centre = TRUE,
-                         STFT = FALSE,
-                         win = 10,
+                         hysteresis = 0.1, 
                          verbose = FALSE,
+                         verbose_timer = FALSE,
                          ...) {
   
+  
+    #### 1. Exception Checks #### 
+  
+    # Adding in where smaplefreq comes from. 
     if (missing(data)) { stop("data is missing") }
-    if (missing(stepmethod)) {stepmethod = "Chebyfilter"} # Set Chebyfilter as the default.
-    if (missing(AxesMethod)) {AxesMethod = "XZ"} # Set the Y-axis as the default
+    if (class(data)[length(class(data))] == "GENEAbin"){
+      warning("Using frequency from AccData object")
+      samplefreq = data$Freq
+    } else if (missing(samplefreq)) {
+      warning("Sample frequency missing, defaulting to 100")
+    } else {
+      samplefreq = samplefreq  
+      warning("Taking provided sample frequency rather than from AccData")
+    }
+  
+  
+    #### 2. Accepting AccData Objects ####
+    if (class(data) == "AccData"){
+      binaryData <- data
+      binaryDataOut <- data$data.out
+      
+      serial <- binaryData$header["Device_Unique_Serial_Code", ][[1]]
+      
+      rightWrist <- grepl("right wrist", binaryData$header["Device_Location_Code", ][[1]])
+      leftWrist <- grepl("left wrist", 
+                         binaryData$header["Device_Location_Code", ][[1]]) | grepl("[[:blank:]]", 
+                                                                                   gsub("", " ", binaryData$header["Device_Location_Code", ][[1]]))
+      
+      if(!leftWrist & !rightWrist){
+        warning("Note: data assumed to be left wrist")
+      }
+      
+      Intervals <- get.intervals(binaryData, length = NULL, 
+                                 incl.date = TRUE, size = 1e6)
+      
+      ## Extract time, light and temp data
+      Time <- Intervals[, "timestamp"]
+      Light <- binaryData$data.out[, "light"]
+      Temp <- binaryData$data.out[, "temperature"]
+      
+      rm(binaryData)
+      
+      ## extract the up/down and rotation data
+      dataUpDown <- updown(Intervals)
+      dataDegrees <- degrees(Intervals)
+      
+      if (rightWrist) {
+        dataUpDown <- -1 * dataUpDown
+      }
+      
+      vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
+      
+      dataRadians <- radians(Intervals)
+        
+      geneaBin <- list(Data = Intervals, 
+                       Freq = data$freq, 
+                       UpDown = dataUpDown, 
+                       Degrees = dataDegrees, 
+                       Radians = dataRadians,
+                       Time = Time, 
+                       Light = Light, 
+                       Temp = Temp, 
+                       Magnitude = vecMagnitude, 
+                       RawData = binaryDataOut, 
+                       Serial = serial)
+      
+      
+      class(geneaBin) <- c(class(geneaBin), "GENEAbin")
+      
+      data = geneaBin
+    }
+
     if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"} 
     if (is.null(pen.value2)) {pen.value2 = pen.value1}
+    if (verbose_timer){print("Start time of Analysis ");print(Sys.time())}
+    
+    # Set variable until check
+    Radians_present = FALSE
   
     changepoint <- match.arg(arg = changepoint)
-    
-  
+   
     if (!is(data, class2 = "list")) {
         stop("data should be a GENEAbin list") }
 
-    dataNames <- c("Data", "UpDown", "Degrees", "Time", "Light", "Temp",
-        "Magnitude", "Serial", "RawData", "Freq")
+    # Check to see if Radians have been calculated 
+    if ("Radians" %in% names(data)){
+      Radians_present = TRUE
+    } else { 
+      Radians_present = FALSE
+    }
+    
+    dataNames <- c("Data", 
+                   "UpDown", 
+                   "Degrees",
+                   "Time",
+                   "Light",
+                   "Temp",
+                   "Magnitude", 
+                   "Serial", 
+                   "RawData", 
+                   "Freq")
 
     missNames <- !(dataNames %in% names(data))
 
@@ -266,42 +321,50 @@ segmentation <- function(data,
             dir.create(outputdir)
         }
     }
-    requiredCols <- c("UpDown.median", "UpDown.mad",
-        "Degrees.median", "Degrees.mad")
+    requiredCols <- c("UpDown.median", 
+                      "UpDown.mad",
+                      "Degrees.median",
+                      "Degrees.mad")
 
     if (identical(datacols, "default")) {
 
-      dataCols <- c("UpDown.mean",
-                    "UpDown.var",
-                    "UpDown.sd",
-                    "Degrees.mean",
-                    "Degrees.var",
-                    "Degrees.sd",
-                    "Magnitude.mean",
-                    # Frequency Variables
-                    "Principal.Frequency.median",
-                    "Principal.Frequency.mad",
-                    "Principal.Frequency.GENEAratio",
-                    "Principal.Frequency.sumdiff",
-                    "Principal.Frequency.meandiff",
-                    "Principal.Frequency.abssumdiff",
-                    "Principal.Frequency.sddiff",
-                    # Light Variables
-                    "Light.mean", 
-                    "Light.max",
-                    # Temperature Variables
-                    "Temp.mean",
-                    "Temp.sumdiff",
-                    "Temp.meandiff",
-                    "Temp.abssumdiff",
-                    "Temp.sddiff",
-                    # Step Variables
-                    "Step.GENEAcount", 
-                    "Step.sd",
-                    "Step.mean", 
-                    "Step.GENEAamplitude", 
-                    "Step.GENEAwavelength",
-                    "Step.GENEAdistance")
+      dataCols <- c("UpDown.median", 
+                    "UpDown.mad",
+                    "Degrees.median",
+                    "Degrees.mad")
+      
+      # Full Data cols
+      # dataCols <- c("UpDown.mean",
+      #               "UpDown.var",
+      #               "UpDown.sd",
+      #               "Degrees.mean",
+      #               "Degrees.var",
+      #               "Degrees.sd",
+      #               "Magnitude.mean",
+      #               # Frequency Variables
+      #               "Principal.Frequency.median",
+      #               "Principal.Frequency.mad",
+      #               "Principal.Frequency.GENEAratio",
+      #               "Principal.Frequency.sumdiff",
+      #               "Principal.Frequency.meandiff",
+      #               "Principal.Frequency.abssumdiff",
+      #               "Principal.Frequency.sddiff",
+      #               # Light Variables
+      #               "Light.mean", 
+      #               "Light.max",
+      #               # Temperature Variables
+      #               "Temp.mean",
+      #               "Temp.sumdiff",
+      #               "Temp.meandiff",
+      #               "Temp.abssumdiff",
+      #               "Temp.sddiff",
+      #               # Step Variables
+      #               "Step.GENEAcount", 
+      #               "Step.sd",
+      #               "Step.mean", 
+      #               "Step.GENEAamplitude", 
+      #               "Step.GENEAwavelength",
+      #               "Step.GENEAdistance")
   
     } else {
 
@@ -315,8 +378,10 @@ segmentation <- function(data,
     
     dataCols <- c(requiredCols, dataCols)
 
-    dataFixed <- c("Serial.Number", "Start.Time", "Segment.Start.Time",
-        "Segment.Duration")
+    dataFixed <- c("Serial.Number", 
+                   "Start.Time",
+                   "Segment.Start.Time",
+                   "Segment.Duration")
     
     dataCols <- dataCols[!dataCols %in% dataFixed]
     
@@ -324,8 +389,10 @@ segmentation <- function(data,
     
     whereFuns <- regexpr("\\.[A-Za-z]+$", dataCols)
 
-    #### Check Functions #######################################################################
+    #### 3. Check Functions #######################################################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 2 ");print(Sys.time())}
+    
     funs <- substr(dataCols, start = whereFuns + 1, stop = nchar(dataCols))
     
     uFuns <- unique(funs)
@@ -336,8 +403,10 @@ segmentation <- function(data,
         stop("functions requested by datacols do not exist: ",
             paste(uFuns[missFuns], collapse = ", ")) }
 
-    #### Check Columns #######################################################################
+    #### 4. Check Columns #######################################################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 3 ");print(Sys.time())}
+    
     cols <- substr(dataCols, start = 1, stop = whereFuns - 1)
 
     uCols <- unique(cols)
@@ -350,8 +419,10 @@ segmentation <- function(data,
         warning("columns requested by datacols not present in data: ",
             paste(uCols[missCols], collapse = ", ")) }
 
-    #### Create Summary matrix #######################################################################
+    #### 5. Create Summary matrix #######################################################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 4 ");print(Sys.time())}
+    
     # these matrices control the data objects that are used for analysis
     # and the functions that should be applied to them
 
@@ -374,6 +445,10 @@ segmentation <- function(data,
 
     Degrees <- data$Degrees
 
+    if (Radians_present == TRUE){
+      Radians <- data$Radians
+    }
+
     Time <- data$Time
 
     Light <- data$Light
@@ -391,10 +466,12 @@ segmentation <- function(data,
 
     rm(data)
 
-    #### QC time #######################################################################
+    #### 6. QC time #######################################################################
 
     # QC time
 
+    if (verbose_timer){print("Time of Analysis at Stage 5 ");print(Sys.time())}
+    
     if (!all(Time > 0)) { stop("not all Time values are positive") }
 
     diffTime <- diff(Time)
@@ -407,8 +484,10 @@ segmentation <- function(data,
         warning("time increments vary by more than 1% (",
             sum(isFarFromTypical, na.rm = TRUE), " records)") }
 
-    #### Wavelet filtering #######################################################################
+    #### 7. Wavelet filtering #######################################################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 6 ");print(Sys.time())}
+    
     ## apply optional wavelet filtering
 
     if (filterWave) { 
@@ -418,8 +497,8 @@ segmentation <- function(data,
             # decompose up-down time series
             modwtUpDown <- try(
                     modwt(x = UpDown,
-                        wf = filtername,
-                        n.levels = j),
+                          wf = filtername,
+                          n.levels = j),
                 silent = !verbose)
 
             if (!is(modwtUpDown, class2 = "try-error")) {
@@ -443,8 +522,10 @@ segmentation <- function(data,
         }
     }
 
-    #### Change point method #######################################################################
+    #### 8. Change point method #######################################################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 7 ");print(Sys.time())}
+    
     ## find changepoints based on updown data and rotation data
 
     allTimes <- switch(changepoint,
@@ -471,14 +552,13 @@ segmentation <- function(data,
                                      changedegrees = changeDegrees,
                                      verbose = verbose)},
                        
-                       
                        "TempFreq" = {
                          
                          spdata = xyzdata[, c("x", "y", "z")]
                          
                          PFrequency <- sapply(X = spdata, FUN = function(x) {
                            
-                           ft <- try(stft(as.matrix(x), quiet = TRUE, win = win,
+                           ft <- try(stft(as.matrix(x), quiet = TRUE,
                                           reassign = TRUE, date.col = FALSE,
                                           freq = Freq)$principals, silent = TRUE)
                            
@@ -521,7 +601,7 @@ segmentation <- function(data,
                          
                          PFrequency <- sapply(X = spdata, FUN = function(x) {
                            
-                           ft <- try(stft(as.matrix(x), quiet = TRUE, win = win,
+                           ft <- try(stft(as.matrix(x), quiet = TRUE,
                                           reassign = TRUE, date.col = FALSE,
                                           freq = Freq)$principals, silent = TRUE)
                            
@@ -567,6 +647,7 @@ segmentation <- function(data,
                          Time[cpts(UpDownMean)]
                          
                        }, 
+                       
                        "UpDownVar" = {
                          UpDownVar = cpt.var(data = UpDown,
                                         penalty = penalty,
@@ -602,6 +683,7 @@ segmentation <- function(data,
                          Time[cpts(DegreesMean)]
                          
                        }, 
+                       
                        "DegreesVar" = {
                          DegreesVar = cpt.var(data = Degrees,
                                              penalty = penalty,
@@ -657,36 +739,127 @@ segmentation <- function(data,
                                                      minseglen = mininterval,
                                                      method = "PELT")
                          
-                         MagMeanVar = cpt.meanvar(data = Degrees,
-                                                      penalty = penalty,
-                                                      pen.value = pen.value2,
-                                                      minseglen = mininterval,
-                                                      method = "PELT")
+                         MagMeanVar = cpt.meanvar(data = Magnitude,
+                                                  penalty = penalty,
+                                                  pen.value = pen.value2,
+                                                  minseglen = mininterval,
+                                                  method = "PELT")
                          
                          changeTimes(time = Time,
                                      intervalseconds = intervalseconds,
                                      changeupdown = UpDownMeanVar,
                                      changedegrees = MagMeanVar,
                                      verbose = verbose)
+                       }, 
+                       
+                       "RadiansMean" = {
+                         
+                         if (Radians_present == FALSE){
+                           stop("Radians must be set to TRUE use this changepoint method.")
+                         } else {
+                           RadiansMean = cpt.mean(data = Radians,
+                                                  penalty = penalty,
+                                                  pen.value = pen.value1,
+                                                  minseglen = mininterval,
+                                                  method = "PELT")
+                           
+
+                         }
+                         
+                         Time[cpts(RadiansMean)]
+                       }, 
+                       
+                       "RadiansVar" = {
+                         
+                         if (Radians_present == FALSE){
+                           stop("Radians must be set to TRUE use this changepoint method.")
+                         } else {
+                           RadiansVar = cpt.var(data = Radians,
+                                                penalty = penalty,
+                                                pen.value = pen.value1,
+                                                minseglen = mininterval,
+                                                method = "PELT")
+                           
+                           Time[cpts(RadiansVar)]
+                           
+                         }
+                       }, 
+                       
+                       "RadiansMeanVar" = {
+                         
+                         if (Radians_present == FALSE){
+                           stop("Radians must be set to TRUE use this changepoint method.")
+                         } else {
+                           RadiansMeanVar = cpt.meanvar(data = Radians,
+                                                        penalty = penalty,
+                                                        pen.value = pen.value1,
+                                                        minseglen = mininterval,
+                                                        method = "PELT")
+                           
+                           Time[cpts(RadiansMeanVar)]
+                           
+                         }
+                       },
+                       
+                       "UpDownMeanDegreesVar" = {
+                         
+                         if (Radians_present == FALSE){
+                           stop("Radians must be set to TRUE use this changepoint method.")
+                         } else {
+                          
+                           
+                           UpDownMean = cpt.mean(data = UpDown,
+                                                 penalty = penalty,
+                                                 pen.value = pen.value1,
+                                                 minseglen = mininterval,
+                                                 method = "PELT")
+                           
+                           DegreesVar = cpt.var(data = Degrees,
+                                                penalty = penalty,
+                                                pen.value = pen.value1,
+                                                minseglen = mininterval,
+                                                method = "PELT")
+                           
+                           changeTimes(time = Time,
+                                       intervalseconds = intervalseconds,
+                                       changeupdown = UpDownMean,
+                                       changedegrees = DegreesVar,
+                                       verbose = verbose)
+                           
+                         }
                        }
+                       
+                       
     )
     
     
-    #### If AllTimes has length 0 then ####
+    #### 9. If AllTimes has length 0 or 1 then ####
+    
+    if (verbose_timer){print("Time of Analysis at Stage 8 ");print(Sys.time())}
+    
     if (length(allTimes) == 0){
       allTimes = c(Time[1], Time[length(Time)])
-      allDurations <- Time[length(Time)] - Time[1]
-    } else{
-      allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])
+      allDurations <- as.numeric(Time[length(Time)]) - as.numeric(Time[1])
+    } 
+    else if (length(allTimes) == 1){
+      allTimes = c(Time[1], allTimes, Time[length(Time)])
+      allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])  
+    } 
+    else {
+        allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])  
     }
     
-    #### segment durations ####
+    #### 10. segment durations ####
+    
+    if (verbose_timer){print("Time of Analysis at Stage 9 ");print(Sys.time())}
+    
     output <- data.frame(Serial.Number = Serial,
                          Start.Time = as.integer(allTimes[-length(allTimes)]),
                          Segment.Start.Time = format(x = convert.time(allTimes[-length(allTimes)]),
-                                                                      format = "%H:%M:%S"),
+                                                     format = "%H:%M:%S"),
                          Segment.Duration = allDurations,
                          stringsAsFactors = FALSE)
+    
 
     # update allTimes to catch all Time if few allTimes are returned
     if (length(allTimes) < 3) { allTimes <- range(Time) }
@@ -723,8 +896,10 @@ segmentation <- function(data,
         if (!is.null(outputfile)) { dev.off() }
     }
 
-    #### summarize existing cols ##############################################
+    #### 11. Summarize existing cols ##############################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 10 ");print(Sys.time())}
+    
     cutPointEx <- cut(Time, allTimes)
 
     # split variables
@@ -733,6 +908,10 @@ segmentation <- function(data,
 
     Degrees <- split(x = Degrees, f = cutPointEx)
 
+    if (Radians_present == TRUE){
+      Radians <- split(x = Radians, f = cutPointEx)
+    }
+    
     Time <- split(x = Time, f = cutPointEx)
 
     Magnitude <- split(x = Magnitude, f = cutPointEx)
@@ -747,14 +926,18 @@ segmentation <- function(data,
 
     output$Cuts <- as.numeric(rownames(output))
 
-    #### summarize derived cols ###############################################
+    #### 12. Summarize derived cols ###############################################
 
+    if (verbose_timer){print("Time of Analysis at Stage 11 ");print(Sys.time())}
+    
     ## redefine cutpoint here
 
     cutPointDe <- cut(xyzdata$timestamp, allTimes)
 
-    #### StepCounter ####
+    #### 13. StepCounter ####
 
+    if (verbose_timer){print("Time of Analysis at Stage 12 ");print(Sys.time())}
+    
     if (nrow(dataColsMatstep) > 0) {
 
         spdata <- split(xyzdata[, c("timestamp", "x", "y", "z")], f = cutPointDe)
@@ -764,42 +947,18 @@ segmentation <- function(data,
         # Accounting for the smlen change in frequency. Optimised for 100Hz 
         smlen = (smlen * (100 / Freq))
 
-        if (peaks == TRUE){
-          stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
-               stepCounter2(x[, c("timestamp", "x", "y", "z")], 
-                            samplefreq = samplefreq,
-                            smlen = smlen,
-                            AxesMethod = AxesMethod, 
-                            ma.smooth = ma.smooth,
-                            filterorder = filterorder,
-                            Peak_Threshold = Peak_Threshold, 
-                            Step_Threshold = Step_Threshold,
-                            sd_Threshold = sd_Threshold,
-                            magsa_Threshold = magsa_Threshold,
-                            plot.it = plot.it,
-                            Centre = Centre,
-                            verbose = verbose,
-                            fun = dataColsMatstep[, "funs", drop = TRUE])},
-                            samplefreq = max(10, Freq), smlen = smlen)
-        }
-        else{
-          stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
-                stepCounter(x[, c("timestamp", "x", "y", "z")],
-                            samplefreq = samplefreq,
-                            smlen = smlen,
-                            AxesMethod = AxesMethod, 
-                            stepmethod = stepmethod,
-                            filterorder = filterorder,
-                            threshold = threshold,
-                            Rp = Rp,
-                            boundaries = boundaries,
-                            plot.it = plot.it,
-                            Centre = Centre,
-                            STFT = STFT,
-                            fun = dataColsMatstep[, "funs", drop = TRUE])},
-                            samplefreq = max(10, Freq), smlen = smlen)
-        }
-
+        stepNumber <- lapply(spdata, function(x, samplefreq, smlen) {
+          stepCounter(x[, c("timestamp", "y")],
+                      samplefreq = samplefreq,
+                      filterorder = filterorder,
+                      boundaries = boundaries,
+                      Rp = Rp,
+                      plot.it = plot.it,
+                      hysteresis = hysteresis,
+                      verbose = verbose,
+                      fun = dataColsMatstep[, "funs", drop = TRUE])},
+          samplefreq = max(10, Freq), smlen = smlen)
+        
         stepNumber <- as.data.frame(do.call("rbind", stepNumber),
            stringsAsFactors = FALSE)
         colnames(stepNumber) <- paste0("Step.", colnames(stepNumber))
@@ -811,10 +970,14 @@ segmentation <- function(data,
         output <- merge(x = output, y = stepNumber)
     }
 
-    #### Principal.Frequency ####
+    #### 14. Principal.Frequency ####
 
+    if (verbose_timer){print("Time of Analysis at Stage 13 ");print(Sys.time())}
+    
     if (nrow(dataColsMatFreq) > 0) {
-
+        
+      print("STFT Running ")
+      
         spdata <- split(x = xyzdata[, c("x", "y", "z")], f = cutPointDe)
 
         Principal.Frequency <- sapply(X = spdata, FUN = function(x) {
@@ -835,6 +998,10 @@ segmentation <- function(data,
         output <- merge(x = output, y = principalSummary)
     }
 
+    #### 15. Creating Output ####
+    
+    if (verbose_timer){print("Time of Analysis at Stage 14 ");print(Sys.time())}
+    
     output$Cuts <- NULL
 
     if (!is.null(decimalplaces)) {
@@ -890,7 +1057,7 @@ segmentation <- function(data,
         if (!grepl(pattern = ".\\.[CcSsVv]$", x = outputfile)) {
             outputfile <- paste0(outputfile, ".csv")
         }
-
+        
         write.csv(output, file = file.path(outputdir, outputfile), row.names = FALSE)
     }
     if (verbose) { cat("Analysis Complete!\n") }

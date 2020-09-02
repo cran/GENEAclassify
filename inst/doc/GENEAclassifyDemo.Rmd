@@ -84,7 +84,7 @@ This pdf file will give an introduction to using the programming language R with
 
 ##ii. Installing R.
 	To begin with install R from <https://www.r-project.org>. 
-There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. I would also recommend downloading the IDE (integrated development environment) RStudio from <https://www.rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://www.rstudio.com/resources/cheatsheets/>. 
+There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. I would also recommend downloading the IDE (integrated development environment) RStudio from <https://rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://rstudio.com/resources/cheatsheets/>. 
 
 Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console
 
@@ -146,7 +146,7 @@ library(GENEAclassify)
 
 If you intend on working with the development of the package then I suggest setting up an account on GitHub here <https://github.com/>. RStudio can directly link to the repository for the development of the package by selecting to set-up a new project from the top right hand corner, selecting version control and cloning the GitHub repository.
 
-This guide on using RStudio with GitHub is particularly helpful <http://www.r-bloggers.com/rstudio-and-github/>.
+This guide on using RStudio with GitHub is particularly helpful <https://www.r-bloggers.com/rstudio-and-github/>.
 
 Once GitHub has been set-up I would recommend creating a personal branch for contributions which can be assessed and discussed by Activinsights before adding any changes to the master repository. 
 
@@ -160,13 +160,13 @@ and a latex compiler found here:
 
 For OS, xcode developer tools will have to be downloaded from this link: 
 
-  - http://itunes.apple.com/us/app/xcode/id497799835?mt=12
+  - https://apps.apple.com/us/app/xcode/id497799835?mt=12
 
 and a latex compiler found here: 
 
   - http://www.tug.org/mactex/downloading.html.
 
-For more information go to  <http://www.activinsights.com/>.
+For more information go to  <https://www.activinsights.com/>.
 
 
 The package can also be installed using a GitHub authentication key which will go in the "" of auth_token. The key will be provided on request. The package devtools is also required to install from GitHub.

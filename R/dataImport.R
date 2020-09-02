@@ -8,6 +8,7 @@
 #' @param start Where to start reading observations.
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
+#' @param radians calculate degrees rotation in radians.
 #' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see mmap for more details
 #' @param ... additional arguments passed through.
 #' @details Reads in the binary data file and extracts the information required for the segmentation procedure.
@@ -28,6 +29,7 @@ dataImport <- function(binfile,
                        start = NULL, 
                        end = NULL, 
                        Use.Timestamps = FALSE, 
+                       radians = FALSE,
                        mmap.load = (.Machine$sizeof.pointer >= 8), ...) {
 
   # Note to bring everything to binfile name change. - To be removed
@@ -90,16 +92,33 @@ dataImport <- function(binfile,
 
     vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
     
-    geneaBin <- list(Data = Intervals, 
-                     Freq = downsample, 
-                     UpDown = dataUpDown, 
-                     Degrees = dataDegrees, 
-                     Time = Time, 
-                     Light = Light, 
-                     Temp = Temp, 
-                     Magnitude = vecMagnitude, 
-                     RawData = binaryDataOut, 
-                     Serial = serial)
+    if (radians){
+      
+      dataRadians <- radians(Intervals)
+      
+      geneaBin <- list(Data = Intervals, 
+                       Freq = downsample, 
+                       UpDown = dataUpDown, 
+                       Degrees = dataDegrees, 
+                       Radians = dataRadians,
+                       Time = Time, 
+                       Light = Light, 
+                       Temp = Temp, 
+                       Magnitude = vecMagnitude, 
+                       RawData = binaryDataOut, 
+                       Serial = serial)
+    } else {
+      geneaBin <- list(Data = Intervals, 
+                       Freq = downsample, 
+                       UpDown = dataUpDown, 
+                       Degrees = dataDegrees, 
+                       Time = Time, 
+                       Light = Light, 
+                       Temp = Temp, 
+                       Magnitude = vecMagnitude, 
+                       RawData = binaryDataOut, 
+                       Serial = serial)
+    }
     
     class(geneaBin) <- c(class(geneaBin), "GENEAbin")
     
@@ -157,5 +176,32 @@ degrees <- function(x) {
     
     deg <- floor(deg) - 45 
     
+    deg = ifelse(deg < 0, deg + 360, deg)
+    
     return(deg)
 }
+
+#' Extract data relating to the rotation component.
+#' 
+#' Called by \code{dataImport}.
+#' Note: the "+ 1" has been removed from the original implementation.
+#' @title Extract rotation time series in radians 
+#' @param x data output from get.intervals
+#' @return The degrees (rotation) data.
+#' @export
+#' @keywords internal
+#' @examples
+#'    d1 <- matrix(c(100, 101, -0.79, -0.86, -0.17, -0.14, 0.53, 0.46), 
+#'         nrow = 2, ncol = 4)
+#'    colnames(d1) <- c("timestamp", "x", "y", "z")
+#'    degrees(x = d1)
+
+radians <- function(x) {
+  
+  magnitude <- sqrt(rowSums(x[, c("x", "z")]^2))
+  
+  rad = sign(-x[, "x"]) * acos(-x[, "z"] / magnitude) + pi  
+
+  return(rad)
+}
+

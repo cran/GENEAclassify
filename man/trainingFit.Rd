@@ -4,8 +4,10 @@
 \name{trainingFit}
 \alias{trainingFit}
 \title{Example classification tree}
-\format{An \code{rpart} object with class \code{GENEA} containing the decision 
-tree information required for prediction.}
+\format{
+An \code{rpart} object with class \code{GENEA} containing the decision 
+tree information required for prediction.
+}
 \source{
 Output of \code{createGENEAmodel} on experimental training data.
 }

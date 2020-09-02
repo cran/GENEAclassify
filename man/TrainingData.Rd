@@ -4,7 +4,9 @@
 \name{TrainingData}
 \alias{TrainingData}
 \title{Example Training Data set}
-\format{Manually classified segmented data that can be used to build a classification model.}
+\format{
+Manually classified segmented data that can be used to build a classification model.
+}
 \source{
 Manually classified by Actvinsights.
 }
