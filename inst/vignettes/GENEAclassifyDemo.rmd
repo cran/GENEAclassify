@@ -145,7 +145,7 @@ library(GENEAclassify)
 
 If you intend on working with the development of the package then we suggest setting up an account on GitHub here <https://github.com/>. RStudio can directly link to the repository for the development of the package by selecting to set-up a new project from the top right hand corner, selecting version control and cloning the GitHub repository.
 
-This guide on using RStudio with GitHub is helpful <https://www.r-bloggers.com/rstudio-and-github/>.
+This guide on using RStudio with GitHub is helpful <https://www.r-bloggers.com/2015/07/rstudio-and-github/>.
 
 Once GitHub has been set-up we would recommend creating a personal branch for contributions which can be assessed and discussed by Activinsights before adding any changes to the master repository. 
 
@@ -179,7 +179,7 @@ install_github("https://github.com/Langford/GENEAclassify_1.41.git",
 
 ```
 
-Again loading in the package to the workspace:
+Again loading in the package to the work space:
 
 ```{r Run library function again GENEAclassify library,eval=FALSE}
 
@@ -271,10 +271,10 @@ Inside GENEAclassify there is also a range of custom functions:
  - MeanDir (circular mean direction for radians)
  - CirVar (circular variance for radians)
  - CirSD (circular sd for radians)
- - CirDisp (circular dispertion for radians)
+ - CirDisp (circular dispersion for radians)
  - CirSkew (circular skewness for radians)
  - CirKurt (circular kurtosis for radians)
- - impact (calcutes the proportion of samples above a defined absolute magnitude)
+ - impact (calculates the proportion of samples above a defined absolute magnitude)
  
 To find more information on these functions use the ? before the function in question. For example ?GENEAskew will provide details on that function in the help window of RStudio or as a pop-up.
 
@@ -328,7 +328,7 @@ SegDataFile = getGENEAsegments(DataFile, dataCols, start = 0, end = 0.1)
 
 ##  v. Varying Step Counting Algorithms
 
-The segmentation function also applies a default step counting algorithm when no arguments are passed through the function. The step counting algorithm works by taking the y axis, filtering the signal with a chebyshev filter, applying a hystersis threshold where the zero crossing are counted over a given window. 
+The segmentation function also applies a default step counting algorithm when no arguments are passed through the function. The step counting algorithm works by taking the y axis, filtering the signal with a chebyshev filter, applying a hysteresis threshold where the zero crossing are counted over a given window. 
 
 There are then 4 separate variables, shown with their defaults that can be changed in the Step Counter function:
 

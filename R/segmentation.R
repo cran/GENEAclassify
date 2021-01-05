@@ -204,19 +204,14 @@ segmentation <- function(data,
   
     # Adding in where smaplefreq comes from. 
     if (missing(data)) { stop("data is missing") }
+    
     if (class(data)[length(class(data))] == "GENEAbin"){
-      warning("Using frequency from AccData object")
+      if (verbose) warning("Using frequency from AccData object")
       samplefreq = data$Freq
-    } else if (missing(samplefreq)) {
-      warning("Sample frequency missing, defaulting to 100")
-    } else {
-      samplefreq = samplefreq  
-      warning("Taking provided sample frequency rather than from AccData")
     }
-  
-  
+    
     #### 2. Accepting AccData Objects ####
-    if (class(data) == "AccData"){
+    if (class(data)[length(class(data))] == "AccData"){
       binaryData <- data
       binaryDataOut <- data$data.out
       
@@ -252,7 +247,7 @@ segmentation <- function(data,
       vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
       
       dataRadians <- radians(Intervals)
-        
+      
       geneaBin <- list(Data = Intervals, 
                        Freq = data$freq, 
                        UpDown = dataUpDown, 
@@ -265,12 +260,17 @@ segmentation <- function(data,
                        RawData = binaryDataOut, 
                        Serial = serial)
       
+      samplefreq = data$freq
       
       class(geneaBin) <- c(class(geneaBin), "GENEAbin")
       
       data = geneaBin
     }
-
+    
+    if (missing(samplefreq)) {
+      warning("Sample frequency missing, defaulting to 100")
+      samplefreq = 100
+    }
     if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"} 
     if (is.null(pen.value2)) {pen.value2 = pen.value1}
     if (verbose_timer){print("Start time of Analysis ");print(Sys.time())}
@@ -846,7 +846,8 @@ segmentation <- function(data,
       allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])  
     } 
     else {
-        allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])  
+      allTimes = c(Time[1], allTimes, Time[length(Time)])
+      allDurations <- as.numeric(allTimes[-1] - allTimes[-length(allTimes)])  
     }
     
     #### 10. segment durations ####

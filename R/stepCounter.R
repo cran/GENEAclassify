@@ -45,7 +45,7 @@ stepCounter <- function(AccData,
   res <- numeric(length(fun))
   names(res) <- fun
   
-  #### Check whether an AccData obejct or a vector ####
+  #### Check whether an AccData object or a vector ####
   
   # If Not an AccData object is it a numerical vector (Can be timestamps and a vector)
   if (class(AccData) == "AccData"){
@@ -69,12 +69,12 @@ stepCounter <- function(AccData,
   }
   
   Filter <- cheby1(n = filterorder,                               # order of filter
-                   Rp = Rp,                                       # ripple of passband
-                   W = boundaries/samplefreq,                     # lower then upper frequencies of bandpass
+                   Rp = Rp,                                       # ripple of band pass
+                   W = boundaries/samplefreq,                     # lower then upper frequencies of band pass
                    type = "pass",
                    plane = "z")
   
-  #### Apply the bandpass filter ####
+  #### Apply the band pass filter ####
   filteredData = signal::filter(Filter, StepData) 
   
   state = -1                                                       # initialise step state
@@ -105,18 +105,29 @@ stepCounter <- function(AccData,
   }
   
   if ("mean" %in% fun) {
-    res["mean"] <- 60 /mean(cadence)
-    fun <- fun[fun != "mean"]
+    if (length(cadence) < 1){
+      res["mean"] <- 0
+      fun <- fun[fun != "mean"]
+    } else {
+      res["mean"] <- 60 / mean(cadence, na.rm = T)
+      fun <- fun[fun != "mean"]
+    }
   }
   
   if ("median" %in% fun) {
-    res["median"] <- 60 /median(cadence)
-    fun <- fun[fun != "median"]
+    if (length(cadence) < 1){
+      res["median"] <- 0
+      fun <- fun[fun != "median"]
+    } else {
+      res["median"] <- 60 / median(cadence, na.rm = T)
+      fun <- fun[fun != "median"]
+    }
   }
   
   for (i in fun) {
-    val <- try(get(x = i, mode = "function")(cadence))
-    if (is(val, class2 = "try-error")) { val <- NA }
+    val <- try(get(x = i, mode = "function")(diff(cadence)))
+    if (is(val, class2 = "try-error")) { val <- 0 }
+    if (is.na(val)) { val <- 0 }
     res[i] <- val
   }
   

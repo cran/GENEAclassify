@@ -34,31 +34,30 @@ dataImport <- function(binfile,
 
   # Note to bring everything to binfile name change. - To be removed
   if (missing(binfile)){stop("bindata has been renamed as binfile. Please rename variable")}
-  
-    binaryData <- read.bin(binfile = binfile,
-                           start = start,
-                           end = end, 
-                           Use.Timestamps = Use.Timestamps, 
-                           mmap.load = mmap.load,
-                           calibrate = TRUE, 
-                           downsample = downsample)
 
     if (is.null(downsample)) {
-        
-        binaryDataOut <- binaryData$data.out
+      
+      binaryData <- read.bin(binfile = binfile,
+                             start = start,
+                             end = end, 
+                             Use.Timestamps = Use.Timestamps, 
+                             mmap.load = mmap.load,
+                             calibrate = TRUE)
+      
+      binaryDataOut <- binaryData$data.out
         
     } else {
         
-        binaryDataFULL <- read.bin(binfile, 
-                                   start = start, 
-                                   end = end, 
-                                   Use.Timestamps = Use.Timestamps, 
-                                   mmap.load = mmap.load,
-                                   calibrate = TRUE)
+      binaryData <- read.bin(binfile, 
+                                 start = start, 
+                                 end = end, 
+                                 Use.Timestamps = Use.Timestamps, 
+                                 mmap.load = mmap.load,
+                                 calibrate = TRUE, 
+                                 downsample = downsample)
         
-        binaryDataOut <- binaryDataFULL$data.out
-        
-        rm(binaryDataFULL)
+      binaryDataOut <- binaryData$data.out
+  
     }
     
     serial <- binaryData$header["Device_Unique_Serial_Code", ][[1]]
@@ -72,8 +71,10 @@ dataImport <- function(binfile,
         warning("Note: data assumed to be left wrist")
     }
 
-    Intervals <- get.intervals(binaryData, length = NULL, 
-        incl.date = TRUE, size = 1e6)
+    Intervals <- get.intervals(binaryData, 
+                               length = NULL, 
+                               incl.date = TRUE,
+                               size = 1e6)
 
     ## Extract time, light and temp data
     Time <- Intervals[, "timestamp"]

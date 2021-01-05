@@ -1,8 +1,8 @@
 Package: GENEAclassify
 Type: Package
 Title: Segmentation and Classification of Accelerometer Data
-Version: 1.5.1
-Date: 2020-08-26
+Version: 1.5.2
+Date: 2020-12-14
 Authors@R: c(
             person("Chris", "Campbell", role = "aut", email = "ccampbell@mango-solutions.com"),
             person("Aimee", "Gott", role = "aut", email = "agott@mango-solutions.com"),
@@ -25,7 +25,7 @@ Suggests: waveslim, knitr, rmarkdown
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 NeedsCompilation: yes
-Packaged: 2020-09-02 10:25:25 UTC; Charl
+Packaged: 2021-01-05 10:03:20 UTC; Charlie
 Maintainer: Charles Sweetland <charles@springhead-data.com>
 Repository: CRAN
-Date/Publication: 2020-09-02 11:20:07 UTC
+Date/Publication: 2021-01-05 19:40:05 UTC
