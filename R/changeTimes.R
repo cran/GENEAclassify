@@ -79,7 +79,6 @@ changeTimes <- function(time,
     intervalseconds <- intervalseconds[1]
   }
   
-  #### 7.2 This is where the error appears ####
   if (!is.na(intervalseconds)) {
     
     if (intervalseconds > mininterval) {

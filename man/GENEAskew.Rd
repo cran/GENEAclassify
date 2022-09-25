@@ -2,14 +2,12 @@
 % Please edit documentation in R/statistics.R
 \name{GENEAskew}
 \alias{GENEAskew}
-\title{Skewness, a measure of centredness}
+\title{Find average Amplitude of Steps}
 \usage{
 GENEAskew(x, na.rm = TRUE, ...)
 }
 \arguments{
-\item{x}{numeric vector}
-
-\item{na.rm}{single logical should missing values be removed}
+\item{x}{vector}
 
 \item{\dots}{other arguments to be swallowed}
 }
@@ -17,13 +15,12 @@ GENEAskew(x, na.rm = TRUE, ...)
 single numeric
 }
 \description{
-Many datasets do not have the highest density 
-of measurements in the middle of the distribution of the data.
-Skewness is a measure of the asymmetry of a probability distribution.
+Step amplitude finds the average size of the step found over the segment
 }
 \examples{
-GENEAskew(1:10)
-GENEAskew((1:10)^2)
-GENEAskew((1:10)^0.5)
+   x1 <- c(20, 15, 10)
+   GENEAcount(x1)
+   x2 <- c(300, 255, 111)
+   GENEAcount(x2)
 }
 \keyword{internal}

@@ -44,22 +44,19 @@ GENEAratio <- function(principals, freq = "Freq", nfr = 3L, ...) {
 
 GENEAcount <- function(x, ...) { return(round(length(x) / 2)) }
 
-#' @title Skewness, a measure of centredness
+#' Step amplitude finds the average size of the step found over the segment
 #' 
-#' @description Many datasets do not have the highest density 
-#' of measurements in the middle of the distribution of the data.
-#' Skewness is a measure of the asymmetry of a probability distribution.
-#' 
-#' @param x numeric vector
-#' @param na.rm single logical should missing values be removed
+#' @title Find average Amplitude of Steps
+#' @param x vector
 #' @param \dots other arguments to be swallowed
 #' @return single numeric
 #' @export
 #' @keywords internal
 #' @examples
-#' GENEAskew(1:10)
-#' GENEAskew((1:10)^2)
-#' GENEAskew((1:10)^0.5)
+#'    x1 <- c(20, 15, 10)
+#'    GENEAcount(x1)
+#'    x2 <- c(300, 255, 111)
+#'    GENEAcount(x2)
 
 GENEAskew <- function(x, na.rm = TRUE, ...) {
     
@@ -90,10 +87,27 @@ GENEAskew <- function(x, na.rm = TRUE, ...) {
 #' @examples
 #'    tmp1 <- c(1,3,2,6,4,5,3,9,10)
 #'    sumdiff(x = tmp1)
-
+#'    
 sumdiff <- function(x, na.rm=TRUE){
   tmp1 <- diff(na.omit(x))
-  return(sum(tmp1))
+  return(sum(tmp1)/(length(x)))
+}
+
+#' Adding in a feedback call sumdiff that finds the difference of a function and then sums this difference. 
+#' Called by \code{segmentation}.
+#' @title Finding the sum of the differences
+#' @param x vector of numeric values
+#' @param na.rm single logical should missing values be removed
+#' @return A single value data.
+#' @export
+#' @keywords internal
+#' @examples
+#'    tmp1 <- c(1,3,2,6,4,5,3,9,10)
+#'    sumdiff(x = tmp1)
+
+sod <- function(x, na.rm=TRUE){
+  tmp1 <- abs(diff(na.omit(x)))
+  return(sum(tmp1)/(length(x)))
 }
 
 #' Finding the mean of the differences
@@ -253,7 +267,6 @@ CirDisp <- function(rotation, na.rm = TRUE){
   }
   
   R1bar <- sqrt((sin1^2 + cos1^2))/length(rotation)
-  #Ttwo <- abs(sum(cos(2*(rotation-Tone)))/length(rotation))
   CirDisp <- (1-Tan2)/(2*(R1bar^2))
   return(CirDisp)
 }

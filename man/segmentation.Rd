@@ -15,8 +15,8 @@ segmentation(
   j = 8,
   changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", "UpDownMean", "UpDownVar",
     "UpDownMeanVar", "DegreesMean", "DegreesVar", "DegreesMeanVar",
-    "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar", "RadiansMean",
-    "RadiansVar", "RadiansMeanVar", "UpDownMeanDegreesVar"),
+    "UpDownMeanDegreesVar", "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar",
+    "RadiansMean", "RadiansVar", "RadiansMeanVar"),
   penalty = "Manual",
   pen.value1 = 40,
   pen.value2 = 400,
@@ -28,6 +28,7 @@ segmentation(
   Rp = 3,
   plot.it = FALSE,
   hysteresis = 0.1,
+  stft_win = 10,
   verbose = FALSE,
   verbose_timer = FALSE,
   ...
@@ -151,6 +152,8 @@ See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
 \item{plot.it}{single logical, Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.}
 
 \item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
+
+\item{stft_win}{Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.}
 
 \item{verbose}{single logical to print additional progress reporting (default FALSE).}
 

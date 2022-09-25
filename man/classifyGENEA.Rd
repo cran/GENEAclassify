@@ -32,6 +32,7 @@ classifyGENEA(
   Rp = 3,
   plot.it = FALSE,
   hysteresis = 0.1,
+  stft_win = 10,
   plot.seg = FALSE,
   plot.seg.outputfile = "Changepoint",
   verbose = TRUE,
@@ -99,6 +100,8 @@ when calculating the step number. (default 100)}
 \item{plot.it}{(logical) Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.}
 
 \item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
+
+\item{stft_win}{Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.}
 
 \item{plot.seg}{(logical) Creates a plot displaying the changepoint locations}
 

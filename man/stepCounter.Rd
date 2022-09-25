@@ -5,19 +5,19 @@
 \title{Step Counter}
 \usage{
 stepCounter(
-  AccData,
+  data,
   samplefreq = 100,
   filterorder = 2,
   boundaries = c(0.5, 5),
   Rp = 3,
   plot.it = FALSE,
-  hysteresis = 0.1,
+  hysteresis = 0.05,
   verbose = verbose,
   fun = c("GENEAcount", "mean", "sd", "mad")
 )
 }
 \arguments{
-\item{AccData}{The data to use for calculating the steps. This should either an AccData object or a vector.}
+\item{data}{The data to use for calculating the steps. This should either an AccData/GENEAbin object or a vector.}
 
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number (default 100).}

@@ -54,7 +54,7 @@
 #' @param filtername single character, the name of the wavelet to use for smoothing
 #' when filter is TRUE. (default "haar") Passed to \code{link[waveslim]{wave.filter}}.
 #' @param j single numeric, the level to which to smooth. Passed to \code{link[waveslim]{wave.filter}} (default 8).
-#' @param penalty single characgter, the penalty to use for changepoint detection. default ("SIC").
+#' @param penalty single character, the penalty to use for changepoint detection. default ("SIC").
 #' @param pen.value1 Value of the type 1 error required when penalty is "Asymptotic".
 #' @param pen.value2 Default set as NULL and so equals pen.value1 if no input. 
 #' @param intervalseconds An integer number of seconds between 5 and 30 during which at most one changepoint may occur.
@@ -63,7 +63,7 @@
 #' @param plot.seg single logical, Creates a plot displaying the changepoint locations.
 #' @param plot.seg.outputfile The name of the png file created that shows the change points on a positionals plots.
 #' @param changepoint defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. 
-#' TempFreq performs a change point on the variance in the temeprature and frequency (Typically better for sleep behaviours).
+#' TempFreq performs a change point on the variance in the temperature and frequency (Typically better for sleep behaviours).
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number. (default 100).
 #' @param boundaries to pass to the filter in the step counting algorithm.
@@ -71,6 +71,7 @@
 #' @param filterorder The order of the filter applied with respect to the butter or cheby options. 
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
 #' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
+#' @param stft_win Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
@@ -124,6 +125,7 @@ getGENEAsegments <- function(testfile,
                              Rp = 3,
                              plot.it = FALSE,
                              hysteresis = 0.1, 
+                             stft_win = 10, 
                              # Plots 
                              plot.seg = FALSE,
                              plot.seg.outputfile = "Changepoint",
@@ -269,16 +271,18 @@ getGENEAsegments <- function(testfile,
     
     #### 4.0 Setting sample frequency here ####
     if (missing(inDat)) { stop("data is missing") }
-    if (class(inDat)[length(class(inDat))] == "GENEAbin"){
+    if ((sum(class(data) %in% "GENEAbin") > 0)){
+      warning("Using frequency from GENEAbin object")
+      samplefreq = data$Freq
+    } else if ((sum(class(data) %in% "AccData") > 0)){
       warning("Using frequency from AccData object")
-      samplefreq = inDat$Freq
+      samplefreq = data$freq
     } else if (missing(samplefreq)) {
       warning("Sample frequency missing, defaulting to 100")
     } else {
       samplefreq = samplefreq  
       warning("Taking provided sample frequency rather than from AccData")
     }
-    
     if (!is(inDat, "try-error")) {
       
       # give segmentation outputs the root file name in the output folder
@@ -319,6 +323,7 @@ getGENEAsegments <- function(testfile,
                                   Rp = Rp,
                                   plot.it = plot.it,
                                   hysteresis = hysteresis,
+                                  stft_win = stft_win, 
                                   verbose = verbose,...))
       
       if (is(segData, "try-error")) {

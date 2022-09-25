@@ -2,7 +2,7 @@
 #' Function to calculate the number and variance of the steps in the data.
 #'
 #' @title Step Counter
-#' @param AccData The data to use for calculating the steps. This should either an AccData object or a vector.
+#' @param data The data to use for calculating the steps. This should either an AccData/GENEAbin object or a vector.
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number (default 100).
 #' @param filterorder single integer, order of the Chebyshev bandpass filter,
@@ -27,17 +27,17 @@
 #' sd(Steps4)
 #' plot(Steps4)
 
-stepCounter <- function(AccData, 
+stepCounter <- function(data, 
                         samplefreq = 100,
                         filterorder = 2,
                         boundaries = c(0.5, 5), # 
                         Rp = 3,
                         plot.it = FALSE, 
-                        hysteresis = 0.1, 
+                        hysteresis = 0.05, 
                         verbose = verbose,
-                        fun = c("GENEAcount","mean", "sd", "mad")) {
+                        fun = c("GENEAcount", "mean", "sd", "mad")) {
   
-  if (missing(AccData)) { stop("data is missing") }
+  if (missing(data)) { stop("data is missing") }
   if (!is.character(fun)) { stop("fun must be character vector of function names") }
   if (length(fun) < 1L) { stop("fun must name at least one function") }
   
@@ -47,25 +47,31 @@ stepCounter <- function(AccData,
   
   #### Check whether an AccData object or a vector ####
   
-  # If Not an AccData object is it a numerical vector (Can be timestamps and a vector)
-  if (class(AccData) == "AccData"){
-    StepData = AccData$data.out[,3]
-    samplefreq = AccData$freq
-  } else if (class(AccData) == "numeric"){
-    StepData = AccData
+  # If Not an AccData object is it a numerical vector (Can be time stamps and a vector)
+  if ((is(data, "AccData") > 0)){
+    StepData = data$data.out[,3]
+    samplefreq = data$freq
+  } else if ((is(data, "GENEAbin") > 0)){
+    StepData = data$Data[,3]
+    samplefreq = data$Freq
+  } else if ((is(data, "numeric")) ){
+    StepData = data
     if (missing(samplefreq)){
       warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
       samplefreq = 100
     }
-  } else if (class(AccData) == "matrix" & dim(AccData)[2] == 2 | 
-             class(AccData) == "data.frame" & dim(AccData)[2] == 2){
-    StepData = AccData[,2]
-    if (missing(samplefreq)){
-      warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
-      samplefreq = 100
+  } else if (!is.null(dim(data))){
+    if (is(data, "matrix") > 0 & dim(data)[2] == 2 | 
+        is(data, "data.frame") & dim(data)[2] == 2){
+      StepData = data[,2]
     }
   } else {
-    stop("Step Counter must use either an AccData object, Numerical Vector or a 2D Matrix of time and StepData")
+    stop("Step Counter must use either an data object, Numerical Vector or a 2D Matrix of time and StepData")
+  }
+  
+  if (missing(samplefreq)){
+    warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
+    samplefreq = 100
   }
   
   Filter <- cheby1(n = filterorder,                               # order of filter
@@ -86,7 +92,7 @@ stepCounter <- function(AccData,
     if ((filteredData[a] > hysteresis) && (state < 0)){            # new step started
       state = 1                                                    # set the state
       cadence[length(cadence)] = interval + 1                      # write the step interval
-      cadence[length(cadence)+1] = 0                               # initialise to record the next step    
+      cadence[length(cadence) + 1] = 0                             # initialise to record the next step    
       interval = 0                                                 # reset the step counter
     } else if ((-1*filteredData[a] > hysteresis) && (state > 0)) { # hysteresis reset condition met
       state = -1                                                   # reset the state
@@ -105,7 +111,7 @@ stepCounter <- function(AccData,
   }
   
   if ("mean" %in% fun) {
-    if (length(cadence) < 1){
+    if (length(cadence) < 2){
       res["mean"] <- 0
       fun <- fun[fun != "mean"]
     } else {
@@ -115,7 +121,7 @@ stepCounter <- function(AccData,
   }
   
   if ("median" %in% fun) {
-    if (length(cadence) < 1){
+    if (length(cadence) < 2){
       res["median"] <- 0
       fun <- fun[fun != "median"]
     } else {
@@ -144,7 +150,7 @@ stepCounter <- function(AccData,
 #' @keywords Internal
 #' 
 
-find_peaks <- function (x, m = 3){
+find_peaks <- function(x, m = 3){
   shape <- diff(sign(diff(x, na.pad = FALSE)))
   pks <- sapply(which(shape < 0), FUN = function(i){
     z <- i - m + 1

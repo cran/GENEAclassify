@@ -7,8 +7,7 @@
 createGENEAmodel(
   data,
   outputtree = NULL,
-  features = c("Segment.Duration", "Principal.Frequency.mad", "UpDown.sd",
-    "Degrees.sd"),
+  features = c("Segment.Duration", "Principal.Frequency.mad", "UpDown.sd", "Degrees.sd"),
   category = "Activity",
   plot = TRUE,
   verbose = TRUE,

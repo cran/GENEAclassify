@@ -1,7 +1,7 @@
 ---
 title: "GENEAclassifyDemo"
 author: "Activinsights Ltd"
-date: "17 June 2020"
+date: "2020-06-17"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{GENEAclassifyDemo}
@@ -82,7 +82,7 @@ This pdf file will give an introduction to using the programming language R with
 
 ## ii. Installing R.
 To begin with install R from <https://www.r-project.org>. 
-There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. We would also recommend downloading the IDE (integrated development environment) RStudio from <https://rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://rstudio.com/resources/cheatsheets/>. 
+There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. We would also recommend downloading the IDE (integrated development environment) RStudio from <https://www.rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://www.rstudio.com/resources/cheatsheets/>. 
 
 Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console
 
@@ -165,7 +165,7 @@ and a latex compiler found here:
 
   - http://www.tug.org/mactex/downloading.html.
 
-For more information go to  <https://www.activinsights.com/>.
+For more information go to  <https://activinsights.com/>.
 
 
 The package can also be installed using a GitHub authentication key which will go in the "" of auth_token. The key will be provided on request. The package devtools is also required to install from GitHub:
