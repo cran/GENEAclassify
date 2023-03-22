@@ -15,8 +15,8 @@ segmentation(
   j = 8,
   changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", "UpDownMean", "UpDownVar",
     "UpDownMeanVar", "DegreesMean", "DegreesVar", "DegreesMeanVar",
-    "UpDownMeanDegreesVar", "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar",
-    "RadiansMean", "RadiansVar", "RadiansMeanVar"),
+    "UpDownMeanVarDegreesMeanVar", "UpDownMeanVarMagMeanVar", "RadiansMean",
+    "RadiansVar", "RadiansMeanVar", "UpDownMeanDegreesVar"),
   penalty = "Manual",
   pen.value1 = 40,
   pen.value2 = 400,
@@ -153,7 +153,7 @@ See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
 
 \item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
 
-\item{stft_win}{Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.}
+\item{stft_win}{numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.}
 
 \item{verbose}{single logical to print additional progress reporting (default FALSE).}
 

@@ -21,6 +21,5 @@ Called by \code{segmentation}.
 \examples{
    tmp1 <- c(1,3,2,6,4,5,3,9,10)
    sumdiff(x = tmp1)
-   
 }
 \keyword{internal}

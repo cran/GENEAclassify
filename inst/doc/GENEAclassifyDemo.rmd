@@ -1,7 +1,7 @@
 ---
 title: "GENEAclassifyDemo"
 author: "Activinsights Ltd"
-date: "2020-06-17"
+date: "17 June 2020"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{GENEAclassifyDemo}
@@ -82,7 +82,7 @@ This pdf file will give an introduction to using the programming language R with
 
 ## ii. Installing R.
 To begin with install R from <https://www.r-project.org>. 
-There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. We would also recommend downloading the IDE (integrated development environment) RStudio from <https://www.rstudio.com/products/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://www.rstudio.com/resources/cheatsheets/>. 
+There is an introduction to the R environment here <https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf> that would familiarize a user. We would also recommend downloading the IDE (integrated development environment) RStudio from <https://posit.co/products/open-source/rstudio/> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <https://posit.co/resources/cheatsheets/>. 
 
 Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console
 
@@ -155,7 +155,7 @@ To use GitHub for development on windows, R tools will have to be downloaded fro
 
 and a latex compiler found here: 
 
-  - http://miktex.org/download.
+  - https://miktex.org/download.
 
 For OS, xcode developer tools will have to be downloaded from this link: 
 

@@ -101,7 +101,7 @@ when calculating the step number. (default 100)}
 
 \item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
 
-\item{stft_win}{Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.}
+\item{stft_win}{numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.}
 
 \item{plot.seg}{(logical) Creates a plot displaying the changepoint locations}
 

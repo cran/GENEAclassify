@@ -7,6 +7,7 @@
 #' @param end Where to end reading observations.
 #' @param Use.Timestamps To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)
 #' @param radians calculate degrees rotation in radians.
+#' @param keep_raw_data Keep the raw data for calculating steps using stepcounter. 
 #' @param mmap.load Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details
 #' @param outputtoken single character string to be appended to the file name
 #' for saving the segmenation output (default '_segmentated').
@@ -60,8 +61,8 @@
 #' @param intervalseconds An integer number of seconds between 5 and 30 during which at most one changepoint may occur.
 #' @param plot.it single logical, Creates a plot showing the zero crossings counted by the step counting algorithm#' @param Centre Centres the xz signal about 0 when set to True.
 #' @param mininterval single numeric that defines the smallest changepoint initially found. Passed to \code{\link[changepoint]{cpt.var}} as the variable minseglen
-#' @param plot.seg single logical, Creates a plot displaying the changepoint locations.
-#' @param plot.seg.outputfile The name of the png file created that shows the change points on a positionals plots.
+#' @param plot_changepoints single logical, Creates a plot displaying the changepoint locations.
+#' @param plot_changepoints_outputfile The name of the png file created that shows the change points on a positionals plots.
 #' @param changepoint defines the change point analysis to use. UpDownDegrees performs the change point analysis on the variance of arm elevation and wrist rotation. 
 #' TempFreq performs a change point on the variance in the temperature and frequency (Typically better for sleep behaviours).
 #' @param samplefreq The sampling frequency of the data, in hertz,
@@ -71,7 +72,7 @@
 #' @param filterorder The order of the filter applied with respect to the butter or cheby options. 
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
 #' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
-#' @param stft_win Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.
+#' @param stft_win numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.
 #' @param verbose single logical should additional progress reporting be printed at the console? (default TRUE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
 #' \code{\link{segmentation}} and other functions with these functions.
@@ -99,6 +100,7 @@ getGENEAsegments <- function(testfile,
                              end = NULL, 
                              Use.Timestamps = FALSE,
                              radians = FALSE,
+                             keep_raw_data = TRUE,
                              mmap.load = (.Machine$sizeof.pointer >= 8),
                              outputtoken = "_segmented",
                              outputdir = "GENEAclassification",
@@ -127,8 +129,8 @@ getGENEAsegments <- function(testfile,
                              hysteresis = 0.1, 
                              stft_win = 10, 
                              # Plots 
-                             plot.seg = FALSE,
-                             plot.seg.outputfile = "Changepoint",
+                             plot_changepoints = FALSE,
+                             plot_changepoints_outputfile = "Changepoint",
                              verbose = FALSE,
                              ...) {
   
@@ -267,22 +269,21 @@ getGENEAsegments <- function(testfile,
                             end = end, 
                             Use.Timestamps = Use.Timestamps,
                             radians = radians,
+                            keep_raw_data = keep_raw_data,
                             mmap.load = mmap.load, ...))
     
     #### 4.0 Setting sample frequency here ####
     if (missing(inDat)) { stop("data is missing") }
-    if ((sum(class(data) %in% "GENEAbin") > 0)){
-      warning("Using frequency from GENEAbin object")
-      samplefreq = data$Freq
-    } else if ((sum(class(data) %in% "AccData") > 0)){
+    if (class(inDat)[length(class(inDat))] == "GENEAbin"){
       warning("Using frequency from AccData object")
-      samplefreq = data$freq
+      samplefreq = inDat$Freq
     } else if (missing(samplefreq)) {
       warning("Sample frequency missing, defaulting to 100")
     } else {
       samplefreq = samplefreq  
       warning("Taking provided sample frequency rather than from AccData")
     }
+    
     if (!is(inDat, "try-error")) {
       
       # give segmentation outputs the root file name in the output folder
@@ -343,15 +344,15 @@ getGENEAsegments <- function(testfile,
     output[[ff]] <- segData
     
     #### 6.0 Plot Changepoints ####
-    if (plot.seg == TRUE){
+    if (plot_changepoints == TRUE){
       AccData = read.bin(ff, start = start, end = end, ...)
       tmp2 = get.intervals(AccData, start = 0, end = 1, incl.date = T)
       ind = rep(T, nrow(tmp2))
       col = hcl(0:360)
       max.points = 1e6
       
-      if(!is.null(plot.seg.outputfile)){
-        png(paste0(plot.seg.outputfile,".png"))}
+      if(!is.null(plot_changepoints_outputfile)){
+        png(paste0(plot_changepoints_outputfile,".png"))}
       
       else{
         png(paste0(shortName,"_changepoints",".png"))

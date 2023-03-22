@@ -5,7 +5,7 @@
 \title{Step Counter}
 \usage{
 stepCounter(
-  data,
+  AccData,
   samplefreq = 100,
   filterorder = 2,
   boundaries = c(0.5, 5),
@@ -17,7 +17,7 @@ stepCounter(
 )
 }
 \arguments{
-\item{data}{The data to use for calculating the steps. This should either an AccData/GENEAbin object or a vector.}
+\item{AccData}{The data to use for calculating the steps. This should either an AccData object or a vector.}
 
 \item{samplefreq}{The sampling frequency of the data, in hertz,
 when calculating the step number (default 100).}

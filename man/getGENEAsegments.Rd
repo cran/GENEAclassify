@@ -10,6 +10,7 @@ getGENEAsegments(
   end = NULL,
   Use.Timestamps = FALSE,
   radians = FALSE,
+  keep_raw_data = TRUE,
   mmap.load = (.Machine$sizeof.pointer >= 8),
   outputtoken = "_segmented",
   outputdir = "GENEAclassification",
@@ -33,8 +34,8 @@ getGENEAsegments(
   plot.it = FALSE,
   hysteresis = 0.1,
   stft_win = 10,
-  plot.seg = FALSE,
-  plot.seg.outputfile = "Changepoint",
+  plot_changepoints = FALSE,
+  plot_changepoints_outputfile = "Changepoint",
   verbose = FALSE,
   ...
 )
@@ -49,6 +50,8 @@ getGENEAsegments(
 \item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
 
 \item{radians}{calculate degrees rotation in radians.}
+
+\item{keep_raw_data}{Keep the raw data for calculating steps using stepcounter.}
 
 \item{mmap.load}{Default is (.Machine$sizeof.pointer >= 8). see \code{\link[mmap]{mmap}} for more details}
 
@@ -132,11 +135,11 @@ See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.}
 
 \item{hysteresis}{The hysteresis applied after zero crossing. (default 100mg)}
 
-\item{stft_win}{Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.}
+\item{stft_win}{numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.}
 
-\item{plot.seg}{single logical, Creates a plot displaying the changepoint locations.}
+\item{plot_changepoints}{single logical, Creates a plot displaying the changepoint locations.}
 
-\item{plot.seg.outputfile}{The name of the png file created that shows the change points on a positionals plots.}
+\item{plot_changepoints_outputfile}{The name of the png file created that shows the change points on a positionals plots.}
 
 \item{verbose}{single logical should additional progress reporting be printed at the console? (default TRUE).}
 

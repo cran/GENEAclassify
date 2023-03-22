@@ -44,19 +44,22 @@ GENEAratio <- function(principals, freq = "Freq", nfr = 3L, ...) {
 
 GENEAcount <- function(x, ...) { return(round(length(x) / 2)) }
 
-#' Step amplitude finds the average size of the step found over the segment
+#' @title Skewness, a measure of centredness
 #' 
-#' @title Find average Amplitude of Steps
-#' @param x vector
+#' @description Many datasets do not have the highest density 
+#' of measurements in the middle of the distribution of the data.
+#' Skewness is a measure of the asymmetry of a probability distribution.
+#' 
+#' @param x numeric vector
+#' @param na.rm single logical should missing values be removed
 #' @param \dots other arguments to be swallowed
 #' @return single numeric
 #' @export
 #' @keywords internal
 #' @examples
-#'    x1 <- c(20, 15, 10)
-#'    GENEAcount(x1)
-#'    x2 <- c(300, 255, 111)
-#'    GENEAcount(x2)
+#' GENEAskew(1:10)
+#' GENEAskew((1:10)^2)
+#' GENEAskew((1:10)^0.5)
 
 GENEAskew <- function(x, na.rm = TRUE, ...) {
     
@@ -87,7 +90,7 @@ GENEAskew <- function(x, na.rm = TRUE, ...) {
 #' @examples
 #'    tmp1 <- c(1,3,2,6,4,5,3,9,10)
 #'    sumdiff(x = tmp1)
-#'    
+
 sumdiff <- function(x, na.rm=TRUE){
   tmp1 <- diff(na.omit(x))
   return(sum(tmp1)/(length(x)))
@@ -141,7 +144,7 @@ meandiff <- function(x, na.rm=TRUE){
 
 abssumdiff <- function(x, na.rm=TRUE){
   tmp1 <- diff(na.omit(x))
-  return(sum(abs(tmp1)))
+  return(sum(abs(tmp1))/(length(x)))
 }
 
 #' Called by \code{segmentation}.
@@ -267,6 +270,7 @@ CirDisp <- function(rotation, na.rm = TRUE){
   }
   
   R1bar <- sqrt((sin1^2 + cos1^2))/length(rotation)
+  
   CirDisp <- (1-Tan2)/(2*(R1bar^2))
   return(CirDisp)
 }

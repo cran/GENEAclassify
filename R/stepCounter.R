@@ -2,7 +2,7 @@
 #' Function to calculate the number and variance of the steps in the data.
 #'
 #' @title Step Counter
-#' @param data The data to use for calculating the steps. This should either an AccData/GENEAbin object or a vector.
+#' @param AccData The data to use for calculating the steps. This should either an AccData object or a vector.
 #' @param samplefreq The sampling frequency of the data, in hertz,
 #' when calculating the step number (default 100).
 #' @param filterorder single integer, order of the Chebyshev bandpass filter,
@@ -27,7 +27,7 @@
 #' sd(Steps4)
 #' plot(Steps4)
 
-stepCounter <- function(data, 
+stepCounter <- function(AccData, 
                         samplefreq = 100,
                         filterorder = 2,
                         boundaries = c(0.5, 5), # 
@@ -37,7 +37,7 @@ stepCounter <- function(data,
                         verbose = verbose,
                         fun = c("GENEAcount", "mean", "sd", "mad")) {
   
-  if (missing(data)) { stop("data is missing") }
+  if (missing(AccData)) { stop("data is missing") }
   if (!is.character(fun)) { stop("fun must be character vector of function names") }
   if (length(fun) < 1L) { stop("fun must name at least one function") }
   
@@ -47,31 +47,25 @@ stepCounter <- function(data,
   
   #### Check whether an AccData object or a vector ####
   
-  # If Not an AccData object is it a numerical vector (Can be time stamps and a vector)
-  if ((is(data, "AccData") > 0)){
-    StepData = data$data.out[,3]
-    samplefreq = data$freq
-  } else if ((is(data, "GENEAbin") > 0)){
-    StepData = data$Data[,3]
-    samplefreq = data$Freq
-  } else if ((is(data, "numeric")) ){
-    StepData = data
+  # If Not an AccData object is it a numerical vector (Can be timestamps and a vector)
+  if (inherits(AccData, "AccData")){
+    StepData = AccData$data.out[,3]
+    samplefreq = AccData$freq
+  } else if (inherits(AccData, "numeric")){
+    StepData = AccData
     if (missing(samplefreq)){
       warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
       samplefreq = 100
     }
-  } else if (!is.null(dim(data))){
-    if (is(data, "matrix") > 0 & dim(data)[2] == 2 | 
-        is(data, "data.frame") & dim(data)[2] == 2){
-      StepData = data[,2]
+  } else if (inherits(AccData,"matrix") & dim(AccData)[2] == 2 | 
+             inherits(AccData, "data.frame") & dim(AccData)[2] == 2){
+    StepData = AccData[,2]
+    if (missing(samplefreq)){
+      warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
+      samplefreq = 100
     }
   } else {
-    stop("Step Counter must use either an data object, Numerical Vector or a 2D Matrix of time and StepData")
-  }
-  
-  if (missing(samplefreq)){
-    warning("No samplefreq is given. samplefreq set to default, samplefreq = 100")
-    samplefreq = 100
+    stop("Step Counter must use either an AccData object, Numerical Vector or a 2D Matrix of time and StepData")
   }
   
   Filter <- cheby1(n = filterorder,                               # order of filter

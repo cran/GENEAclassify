@@ -11,6 +11,7 @@ dataImport(
   end = NULL,
   Use.Timestamps = FALSE,
   radians = FALSE,
+  keep_raw_data = TRUE,
   mmap.load = (.Machine$sizeof.pointer >= 8),
   ...
 )
@@ -24,9 +25,11 @@ dataImport(
 
 \item{end}{Where to end reading observations.}
 
-\item{Use.Timestamps}{To use timestamps as the start and end time values this has to be set to TRUE. (Default FALSE)}
+\item{Use.Timestamps}{To use timestamps as the startand end time values this has to be set to TRUE. (Default FALSE)}
 
 \item{radians}{calculate degrees rotation in radians.}
+
+\item{keep_raw_data}{Keep the raw data for calculating steps using stepcounter.}
 
 \item{mmap.load}{Default is (.Machine$sizeof.pointer >= 8). see mmap for more details}
 
@@ -43,7 +46,7 @@ Loads the data into R and creates format required for segmentation.
 Reads in the binary data file and extracts the information required for the segmentation procedure.
 }
 \examples{
-##   segData <- dataImport(bindata = file.path(system.file(package = "GENEAread"),
+##   segData = dataImport(bindata = file.path(system.file(package = "GENEAread"),
 ##                                                         "binfile",
 ##                                                         "TESTfile.bin"))
 ## 

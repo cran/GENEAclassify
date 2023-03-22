@@ -125,7 +125,7 @@ NULL
 #' @param filterorder The order of the filter applied with respect to the butter or cheby options if stepCounter is used. The order of the moving average filter if step counter 2 is used.
 #' See \code{\link[signal]{cheby1}} or \code{\link[signal]{butter}}.
 #' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
-#' @param stft_win Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.
+#' @param stft_win numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.
 #' @param verbose single logical to print additional progress reporting (default FALSE).
 #' @param verbose_timer single logical tp print additional progress reporting on time for each section of the function (default FALSE).
 #' @param ... other arguments to be passed to \code{\link{dataImport}},
@@ -180,10 +180,10 @@ segmentation <- function(data,
                          changepoint = c("UpDownDegrees", "TempFreq", "UpDownFreq", 
                                          "UpDownMean", "UpDownVar", "UpDownMeanVar",
                                          "DegreesMean", "DegreesVar", "DegreesMeanVar", 
-                                         "UpDownMeanDegreesVar",
                                          "UpDownMeanVarDegreesMeanVar", 
                                          "UpDownMeanVarMagMeanVar",
-                                         "RadiansMean" , "RadiansVar", "RadiansMeanVar"), 
+                                         "RadiansMean" , "RadiansVar", "RadiansMeanVar",
+                                         "UpDownMeanDegreesVar"), 
                          penalty = "Manual",
                          pen.value1 = 40,
                          pen.value2 = 400,
@@ -195,7 +195,8 @@ segmentation <- function(data,
                          boundaries = c(0.5, 5), 
                          Rp = 3,
                          plot.it = FALSE,
-                         hysteresis = 0.1,
+                         hysteresis = 0.1, 
+                         # STFT variables 
                          stft_win = 10, 
                          verbose = FALSE,
                          verbose_timer = FALSE,
@@ -206,21 +207,14 @@ segmentation <- function(data,
   
     # Adding in where smaplefreq comes from. 
     if (missing(data)) { stop("data is missing") }
-    if ((sum(class(data) %in% "GENEAbin") > 0)){
-      warning("Using frequency from GENEAbin object")
+    
+    if (class(data)[length(class(data))] == "GENEAbin"){
+      if (verbose) warning("Using frequency from AccData object")
       samplefreq = data$Freq
-    } else if ((sum(class(data) %in% "AccData") > 0)){
-      warning("Using frequency from AccData object")
-      samplefreq = data$freq
-    } else if (missing(samplefreq)) {
-      warning("Sample frequency missing, defaulting to 100")
-    } else {
-      samplefreq = samplefreq  
-      warning("Taking provided sample frequency rather than from AccData")
     }
-  
+    
     #### 2. Accepting AccData Objects ####
-    if (sum(class(data) %in% "AccData") > 0){
+    if (class(data)[length(class(data))] == "AccData"){
       binaryData <- data
       binaryDataOut <- data$data.out
       
@@ -256,7 +250,7 @@ segmentation <- function(data,
       vecMagnitude <- abs(sqrt(rowSums((Intervals[, c("x", "y", "z")])^2)) - 1)
       
       dataRadians <- radians(Intervals)
-        
+      
       geneaBin <- list(Data = Intervals, 
                        Freq = data$freq, 
                        UpDown = dataUpDown, 
@@ -269,11 +263,17 @@ segmentation <- function(data,
                        RawData = binaryDataOut, 
                        Serial = serial)
       
+      samplefreq = data$freq
+      
       class(geneaBin) <- c(class(geneaBin), "GENEAbin")
       
       data = geneaBin
     }
-  
+    
+    if (missing(samplefreq)) {
+      warning("Sample frequency missing, defaulting to 100")
+      samplefreq = 100
+    }
     if (missing(changepoint)) {changepoint = "UpDownMeanVarDegreesMeanVar"} 
     if (is.null(pen.value2)) {pen.value2 = pen.value1}
     if (verbose_timer){print("Start time of Analysis ");print(Sys.time())}
@@ -394,7 +394,7 @@ segmentation <- function(data,
 
     #### 3. Check Functions #######################################################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 3 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 2 ");print(Sys.time())}
     
     funs <- substr(dataCols, start = whereFuns + 1, stop = nchar(dataCols))
     
@@ -408,7 +408,7 @@ segmentation <- function(data,
 
     #### 4. Check Columns #######################################################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 4 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 3 ");print(Sys.time())}
     
     cols <- substr(dataCols, start = 1, stop = whereFuns - 1)
 
@@ -424,7 +424,7 @@ segmentation <- function(data,
 
     #### 5. Create Summary matrix #######################################################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 5 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 4 ");print(Sys.time())}
     
     # these matrices control the data objects that are used for analysis
     # and the functions that should be applied to them
@@ -473,7 +473,7 @@ segmentation <- function(data,
 
     # QC time
 
-    if (verbose_timer){print("Time of Analysis at Stage 6 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 5 ");print(Sys.time())}
     
     if (!all(Time > 0)) { stop("not all Time values are positive") }
 
@@ -489,7 +489,7 @@ segmentation <- function(data,
 
     #### 7. Wavelet filtering #######################################################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 7 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 6 ");print(Sys.time())}
     
     ## apply optional wavelet filtering
 
@@ -527,7 +527,7 @@ segmentation <- function(data,
 
     #### 8. Change point method #######################################################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 8 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 7 ");print(Sys.time())}
     
     ## find changepoints based on updown data and rotation data
 
@@ -554,7 +554,6 @@ segmentation <- function(data,
                                      changeupdown = changeUpDown,
                                      changedegrees = changeDegrees,
                                      verbose = verbose)},
-                       
                        
                        "TempFreq" = {
                          
@@ -795,48 +794,51 @@ segmentation <- function(data,
                            stop("Radians must be set to TRUE use this changepoint method.")
                          } else {
                            RadiansMeanVar = cpt.meanvar(data = Radians,
-                                                    penalty = penalty,
-                                                    pen.value = pen.value1,
-                                                    minseglen = mininterval,
-                                                    method = "PELT")
+                                                        penalty = penalty,
+                                                        pen.value = pen.value1,
+                                                        minseglen = mininterval,
+                                                        method = "PELT")
                            
                            Time[cpts(RadiansMeanVar)]
                            
                          }
-                       }, 
+                       },
                        
                        "UpDownMeanDegreesVar" = {
+                         
+                         if (Radians_present == FALSE){
+                           stop("Radians must be set to TRUE use this changepoint method.")
+                         } else {
+                          
                            
-                          if (Radians_present == FALSE){
-                            stop("Radians must be set to TRUE use this changepoint method.")
-                          } else {
-                            
-                             
-                            UpDownMean = cpt.mean(data = UpDown,
-                                                  penalty = penalty,
-                                                  pen.value = pen.value1,
-                                                  minseglen = mininterval,
-                                                  method = "PELT")
-                            
-                            DegreesVar = cpt.var(data = Degrees,
+                           UpDownMean = cpt.mean(data = UpDown,
                                                  penalty = penalty,
                                                  pen.value = pen.value1,
                                                  minseglen = mininterval,
                                                  method = "PELT")
-                             
-                            changeTimes(time = Time,
-                                        intervalseconds = intervalseconds,
-                                        changeupdown = UpDownMean,
-                                        changedegrees = DegreesVar,
-                                        verbose = verbose)
-                          }
+                           
+                           DegreesVar = cpt.var(data = Degrees,
+                                                penalty = penalty,
+                                                pen.value = pen.value1,
+                                                minseglen = mininterval,
+                                                method = "PELT")
+                           
+                           changeTimes(time = Time,
+                                       intervalseconds = intervalseconds,
+                                       changeupdown = UpDownMean,
+                                       changedegrees = DegreesVar,
+                                       verbose = verbose)
+                           
+                         }
                        }
-                      )
+                       
+                       
+    )
     
     
     #### 9. If AllTimes has length 0 or 1 then ####
     
-    if (verbose_timer){print("Time of Analysis at Stage 9 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 8 ");print(Sys.time())}
     
     if (length(allTimes) == 0){
       allTimes = c(Time[1], Time[length(Time)])
@@ -900,7 +902,7 @@ segmentation <- function(data,
 
     #### 11. Summarize existing cols ##############################################
 
-    if (verbose_timer){print("Time of Analysis at Stage 11 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 10 ");print(Sys.time())}
     
     cutPointEx <- cut(Time, allTimes)
 
@@ -985,13 +987,13 @@ segmentation <- function(data,
         Principal.Frequency <- sapply(X = spdata, FUN = function(x) {
 
                 ft <- try(stft(as.matrix(x), 
-                               quiet = TRUE,
+                               quiet = TRUE, 
                                win = stft_win,
                                type = "mv",
                                reassign = TRUE, 
                                date.col = FALSE,
                                freq = Freq)$principals, 
-                          silent = TRUE)
+                               silent = TRUE)
 
                 if (is(ft, class2 = "try-error")) { ft <- 100 }
 
@@ -1007,7 +1009,7 @@ segmentation <- function(data,
 
     #### 15. Creating Output ####
     
-    if (verbose_timer){print("Time of Analysis at Stage 14 ");print(Sys.time())}
+    if (verbose_timer){print("Time of Analysis at Stage 15 ");print(Sys.time())}
     
     output$Cuts <- NULL
 

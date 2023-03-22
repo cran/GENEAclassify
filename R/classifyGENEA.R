@@ -54,7 +54,7 @@
 #' @param Rp the decibel level that the cheby filter takes. see \code{\link[signal]{cheby1}}
 #' @param filterorder The order of the filter applied with respect to the cheby options. 
 #' @param hysteresis The hysteresis applied after zero crossing. (default 100mg)
-#' @param stft_win Window size in seconds for STFT computation. Increased window size mean better frequency resolution, but poorer time resolution. Defaults to 10 seconds.
+#' @param stft_win numeric for the window to calculate the frequency of an event using the \code{\link[GENEAread]{stft}} function.
 #' @details This function will apply the rules determined by the rpart GENEA 
 #' decision tree passed to argument trainingfit to the columns 
 #' of newdata to classify into classes 

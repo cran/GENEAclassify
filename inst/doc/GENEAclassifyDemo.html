@@ -16,19 +16,7 @@
 
 <title>GENEAclassifyDemo</title>
 
-<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
-// be compatible with the behavior of Pandoc < 2.8).
-document.addEventListener('DOMContentLoaded', function(e) {
-  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
-  var i, h, a;
-  for (i = 0; i < hs.length; i++) {
-    h = hs[i];
-    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
-    a = h.attributes;
-    while (a.length > 0) h.removeAttribute(a[0].name);
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -122,13 +110,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -140,187 +135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -334,7 +149,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">GENEAclassifyDemo</h1>
 <h4 class="author">Activinsights Ltd</h4>
-<h4 class="date">2020-06-17</h4>
+<h4 class="date">17 June 2020</h4>
 
 
 
@@ -342,11 +157,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <h1>GENEAclassify</h1>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>GENEActiv is the original wrist-worn, raw data accelerometer for
-objective behavioural measurement. It is the perfect tool for analysing
-free-living human behaviour, studying the impact of physical activity on
-health and understanding lifestyle. The device is an ergonomic body worn
-instrument:</p>
+<p>GENEActiv is the original wrist-worn, raw data accelerometer for objective behavioural measurement. It is the perfect tool for analysing free-living human behaviour, studying the impact of physical activity on health and understanding lifestyle. The device is an ergonomic body worn instrument:</p>
 <ul>
 <li>waterproof,</li>
 <li>robust to moderate impacts,</li>
@@ -354,30 +165,11 @@ instrument:</p>
 <li>runs from a long-lasting, rechargeable battery,</li>
 <li>storage for 500 MB of binary data.</li>
 </ul>
-<p>The package GENEAread provides data import functionality, giving
-researchers access to cutting edge analytical tools from the R
-environment. Imported data can be summarised by a segmentation process
-which cuts the dataset into time periods of characteristically similar
-behaviour and calculates a wide range of features for each event. The
-activities in each segment can be evaluated by an rpart GENEA
-classification tree. A sample rpart GENEA classification tree,
-trainingFit, is provided with GENEAclassify. This package provides
-classification tools, allowing researchers to segment training data and
-create custom classification trees. For best results, you will need to
-collect some training data for the activities that you expect your users
-to perform, label the appropriate segments, and create a new
-classification tree. Training data is data captured by the GENEActiv
-accelerometer during expected behaviours of your study participants,
-such as sleeping, sitting or running. To train the classification tree,
-ask a sample of your participants to wear the accelerometer and perform
-specific activities. These can be used to classify field data into
-behaviours of interest, to automatically process raw output into
-complete diary histories.</p>
+<p>The package GENEAread provides data import functionality, giving researchers access to cutting edge analytical tools from the R environment. Imported data can be summarised by a segmentation process which cuts the dataset into time periods of characteristically similar behaviour and calculates a wide range of features for each event. The activities in each segment can be evaluated by an rpart GENEA classification tree. A sample rpart GENEA classification tree, trainingFit, is provided with GENEAclassify. This package provides classification tools, allowing researchers to segment training data and create custom classification trees. For best results, you will need to collect some training data for the activities that you expect your users to perform, label the appropriate segments, and create a new classification tree. Training data is data captured by the GENEActiv accelerometer during expected behaviours of your study participants, such as sleeping, sitting or running. To train the classification tree, ask a sample of your participants to wear the accelerometer and perform specific activities. These can be used to classify field data into behaviours of interest, to automatically process raw output into complete diary histories.</p>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
-<p>There are multiple ways in which GENEAclassify can be used to
-understand your GENEActiv data. The analysis flow is typically:</p>
+<p>There are multiple ways in which GENEAclassify can be used to understand your GENEActiv data. The analysis flow is typically:</p>
 <ul>
 <li>import GENEActiv bin file training data,</li>
 <li>segment and summarize training data,</li>
@@ -430,12 +222,7 @@ understand your GENEActiv data. The analysis flow is typically:</p>
 <h1>1. Introduction and Installation.</h1>
 <div id="i.-preface" class="section level2">
 <h2>i. Preface</h2>
-<p>This pdf file will give an introduction to using the programming
-language R with the package GENEAclassify which has been provided in a
-zip folder. The following steps will provide the user with the tools to
-use the package before running through the script. Please ensure that
-the folder has been decompressed. The folder found from the Dropbox link
-should contain the following:</p>
+<p>This pdf file will give an introduction to using the programming language R with the package GENEAclassify which has been provided in a zip folder. The following steps will provide the user with the tools to use the package before running through the script. Please ensure that the folder has been decompressed. The folder found from the Dropbox link should contain the following:</p>
 <ul>
 <li>GENEAclassify_1.5.1.tar.gz</li>
 <li>GENEAclassifyDemonstration.R</li>
@@ -446,28 +233,13 @@ should contain the following:</p>
 </div>
 <div id="ii.-installing-r." class="section level2">
 <h2>ii. Installing R.</h2>
-<p>To begin with install R from <a href="https://www.r-project.org" class="uri">https://www.r-project.org</a>. There is an introduction to
-the R environment here <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf" class="uri">https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf</a>
-that would familiarize a user. We would also recommend downloading the
-IDE (integrated development environment) RStudio from <a href="https://www.rstudio.com/products/rstudio/" class="uri">https://www.rstudio.com/products/rstudio/</a> after you have
-installed R. RStudio provides the user with more than the console to
-work with and gives the option of having a script, console, view of the
-R environment and file locations in one window. There is a list of tips
-here on using RStudio here <a href="https://www.rstudio.com/resources/cheatsheets/" class="uri">https://www.rstudio.com/resources/cheatsheets/</a>.</p>
-<p>Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can
-simply copy and paste the line of code into the console</p>
-<p>Note: (You will also need to install x11 forward <a href="https://www.xquartz.org/" class="uri">https://www.xquartz.org/</a>
-to run on OS.)</p>
+<p>To begin with install R from <a href="https://www.r-project.org" class="uri">https://www.r-project.org</a>. There is an introduction to the R environment here <a href="https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf" class="uri">https://cran.r-project.org/doc/manuals/r-release/R-intro.pdf</a> that would familiarize a user. We would also recommend downloading the IDE (integrated development environment) RStudio from <a href="https://posit.co/products/open-source/rstudio/" class="uri">https://posit.co/products/open-source/rstudio/</a> after you have installed R. RStudio provides the user with more than the console to work with and gives the option of having a script, console, view of the R environment and file locations in one window. There is a list of tips here on using RStudio here <a href="https://posit.co/resources/cheatsheets/" class="uri">https://posit.co/resources/cheatsheets/</a>.</p>
+<p>Ctrl-R or Cmd-Ent runs the line that the cursor is on or you can simply copy and paste the line of code into the console</p>
+<p>Note: (You will also need to install x11 forward <a href="https://www.xquartz.org/" class="uri">https://www.xquartz.org/</a> to run on OS.)</p>
 </div>
 <div id="iii.-using-geneaclassifiydemonstration.r" class="section level2">
 <h2>iii. Using GENEAclassifiyDemonstration.R</h2>
-<p>Throughout this tutorial, commands are shown and briefly explained
-which are to be entered into the console. If you open the script
-GENEAclassifyDemostration.R (which is in the zip folder) you will find a
-detailed and commented script that you can work through, running each
-line at a time and making appropriate changes to get the results
-desired. This pdf runs through that script giving further explanation.
-Please remember that R is a case sensitive language.</p>
+<p>Throughout this tutorial, commands are shown and briefly explained which are to be entered into the console. If you open the script GENEAclassifyDemostration.R (which is in the zip folder) you will find a detailed and commented script that you can work through, running each line at a time and making appropriate changes to get the results desired. This pdf runs through that script giving further explanation. Please remember that R is a case sensitive language.</p>
 <div id="the-script-provided-will-run-through-these-steps" class="section level5">
 <h5>The script provided will run through these steps:</h5>
 <ol style="list-style-type: lower-alpha">
@@ -483,8 +255,7 @@ Please remember that R is a case sensitive language.</p>
 <li>Manually Classifying files</li>
 <li>Creating a Training data set</li>
 </ol>
-<p>The code shown in this PDF can also be copied and pasted into the
-console.</p>
+<p>The code shown in this PDF can also be copied and pasted into the console.</p>
 </div>
 </div>
 <div id="iv.-installing-and-loading-required-libraries" class="section level2">
@@ -502,9 +273,7 @@ console.</p>
 </div>
 <div id="v.-installing-geneaclassify" class="section level2">
 <h2>v. Installing GENEAclassify</h2>
-<p>Whilst GENEAclassify is in development, the easiest way to install
-the package is to use the Tar.gz file inside the zip folder. By running
-the code below GENEAclassify can be installed:</p>
+<p>Whilst GENEAclassify is in development, the easiest way to install the package is to use the Tar.gz file inside the zip folder. By running the code below GENEAclassify can be installed:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># You will need to change the folder location inside setwd(&quot;&quot;) to the directory where you saved the tar.gz file</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Note that R only uses / not \ when refering to a file/directory location</span></span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;/Users/owner/Documents/GENEActiv&quot;</span>) </span>
@@ -514,26 +283,18 @@ the code below GENEAclassify can be installed:</p>
 </div>
 <div id="vi.-development-of-geneaclassify-on-github." class="section level2">
 <h2>vi. Development of GENEAclassify on GitHub.</h2>
-<p>If you intend on working with the development of the package then we
-suggest setting up an account on GitHub here <a href="https://github.com/" class="uri">https://github.com/</a>. RStudio
-can directly link to the repository for the development of the package
-by selecting to set-up a new project from the top right hand corner,
-selecting version control and cloning the GitHub repository.</p>
+<p>If you intend on working with the development of the package then we suggest setting up an account on GitHub here <a href="https://github.com/" class="uri">https://github.com/</a>. RStudio can directly link to the repository for the development of the package by selecting to set-up a new project from the top right hand corner, selecting version control and cloning the GitHub repository.</p>
 <p>This guide on using RStudio with GitHub is helpful <a href="https://www.r-bloggers.com/2015/07/rstudio-and-github/" class="uri">https://www.r-bloggers.com/2015/07/rstudio-and-github/</a>.</p>
-<p>Once GitHub has been set-up we would recommend creating a personal
-branch for contributions which can be assessed and discussed by
-Activinsights before adding any changes to the master repository.</p>
-<p>To use GitHub for development on windows, R tools will have to be
-downloaded from this link:</p>
+<p>Once GitHub has been set-up we would recommend creating a personal branch for contributions which can be assessed and discussed by Activinsights before adding any changes to the master repository.</p>
+<p>To use GitHub for development on windows, R tools will have to be downloaded from this link:</p>
 <ul>
 <li><a href="https://cran.r-project.org/bin/windows/Rtools/index.html" class="uri">https://cran.r-project.org/bin/windows/Rtools/index.html</a></li>
 </ul>
 <p>and a latex compiler found here:</p>
 <ul>
-<li><a href="http://miktex.org/download" class="uri">http://miktex.org/download</a>.</li>
+<li><a href="https://miktex.org/download" class="uri">https://miktex.org/download</a>.</li>
 </ul>
-<p>For OS, xcode developer tools will have to be downloaded from this
-link:</p>
+<p>For OS, xcode developer tools will have to be downloaded from this link:</p>
 <ul>
 <li><a href="https://apps.apple.com/us/app/xcode/id497799835?mt=12" class="uri">https://apps.apple.com/us/app/xcode/id497799835?mt=12</a></li>
 </ul>
@@ -542,10 +303,7 @@ link:</p>
 <li><a href="http://www.tug.org/mactex/downloading.html" class="uri">http://www.tug.org/mactex/downloading.html</a>.</li>
 </ul>
 <p>For more information go to <a href="https://activinsights.com/" class="uri">https://activinsights.com/</a>.</p>
-<p>The package can also be installed using a GitHub authentication key
-which will go in the “” of auth_token. The key will be provided on
-request. The package devtools is also required to install from
-GitHub:</p>
+<p>The package can also be installed using a GitHub authentication key which will go in the &quot;&quot; of auth_token. The key will be provided on request. The package devtools is also required to install from GitHub:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;devtools&quot;</span>,<span class="at">repos =</span> <span class="st">&quot;http://cran.us.r-project.org&quot;</span>) </span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools) </span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -553,129 +311,56 @@ GitHub:</p>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">auth_token =</span> <span class="st">&quot;7f0051aaca453eaabf0e60d49bcf752c0fea0668&quot;</span>)</span></code></pre></div>
 <p>Again loading in the package to the work space:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GENEAclassify)</span></code></pre></div>
-<p>This vignette can be viewed from inside R by running the following
-code:</p>
+<p>This vignette can be viewed from inside R by running the following code:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">&quot;GENEAclassifyDemo&quot;</span>, <span class="at">package =</span> <span class="cn">NULL</span>, <span class="at">lib.loc =</span> <span class="cn">NULL</span>, <span class="at">all =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p>The pdf will appear on the right of RStudio or as a pop up if called
-from R.</p>
+<p>The pdf will appear on the right of RStudio or as a pop up if called from R.</p>
 </div>
 </div>
 <div id="segmentation" class="section level1">
 <h1>2. Segmentation</h1>
 <div id="i.-introduction" class="section level2">
 <h2>i. Introduction</h2>
-<p>The segmentation process outputs event based data from a change point
-analysis. The function determines when the statistical properties of the
-data have changed and hence the observed behaviour has also changed.
-This following section gives demonstrations on how this works given the
-GENEActiv .bin input data.</p>
+<p>The segmentation process outputs event based data from a change point analysis. The function determines when the statistical properties of the data have changed and hence the observed behaviour has also changed. This following section gives demonstrations on how this works given the GENEActiv .bin input data.</p>
 </div>
 <div id="ii.-loading-data" class="section level2">
 <h2>ii. Loading Data</h2>
-<p>Now that we have the libraries required to segment and classify
-files/directories the data needs to be imported. Beginning with a file
-to import run the following lines of code:</p>
+<p>Now that we have the libraries required to segment and classify files/directories the data needs to be imported. Beginning with a file to import run the following lines of code:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Name of the file to analyse</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>DataFile <span class="ot">=</span> <span class="st">&quot;DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin&quot;</span> </span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>ImportedData <span class="ot">=</span> <span class="fu">dataImport</span>(DataFile, <span class="at">downsample =</span> <span class="dv">100</span>, <span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="fl">0.1</span>)</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ImportData)</span></code></pre></div>
-<p>The start and end times can be set using values between 0 and 1 or
-using a 24 hour character string (time inside ““). The former divides
-the file into sections specified. For example if you have 10 days of
-data this might be useful. A 24 hour character string e.g start =”1
-3:00”,end = “2 3:00”.The 1 represents the day and the time uses a 24
-hour format. Ensure you leave a space between the days and the time.</p>
-<p>The parameter ‘Use.Timestamps’ can be set to TRUE to use timestamps
-as the start and end times within dataImport. This parameter can be used
-in getGENEAsegments and classifyGENEA.</p>
-<p>The output from the command head(ImportData) shows the variables
-calculated from importing the data.</p>
-<p>The variable Downsample gives the user the option to compress the
-data to make the process less computationally heavy. This has a default
-value of 100 but can be made smaller to allow a higher resolution,
-although this will take longer to run.</p>
+<p>The start and end times can be set using values between 0 and 1 or using a 24 hour character string (time inside &quot;“). The former divides the file into sections specified. For example if you have 10 days of data this might be useful. A 24 hour character string e.g start =”1 3:00“,end =”2 3:00&quot;.The 1 represents the day and the time uses a 24 hour format. Ensure you leave a space between the days and the time.</p>
+<p>The parameter ‘Use.Timestamps’ can be set to TRUE to use timestamps as the start and end times within dataImport. This parameter can be used in getGENEAsegments and classifyGENEA.</p>
+<p>The output from the command head(ImportData) shows the variables calculated from importing the data.</p>
+<p>The variable Downsample gives the user the option to compress the data to make the process less computationally heavy. This has a default value of 100 but can be made smaller to allow a higher resolution, although this will take longer to run.</p>
 </div>
 <div id="iii.-segmenting-data" class="section level2">
 <h2>iii. Segmenting Data</h2>
-<p>The segmentation function in GENEAclassify works by finding
-changepoints in one or two selected streams on data by identifying
-differences in mean or variances across varying segment durations.</p>
-<p>After loading this data, the segmentation can be applied. There are a
-number of methods for change point analysis within the package and the
-variable <em>changepoint</em> controls which analysis to perform. Some
-of these methods combine two methods and the analysis uses the function
-<em>cpt.mean</em>, <em>cpt.var</em> and <em>cpt.meanvar</em> from the
-package <em>changepoint</em> on both datasets before merging the
-two.</p>
+<p>The segmentation function in GENEAclassify works by finding changepoints in one or two selected streams on data by identifying differences in mean or variances across varying segment durations.</p>
+<p>After loading this data, the segmentation can be applied. There are a number of methods for change point analysis within the package and the variable <em>changepoint</em> controls which analysis to perform. Some of these methods combine two methods and the analysis uses the function <em>cpt.mean</em>, <em>cpt.var</em> and <em>cpt.meanvar</em> from the package <em>changepoint</em> on both datasets before merging the two.</p>
 <ul>
-<li>“UpDownDegrees” will perform a change point analysis based on the
-variance of arm elevation and wrist rotation. This is the default
-analysis and is best for detecting posture change.</li>
-<li>“TempFreq” uses the variance of Temperature and Frequency. This
-analysis is better for determining changes during sleep but is
-computationally expensive ude to the use of frequency features.</li>
-<li>“UpDownFreq” will perform a change point analysis based on the
-variance of arm elevation and variance of frequency of the
-magnitude.</li>
-<li>“UpDownMean” will perform a single change point analysis of the mean
-position of the arm elevation.</li>
-<li>“UpDownVar” will perform a single change point analysis of the
-variance position of the arm elevation.</li>
-<li>“UpDownMeanVar” will perform a single change point analysis of the
-mean and variance of the arm elevation.</li>
-<li>“DegreesMean” will perform a single change point analysis of the
-mean position of the wrist rotation.</li>
-<li>“DegreesVar” will perform a single change point analysis of the
-variance position of the wrist rotation.</li>
-<li>“DegreesMeanVar” will perform a single change point analysis of the
-mean and variance of the wrist rotation.</li>
-<li>“UpDownMeanVarDegreesMeanVar” combines the meanvar change points of
-UpDown and Degrees. This is the default analysis and is best for
-detecting posture change.</li>
-<li>“UpDownMeanVarMagMeanVar” combines the meanvar change points of
-UpDown and magnitude.</li>
+<li>“UpDownDegrees” will perform a change point analysis based on the variance of arm elevation and wrist rotation. This is the default analysis and is best for detecting posture change.</li>
+<li>“TempFreq” uses the variance of Temperature and Frequency. This analysis is better for determining changes during sleep but is computationally expensive ude to the use of frequency features.</li>
+<li>“UpDownFreq” will perform a change point analysis based on the variance of arm elevation and variance of frequency of the magnitude.</li>
+<li>“UpDownMean” will perform a single change point analysis of the mean position of the arm elevation.</li>
+<li>“UpDownVar” will perform a single change point analysis of the variance position of the arm elevation.</li>
+<li>“UpDownMeanVar” will perform a single change point analysis of the mean and variance of the arm elevation.</li>
+<li>“DegreesMean” will perform a single change point analysis of the mean position of the wrist rotation.</li>
+<li>“DegreesVar” will perform a single change point analysis of the variance position of the wrist rotation.</li>
+<li>“DegreesMeanVar” will perform a single change point analysis of the mean and variance of the wrist rotation.</li>
+<li>“UpDownMeanVarDegreesMeanVar” combines the meanvar change points of UpDown and Degrees. This is the default analysis and is best for detecting posture change.</li>
+<li>“UpDownMeanVarMagMeanVar” combines the meanvar change points of UpDown and magnitude.</li>
 </ul>
 </div>
 <div id="iv.-segmentation-variables-functions-and-features" class="section level2">
 <h2>iv. Segmentation Variables, Functions and Features</h2>
-<p>Once a segment has been identified, the variables can be summarised
-using different functions to create features. For example, the mean of
-UpDown variable can be found and reported as a single numeric to become
-a feature of the segment. Within segmentation, the dataCols variable is
-a character vector that specifies what summary features are to be output
-for each segment. The format of each individual element of this vector
-has to be the variable name followed by the function applied to the
-variable. For example “UpDown.mean” will output the mean of the UpDown
-variable for each segment.</p>
-<p>Variables that can be assessed with functions include: - UpDown (arm
-elevation) - Degrees (wrist rotation) - Magnitude (vector magnitude of
-acceleration) - Principal.Frequency (frequency domain analysis of
-acceleration) - Light (light meter) - Temp (temperature sensor) - Step
-(step internal counter) - Radians (If Radians = TRUE is selected)</p>
-<p>These variables can be assessed with a range of standard R functions,
-and typical examples include: - mean - var - sd - max</p>
-<p>However, any function that is loaded into the environment of R when
-using GENEAclassify can be used if it accepts a vector input and returns
-a single numeric. Functions returning other objects will cause an
-error.</p>
-<p>Inside GENEAclassify there is also a range of custom functions: -
-GENEAratio (calculates the ratio of signal energies around a defined
-frequency) - GENEAskew (skewness, a measure of centredness) - sumdiff
-(finds the sum of the differences between samples) - meandiff (finds the
-mean of the differences between samples) - abssumdiff (finds the
-absolute sum of the differences between samples) - sddiff (finds the
-standard deviation of the differences between samples) - MeanDir
-(circular mean direction for radians) - CirVar (circular variance for
-radians) - CirSD (circular sd for radians) - CirDisp (circular
-dispersion for radians) - CirSkew (circular skewness for radians) -
-CirKurt (circular kurtosis for radians) - impact (calculates the
-proportion of samples above a defined absolute magnitude)</p>
-<p>To find more information on these functions use the ? before the
-function in question. For example ?GENEAskew will provide details on
-that function in the help window of RStudio or as a pop-up.</p>
-<p>The output of the function is created by taking raw data and
-returning calculated variables. These variables can be viewed using the
-function <em>head</em>:</p>
+<p>Once a segment has been identified, the variables can be summarised using different functions to create features. For example, the mean of UpDown variable can be found and reported as a single numeric to become a feature of the segment. Within segmentation, the dataCols variable is a character vector that specifies what summary features are to be output for each segment. The format of each individual element of this vector has to be the variable name followed by the function applied to the variable. For example “UpDown.mean” will output the mean of the UpDown variable for each segment.</p>
+<p>Variables that can be assessed with functions include: - UpDown (arm elevation) - Degrees (wrist rotation) - Magnitude (vector magnitude of acceleration) - Principal.Frequency (frequency domain analysis of acceleration) - Light (light meter) - Temp (temperature sensor) - Step (step internal counter) - Radians (If Radians = TRUE is selected)</p>
+<p>These variables can be assessed with a range of standard R functions, and typical examples include: - mean - var - sd - max</p>
+<p>However, any function that is loaded into the environment of R when using GENEAclassify can be used if it accepts a vector input and returns a single numeric. Functions returning other objects will cause an error.</p>
+<p>Inside GENEAclassify there is also a range of custom functions: - GENEAratio (calculates the ratio of signal energies around a defined frequency) - GENEAskew (skewness, a measure of centredness) - sumdiff (finds the sum of the differences between samples) - meandiff (finds the mean of the differences between samples) - abssumdiff (finds the absolute sum of the differences between samples) - sddiff (finds the standard deviation of the differences between samples) - MeanDir (circular mean direction for radians) - CirVar (circular variance for radians) - CirSD (circular sd for radians) - CirDisp (circular dispersion for radians) - CirSkew (circular skewness for radians) - CirKurt (circular kurtosis for radians) - impact (calculates the proportion of samples above a defined absolute magnitude)</p>
+<p>To find more information on these functions use the ? before the function in question. For example ?GENEAskew will provide details on that function in the help window of RStudio or as a pop-up.</p>
+<p>The output of the function is created by taking raw data and returning calculated variables. These variables can be viewed using the function <em>head</em>:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># These are some of the output variables from segmentation and getGENEAsegments</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a> dataCols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;UpDown.mean&quot;</span>,</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;UpDown.var&quot;</span>,</span>
@@ -711,35 +396,24 @@ function <em>head</em>:</p>
 <span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>SegDataFile <span class="ot">=</span> <span class="fu">segmentation</span>(ImportedData, dataCols)</span>
 <span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a><span class="co"># View the data from the segmentation</span></span>
 <span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(SegDataFile)</span></code></pre></div>
-<p><em>getGENEAsegments</em> combines the functions <em>dataImport</em>
-and <em>segmentation</em>:</p>
+<p><em>getGENEAsegments</em> combines the functions <em>dataImport</em> and <em>segmentation</em>:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a> <span class="co"># Name of the file to analyse</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>DataFile <span class="ot">=</span> <span class="st">&quot;DataDirectory/jl_left wrist_010094_2012-01-30 20-39-54.bin&quot;</span> </span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>SegDataFile <span class="ot">=</span> <span class="fu">getGENEAsegments</span>(DataFile, dataCols, <span class="at">start =</span> <span class="dv">0</span>, <span class="at">end =</span> <span class="fl">0.1</span>)</span></code></pre></div>
 </div>
 <div id="v.-varying-step-counting-algorithms" class="section level2">
 <h2>v. Varying Step Counting Algorithms</h2>
-<p>The segmentation function also applies a default step counting
-algorithm when no arguments are passed through the function. The step
-counting algorithm works by taking the y axis, filtering the signal with
-a chebyshev filter, applying a hysteresis threshold where the zero
-crossing are counted over a given window.</p>
-<p>There are then 4 separate variables, shown with their defaults that
-can be changed in the Step Counter function:</p>
+<p>The segmentation function also applies a default step counting algorithm when no arguments are passed through the function. The step counting algorithm works by taking the y axis, filtering the signal with a chebyshev filter, applying a hysteresis threshold where the zero crossing are counted over a given window.</p>
+<p>There are then 4 separate variables, shown with their defaults that can be changed in the Step Counter function:</p>
 <ul>
 <li>filterorder = 2</li>
 <li>boundaries = c(0.5, 5)</li>
 <li>Rp = 3</li>
 <li>hysteresis = 0.05</li>
 </ul>
-<p>The filter order, boundaries and Rp are found in the <em>cheby1</em>
-function from the package <em>signal</em> and are applied to the
-acceleration signal before a hysteresis is a applied.</p>
-<p>To view all of the arguments that can be passed to the function
-<em>stepCounter</em> inside <em>getGENEAsegments</em> run the line
-?stepCounter.</p>
-<p>The following commands give examples from the training data
-provided:</p>
+<p>The filter order, boundaries and Rp are found in the <em>cheby1</em> function from the package <em>signal</em> and are applied to the acceleration signal before a hysteresis is a applied.</p>
+<p>To view all of the arguments that can be passed to the function <em>stepCounter</em> inside <em>getGENEAsegments</em> run the line ?stepCounter.</p>
+<p>The following commands give examples from the training data provided:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>WalkingData <span class="ot">=</span> <span class="st">&quot;TrainingData/Walking/walking_jl_right wrist_024603_2015-12-12 15-36-47.bin&quot;</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting with default filter</span></span>
@@ -770,21 +444,12 @@ provided:</p>
 <h1>3. Applying a Classification Model</h1>
 <div id="i.-introduction-1" class="section level2">
 <h2>i. Introduction</h2>
-<p>Once the data has been segmented a classification model can be used
-to classify each segment as an activity.</p>
-<p>A classification model takes a set of training data that has been
-classified previously to form a decision tree using the <em>rpart</em>
-package and function, given the features from the segmentation function.
-This model can then be applied to the segmented data to classify
-individual behaviours/activities provided by the training data set.</p>
+<p>Once the data has been segmented a classification model can be used to classify each segment as an activity.</p>
+<p>A classification model takes a set of training data that has been classified previously to form a decision tree using the <em>rpart</em> package and function, given the features from the segmentation function. This model can then be applied to the segmented data to classify individual behaviours/activities provided by the training data set.</p>
 </div>
 <div id="ii.-creating-a-classification-model-from-training-data" class="section level2">
 <h2>ii. Creating a classification model from Training Data</h2>
-<p>There is a .csv file that contains a training data set located inside
-the zip folder, called TrainingData.csv. This model contains a
-comprehensive amount of classified data which can be used to create a
-classification model. To load the data in, please use the following
-lines:</p>
+<p>There is a .csv file that contains a training data set located inside the zip folder, called TrainingData.csv. This model contains a comprehensive amount of classified data which can be used to create a classification model. To load the data in, please use the following lines:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Change the file path to the location of GENEAclassify.</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(<span class="st">&quot;/Users/owner/Documents/GENEActiv/GENEAclassify_1.41/Data&quot;</span>) </span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>TrainingData <span class="ot">=</span> <span class="fu">read.table</span>(<span class="st">&quot;TrainingData.csv&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;,&quot;</span>)</span>
@@ -792,9 +457,7 @@ lines:</p>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The data can also be called through from the package. </span></span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(TrainingData)</span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>TrainingData</span></code></pre></div>
-<p>Now the Training Data can be used to create a classification model.
-All of the features have been listed here but some can be removed to
-refine the model:</p>
+<p>Now the Training Data can be used to create a classification model. All of the features have been listed here but some can be removed to refine the model:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>ClassificationModel <span class="ot">=</span> <span class="fu">createGENEAmodel</span>(TrainingData,</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">features =</span> <span class="fu">c</span>(<span class="st">&quot;Segment.Duration&quot;</span>, </span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;UpDown.mean&quot;</span>, <span class="st">&quot;UpDown.sd&quot;</span>,</span>
@@ -805,10 +468,7 @@ refine the model:</p>
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Step.sd&quot;</span>, <span class="st">&quot;Step.count&quot;</span>, <span class="st">&quot;Step.mean&quot;</span>,</span>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Principal.Frequency.median&quot;</span>, <span class="st">&quot;Principal.Frequency.mad&quot;</span>)</span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>                   )</span></code></pre></div>
-<p>By removing the features Segment.Duration, Light.mean, Temp.mean and
-Step.Count an improved model can be created. These features have been
-removed because of ambiguity when making decisions on what activity a
-segment is:</p>
+<p>By removing the features Segment.Duration, Light.mean, Temp.mean and Step.Count an improved model can be created. These features have been removed because of ambiguity when making decisions on what activity a segment is:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>ClassificationModel <span class="ot">=</span> <span class="fu">createGENEAmodel</span>(TrainingData,</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">features =</span> <span class="fu">c</span>(<span class="st">&quot;UpDown.mean&quot;</span>, <span class="st">&quot;UpDown.sd&quot;</span>, </span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Degrees.mean&quot;</span>, <span class="st">&quot;Degrees.sd&quot;</span>, </span>
@@ -816,16 +476,11 @@ segment is:</p>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Step.sd&quot;</span>, <span class="st">&quot;Step.mean&quot;</span>,</span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Principal.Frequency.median&quot;</span>,</span>
 <span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>                                                    <span class="st">&quot;Principal.Frequency.mad&quot;</span>))</span></code></pre></div>
-<p>Once the model has been created files can be classified using the
-function <em>classifyGENEA</em>.</p>
+<p>Once the model has been created files can be classified using the function <em>classifyGENEA</em>.</p>
 </div>
 <div id="iii.-classifying-a-file" class="section level2">
 <h2>iii. Classifying a file</h2>
-<p>The function classifyGENEA segments a file/directory and uses the
-classification model provided to classify each segment as an activity.
-Select a .bin file to classify and run the following lines. The start
-and end times work the same as the function
-<em>getGENEAsegments</em>:</p>
+<p>The function classifyGENEA segments a file/directory and uses the classification model provided to classify each segment as an activity. Select a .bin file to classify and run the following lines. The start and end times work the same as the function <em>getGENEAsegments</em>:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>DataFile <span class="ot">=</span> <span class="st">&quot;jl_left wrist_010094_2012-01-30 20-39-54.bin&quot;</span> <span class="co"># Change to the file to classify</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>ClassifiedFile <span class="ot">=</span> <span class="fu">classifyGENEA</span>(DataFile, </span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">trainingfit =</span> ClassificationModel, </span>
@@ -834,8 +489,7 @@ and end times work the same as the function
 </div>
 <div id="iv.-classifying-a-directory" class="section level2">
 <h2>iv. Classifying a directory</h2>
-<p>To classify a directory the DataDirectory has to be selected one day
-for every data file in the data directory:</p>
+<p>To classify a directory the DataDirectory has to be selected one day for every data file in the data directory:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>ClassifiedDirectory <span class="ot">=</span> <span class="fu">classifyGENEA</span>(DataDirectory, </span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">trainingfit =</span> ClassificationModel,</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">start =</span> <span class="st">&quot;3:00&quot;</span>, </span>
@@ -846,18 +500,12 @@ for every data file in the data directory:</p>
 <h1>4. Creating a Classification Model</h1>
 <div id="i.-introduction-2" class="section level2">
 <h2>i. Introduction</h2>
-<p>There are two ways to classify files: automatically using a
-classification model or manually. To manually classify a file in R a
-list can be created for each segment then added to the data in the
-environment. Taking the run walk file provided in the zip folder which
-contains raw data of someone running then walking.</p>
+<p>There are two ways to classify files: automatically using a classification model or manually. To manually classify a file in R a list can be created for each segment then added to the data in the environment. Taking the run walk file provided in the zip folder which contains raw data of someone running then walking.</p>
 </div>
 <div id="ii.-manually-classifying-files" class="section level2">
 <h2>ii. Manually Classifying files</h2>
-<p>Using the default step counting parameters to segment the data and
-then view the output variables using the function <em>head</em>:</p>
-<p>Listing the activities chronologically with respect to the segments
-shown give:</p>
+<p>Using the default step counting parameters to segment the data and then view the output variables using the function <em>head</em>:</p>
+<p>Listing the activities chronologically with respect to the segments shown give:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>Activity <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Running&quot;</span>,</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;Running&quot;</span>,</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;Walking&quot;</span>)</span></code></pre></div>
@@ -868,17 +516,9 @@ shown give:</p>
 </div>
 <div id="iii.-creating-a-training-data-set" class="section level2">
 <h2>iii. Creating a Training Data set</h2>
-<p>A Training Data set that has been manually classified, can be used to
-create a Training model which can automatically classify files.</p>
-<p>To do this, the activities that are going to be identified must
-feature in the training model. Below is a demonstration of how to create
-a classification model by using the sample training data provided in the
-zip file.</p>
-<p>Running the following lines of code segments each of the .bin files
-in the sample training data. The second line manually classifies each of
-the activities which can be used to create the training model. The
-sample training data has been organised so that the .bin files in each
-sub folder only contain the activity named:</p>
+<p>A Training Data set that has been manually classified, can be used to create a Training model which can automatically classify files.</p>
+<p>To do this, the activities that are going to be identified must feature in the training model. Below is a demonstration of how to create a classification model by using the sample training data provided in the zip file.</p>
+<p>Running the following lines of code segments each of the .bin files in the sample training data. The second line manually classifies each of the activities which can be used to create the training model. The sample training data has been organised so that the .bin files in each sub folder only contain the activity named:</p>
 <div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>Cycling <span class="ot">=</span> <span class="fu">getGENEAsegments</span>(<span class="st">&quot;TrainingData/Cycling&quot;</span>)</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>Cycling<span class="sc">$</span>Activity <span class="ot">=</span> <span class="st">&quot;Cycling&quot;</span></span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -911,9 +551,7 @@ sub folder only contain the activity named:</p>
 <span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>Workingout <span class="ot">=</span> <span class="fu">getGENEAsegments</span>(<span class="st">&quot;TrainingData/Workingout&quot;</span>)</span>
 <span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>Workingout<span class="sc">$</span>Activity <span class="ot">=</span> <span class="st">&quot;Workingout&quot;</span></span></code></pre></div>
-<p>This provides the data required for the classification model.
-Combining all of these files together using the function <em>rbind</em>
-to form the training data:</p>
+<p>This provides the data required for the classification model. Combining all of these files together using the function <em>rbind</em> to form the training data:</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>TrainingData <span class="ot">=</span> <span class="fu">rbind</span>(Cycling,</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>                     NonWear,</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>                     onthego,</span>
@@ -925,8 +563,7 @@ to form the training data:</p>
 <span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>                     Transport,</span>
 <span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>                     Walking,</span>
 <span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>                     Workingout)</span></code></pre></div>
-<p>Creating the classification model from this data using the commands
-from 3ii:</p>
+<p>Creating the classification model from this data using the commands from 3ii:</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>ClassificationModel <span class="ot">=</span> <span class="fu">createGENEAmodel</span>(TrainingData,</span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">features =</span> <span class="fu">c</span>(<span class="st">&quot;UpDown.mean&quot;</span>,</span>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>                                <span class="st">&quot;UpDown.sd&quot;</span>,<span class="st">&quot;Degrees.mean&quot;</span>,</span>
