@@ -9,7 +9,7 @@ impact(x, threshold = 2.5)
 \arguments{
 \item{x}{vector of numeric values}
 
-\item{na.rm}{single logical should missing values be removed}
+\item{threshold}{cutoff point above which acceleration is considered}
 }
 \value{
 A single value data.

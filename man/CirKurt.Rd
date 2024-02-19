@@ -7,9 +7,8 @@
 CirKurt(rotation)
 }
 \arguments{
-\item{x}{vector of numeric values}
+\item{rotation}{vector of numeric values}
 
-\item{na.rm}{single logical should missing values be removed}
 }
 \value{
 A single value data.

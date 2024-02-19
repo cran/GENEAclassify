@@ -163,7 +163,7 @@ For OS, xcode developer tools will have to be downloaded from this link:
 
 and a latex compiler found here: 
 
-  - http://www.tug.org/mactex/downloading.html.
+  - https://tug.org/mactex/downloading.html.
 
 For more information go to  <https://www.activinsights.com/>.
 

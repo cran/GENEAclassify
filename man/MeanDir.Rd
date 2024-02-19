@@ -9,7 +9,7 @@ MeanDir(rotation, na.rm = T)
 \arguments{
 \item{na.rm}{single logical should missing values be removed}
 
-\item{x}{vector of numeric values}
+\item{rotation}{vector of numeric values}
 }
 \value{
 A single value data.

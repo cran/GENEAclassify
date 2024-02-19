@@ -47,7 +47,7 @@
 #  ImportedData = dataImport(DataFile, downsample = 100, start = 0, end = 0.1)
 #  head(ImportData)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # These are some of the output variables from segmentation and getGENEAsegments
 #   dataCols <- c("UpDown.mean",
 #                  "UpDown.var",
@@ -125,7 +125,7 @@
 #  data(TrainingData)
 #  TrainingData
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ClassificationModel = createGENEAmodel(TrainingData,
 #                                         features = c("Segment.Duration",
 #                                                      "UpDown.mean", "UpDown.sd",
@@ -137,7 +137,7 @@
 #                                                      "Principal.Frequency.median", "Principal.Frequency.mad")
 #                     )
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ClassificationModel = createGENEAmodel(TrainingData,
 #                                         features = c("UpDown.mean", "UpDown.sd",
 #                                                      "Degrees.mean", "Degrees.sd",
@@ -171,11 +171,11 @@
 ## ----Attaching Activities, eval = FALSE---------------------------------------
 #  SegData = cbind(SegData, ActivitiesListed)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  SegData$Activity[1:2] = "Running"
 #  SegData$Activity[3] = "Walking"
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  Cycling = getGENEAsegments("TrainingData/Cycling")
 #  Cycling$Activity = "Cycling"
 #  
@@ -209,7 +209,7 @@
 #  Workingout = getGENEAsegments("TrainingData/Workingout")
 #  Workingout$Activity = "Workingout"
 
-## ---- Combining Segments, eval = FALSE----------------------------------------
+## ----Combining Segments, eval = FALSE-----------------------------------------
 #  TrainingData = rbind(Cycling,
 #                       NonWear,
 #                       onthego,
@@ -222,7 +222,7 @@
 #                       Walking,
 #                       Workingout)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ClassificationModel = createGENEAmodel(TrainingData,
 #                     features = c("UpDown.mean",
 #                                  "UpDown.sd","Degrees.mean",
